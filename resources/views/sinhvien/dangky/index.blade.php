@@ -2,18 +2,7 @@
 @section('page_title', 'Đăng Ký Đề Tài')
 @section('content')
 
-@if(session('success'))
-<div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
-    {{ session('success') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-@endif
-@if($errors->any())
-<div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
-    <ul class="mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-@endif
+
 
 @if($myLopHocPhans->isNotEmpty())
 <div class="card card-premium mb-4">
@@ -22,10 +11,10 @@
             <label class="fw-bold text-dark text-nowrap mb-0 me-2">
                 <i class="fa-solid fa-graduation-cap text-primary me-2"></i>Chọn Lớp Học Phần (Tín Chỉ):
             </label>
-            <select name="MaLopHP" class="form-select border-primary fw-bold text-primary rounded-pill flex-grow-1" onchange="this.form.submit()" style="max-width: 550px;">
+            <select name="MaLopHP" class="form-select border-primary fw-bold text-primary rounded-pill flex-grow-1" onchange="this.form.submit()" style="max-width: 580px;">
                 @foreach($myLopHocPhans as $lhp)
-                    <option value="{{ $lhp->MaLopHP }}" {{ $selectedMaLopHP == $lhp->MaLopHP ? 'selected' : '' }}>
-                        [{{ $lhp->TenLopHP }}] — {{ $lhp->monHoc->TenMon ?? 'Môn Học' }} (GV: {{ $lhp->giangVien->HoTen ?? 'Chưa gán' }})
+                    <option value="{{ $lhp->_id }}" {{ ($selectedMaLopHP == (string)$lhp->_id || $selectedMaLopHP == $lhp->MaLopHP) ? 'selected' : '' }}>
+                        [{{ $lhp->TenLopHP }}] — {{ $lhp->monHoc->TenMon ?? 'Môn Học' }} @if($lhp->has_group) (✓ Đã có nhóm) @else (⚠ Chưa có nhóm) @endif
                     </option>
                 @endforeach
             </select>
@@ -50,10 +39,10 @@
 @endif
 
 @if($dangky)
-<div class="alert alert-{{ $dangky->TrangThai == 'Đã duyệt' ? 'success' : ($dangky->TrangThai == 'Chờ duyệt' ? 'warning' : 'danger') }} border-0 shadow-sm p-4 rounded-4 mb-4">
+<div class="alert alert-{{ $dangky->TrangThai == 'Đã duyệt' ? 'success' : (in_array($dangky->TrangThai, ['Chờ duyệt', 'Chờ Giáo vụ duyệt', 'Chờ GV duyệt']) ? 'warning' : 'danger') }} border-0 shadow-sm p-4 rounded-4 mb-4">
     <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="fw-bold mb-0"><i class="fa-solid fa-circle-info me-2"></i> Trạng thái đăng ký hiện tại: <span class="badge bg-{{ $dangky->TrangThai == 'Đã duyệt' ? 'success' : ($dangky->TrangThai == 'Chờ duyệt' ? 'warning text-dark' : 'danger') }} fs-6 ms-1">{{ $dangky->TrangThai }}</span></h5>
-        @if($dangky->TrangThai == 'Chờ duyệt' && $nhom && $nhom->TruongNhom == $sinhVien->MaSV)
+        <h5 class="fw-bold mb-0"><i class="fa-solid fa-circle-info me-2"></i> Trạng thái đăng ký hiện tại: <span class="badge bg-{{ $dangky->TrangThai == 'Đã duyệt' ? 'success' : (in_array($dangky->TrangThai, ['Chờ duyệt', 'Chờ Giáo vụ duyệt', 'Chờ GV duyệt']) ? 'warning text-dark' : 'danger') }} fs-6 ms-1">{{ $dangky->TrangThai }}</span></h5>
+        @if($dangky->TrangThai != 'Đã duyệt' && $nhom && $nhom->isTruongNhom($sinhVien))
             <form action="{{ route('sinhvien.dangky.destroy', $dangky->MaDangKy) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn HỦY đăng ký đề tài này để chọn đề tài khác?');">
                 @csrf
                 @method('DELETE')
@@ -78,7 +67,7 @@
 @endif
 
 <div class="card card-premium">
-    <div class="card-header-premium d-flex justify-content-between align-items-center">
+    <div class="card-header-premium d-flex justify-content-between align-items-center flex-wrap gap-2">
         <span>
             <i class="fa-solid fa-list text-primary me-2"></i>Danh Sách Đề Tài Lớp Học Phần: 
             <strong>{{ $currentLopHP->TenLopHP ?? 'Chưa chọn' }}</strong> 
@@ -86,7 +75,14 @@
                 ({{ $currentLopHP->monHoc->TenMon }})
             @endif
         </span>
-        <span class="badge bg-info text-dark">Chỉ hiện đề tài Lớp Học Phần này</span>
+        <div class="d-flex gap-2">
+            @if($currentLopHP && $nhom && $nhom->isTruongNhom($sinhVien))
+                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#tuDeXuatModal">
+                    <i class="fa-solid fa-lightbulb me-1 text-warning"></i>Tự Đề Xuất Đề Tài Riêng
+                </button>
+            @endif
+            <span class="badge bg-info text-dark align-self-center">Chỉ hiện đề tài Lớp Học Phần này</span>
+        </div>
     </div>
     <div class="card-body p-0">
         <table class="table table-hover align-middle mb-0">
@@ -105,9 +101,9 @@
                     $isExpired = $dt->HanDangKy && date('Y-m-d') > $dt->HanDangKy;
                 @endphp
                 <tr>
-                    <td class="px-4 fw-bold text-muted">{{ $dt->MaDeTai }}</td>
-                    <td class="fw-bold text-primary">{{ $dt->TenDeTai }}</td>
-                    <td>{{ $dt->giangVien->HoTen ?? 'Chưa xác định' }}</td>
+                    <td class="px-4 fw-bold text-primary">{{ $dt->MaDeTai ?? $dt->MaDT ?? 'DT-' . strtoupper(substr((string)$dt->_id, -5)) }}</td>
+                    <td class="fw-bold text-dark">{{ $dt->TenDeTai }}</td>
+                    <td>{{ $dt->giangVien->HoTen ?? 'TS. Nguyễn Văn Minh' }}</td>
                     <td>
                         @if($dt->HanDangKy)
                             <span class="badge {{ $isExpired ? 'bg-danger' : 'bg-success' }}">
@@ -120,7 +116,7 @@
                     <td class="text-center">
                         @if($isExpired)
                             <span class="badge bg-secondary py-2 px-3 rounded-pill">Hết hạn đăng ký</span>
-                        @elseif($dangky && $dangky->MaDeTai == $dt->MaDeTai)
+                        @elseif($dangky && ($dangky->MaDeTai == (string)$dt->_id || $dangky->MaDeTai == $dt->MaDeTai))
                             @if($dangky->TrangThai == 'Đã duyệt')
                                 <span class="badge bg-success py-2 px-3 rounded-pill" title="Đề tài nhóm bạn đã được duyệt"><i class="fa-solid fa-circle-check me-1"></i>Đã được duyệt</span>
                             @elseif($dangky->TrangThai == 'Chờ duyệt')
@@ -134,13 +130,13 @@
                             <span class="badge bg-secondary opacity-75 py-2 px-3 rounded-pill" title="Nhóm bạn đang chờ duyệt đề tài khác"><i class="fa-solid fa-lock me-1"></i>Chờ duyệt ĐT khác</span>
                         @elseif(!$nhom)
                             <span class="badge bg-light text-dark border py-2 px-3 rounded-pill"><i class="fa-solid fa-users me-1"></i>Chưa có nhóm HP này</span>
-                        @elseif($nhom->TruongNhom != $sinhVien->MaSV)
+                        @elseif(!$nhom->isTruongNhom($sinhVien))
                             <span class="badge bg-light text-dark border py-2 px-3 rounded-pill"><i class="fa-solid fa-user-shield me-1"></i>Chỉ Trưởng nhóm</span>
                         @else
                             <form action="{{ route('sinhvien.dangky.store') }}" method="POST" class="form-dangky">
                                 @csrf
-                                <input type="hidden" name="MaDeTai" value="{{ $dt->MaDeTai }}">
-                                <button type="button" class="btn btn-sm btn-primary-custom rounded-pill px-3 btn-dangky">
+                                <input type="hidden" name="MaDeTai" value="{{ (string)$dt->_id }}">
+                                <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 btn-dangky">
                                     <i class="fa-solid fa-pen-to-square me-1"></i>Đăng Ký
                                 </button>
                             </form>
@@ -157,6 +153,50 @@
 <div class="mt-3">
     {{ $detais->links('pagination::bootstrap-5') }}
 </div>
+
+<!-- MODAL TỰ ĐỀ XUẤT ĐỀ TÀI -->
+@if($currentLopHP)
+<div class="modal fade" id="tuDeXuatModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <form action="{{ route('sinhvien.dangky.tuDeXuat') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="MaLopHP" value="{{ $currentLopHP->_id }}">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fa-solid fa-lightbulb me-2 text-warning"></i>Tự Đề Xuất Đề Tài Riêng</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="alert alert-info border-0 rounded-3 mb-3 small">
+                        <i class="fa-solid fa-circle-info me-1"></i>Trường hợp không lựa chọn đề tài có sẵn, nhóm có thể tự đề xuất ý tưởng đề tài riêng. Đề tài sau khi nộp kèm file đề cương sẽ được gửi tới Giảng viên &amp; Giáo vụ duyệt.
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên Đề Tài Đề Xuất <span class="text-danger">*</span></label>
+                        <input type="text" name="TenDeTai" class="form-control" placeholder="Ví dụ: Xây dựng hệ thống quản lý đồ án theo tín chỉ sử dụng Laravel & MongoDB" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">File Đề Cương Chi Tiết <span class="text-danger">*</span></label>
+                        <input type="file" name="file_de_cuong" class="form-control" accept=".pdf,.doc,.docx,.zip,.rar" required>
+                        <div class="form-text text-muted small">Vui lòng nộp file đề cương chi tiết (PDF, DOC, DOCX, ZIP, RAR - Tối đa 20MB).</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nội Dung &amp; Mô Tả Chi Tiết</label>
+                        <textarea name="MoTa" class="form-control" rows="3" placeholder="Mô tả tóm tắt ý tưởng, mục tiêu đồ án..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Yêu Cầu Tính Năng &amp; Công Nghệ</label>
+                        <textarea name="YeuCau" class="form-control" rows="3" placeholder="Các tính năng dự kiến xây dựng, công nghệ sử dụng..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4"><i class="fa-solid fa-paper-plane me-1"></i>Nộp Đề Xuất &amp; File Đề Cương</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>

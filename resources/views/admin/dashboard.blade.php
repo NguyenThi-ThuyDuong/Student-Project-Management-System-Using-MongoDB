@@ -1,99 +1,196 @@
 @extends('layouts.admin')
-@section('title', 'Tổng Quan Hệ Thống')
+@section('page_title', 'Tổng Quan Hệ Thống')
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="mb-0 text-primary-custom"><i class="fa-solid fa-chart-line me-2"></i>Tổng Quan Hệ Thống</h4>
+<div class="page-header-zone mb-4">
+    <div>
+        <h1 class="fw-bold"><i class="fa-solid fa-chart-line me-2 text-cyan"></i>Tổng Quan Hệ Thống</h1>
+        <div class="text-muted small">Hệ thống quản lý đồ án sinh viên — Trường Đại học Công Thương TP.HCM (HUIT)</div>
+    </div>
+    @if(isset($soYeuCauMatKhau) && $soYeuCauMatKhau > 0)
+        <a href="{{ route('admin.yeucau.index') }}" class="btn btn-cyan rounded-pill px-3 shadow-sm animate__animated animate__pulse animate__infinite">
+            <i class="fa-solid fa-key me-1"></i> Yêu cầu đổi mật khẩu ({{ $soYeuCauMatKhau }})
+        </a>
+    @endif
 </div>
 
-<div class="row g-4 mb-4">
-    <!-- Card Sinh Viên -->
-    <div class="col-md-3">
-        <div class="card card-premium bg-primary text-white h-100 border-0 shadow-sm">
-            <div class="card-body d-flex align-items-center justify-content-between p-4">
-                <div>
-                    <h6 class="text-uppercase mb-1 opacity-75">Sinh Viên</h6>
-                    <h2 class="mb-0 fw-bold">{{ $soSinhVien }}</h2>
-                </div>
-                <div class="fs-1 opacity-50"><i class="fa-solid fa-user-graduate"></i></div>
+<!-- Stat Cards System -->
+<div class="row g-3 mb-4">
+    <!-- Sinh Viên -->
+    <div class="col-md-4 col-xl-2">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--v-ice-blue); border-color: var(--v-pale-sky);">
+                <i class="fa-solid fa-user-graduate" style="color: var(--v-cyan);"></i>
+            </div>
+            <div>
+                <div class="stat-value">{{ $soSinhVien }}</div>
+                <div class="stat-label">Sinh Viên</div>
             </div>
         </div>
     </div>
     
-    <!-- Card Giảng Viên -->
-    <div class="col-md-3">
-        <div class="card card-premium bg-success text-white h-100 border-0 shadow-sm">
-            <div class="card-body d-flex align-items-center justify-content-between p-4">
-                <div>
-                    <h6 class="text-uppercase mb-1 opacity-75">Giảng Viên</h6>
-                    <h2 class="mb-0 fw-bold">{{ $soGiangVien }}</h2>
-                </div>
-                <div class="fs-1 opacity-50"><i class="fa-solid fa-chalkboard-user"></i></div>
+    <!-- Giảng Viên -->
+    <div class="col-md-4 col-xl-2">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #EEF2FF; border-color: var(--v-periwinkle);">
+                <i class="fa-solid fa-chalkboard-user" style="color: var(--v-indigo);"></i>
+            </div>
+            <div>
+                <div class="stat-value">{{ $soGiangVien }}</div>
+                <div class="stat-label">Giảng Viên</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lớp Học Phần -->
+    <div class="col-md-4 col-xl-2">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #ECFDF5; border-color: #A7F3D0;">
+                <i class="fa-solid fa-book-bookmark" style="color: #047857;"></i>
+            </div>
+            <div>
+                <div class="stat-value">{{ $soLopHocPhan ?? 0 }}</div>
+                <div class="stat-label">Lớp Học Phần</div>
             </div>
         </div>
     </div>
     
-    <!-- Card Đề Tài -->
-    <div class="col-md-3">
-        <div class="card card-premium bg-warning text-dark h-100 border-0 shadow-sm">
-            <div class="card-body d-flex align-items-center justify-content-between p-4">
-                <div>
-                    <h6 class="text-uppercase mb-1 opacity-75">Đề Tài</h6>
-                    <h2 class="mb-0 fw-bold">{{ $soDeTai }}</h2>
-                </div>
-                <div class="fs-1 opacity-50"><i class="fa-solid fa-book-open"></i></div>
+    <!-- Đề Tài -->
+    <div class="col-md-4 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #FFFBEB; border-color: #FDE68A;">
+                <i class="fa-solid fa-book-open" style="color: #D97706;"></i>
+            </div>
+            <div>
+                <div class="stat-value">{{ $soDeTai }}</div>
+                <div class="stat-label">Đề Tài Khóa Luận</div>
             </div>
         </div>
     </div>
     
-    <!-- Card Nhóm -->
-    <div class="col-md-3">
-        <div class="card card-premium bg-danger text-white h-100 border-0 shadow-sm">
-            <div class="card-body d-flex align-items-center justify-content-between p-4">
-                <div>
-                    <h6 class="text-uppercase mb-1 opacity-75">Nhóm Đồ Án</h6>
-                    <h2 class="mb-0 fw-bold">{{ $soNhom }}</h2>
-                </div>
-                <div class="fs-1 opacity-50"><i class="fa-solid fa-users"></i></div>
+    <!-- Nhóm -->
+    <div class="col-md-4 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--v-ice-blue); border-color: var(--v-light-sky);">
+                <i class="fa-solid fa-users" style="color: var(--v-cyan);"></i>
+            </div>
+            <div>
+                <div class="stat-value">{{ $soNhom }}</div>
+                <div class="stat-label">Nhóm Đồ Án</div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card card-premium">
-            <div class="card-header-premium">
-                <i class="fa-solid fa-chart-pie me-2"></i>Thống Kê Tiến Độ Đồ Án
+<div class="row g-4">
+    <!-- Chart -->
+    <div class="col-lg-6">
+        <div class="card-modern h-100">
+            <div class="card-modern-header">
+                <div class="title-group">
+                    <div class="title-icon">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    <div>
+                        <div class="main-title">Thống Kê Tiến Độ Đồ Án</div>
+                        <div class="sub-title">Tỷ lệ các nhóm theo từng trạng thái</div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body d-flex justify-content-center">
-                <div style="width: 100%; max-width: 400px;">
+            <div class="card-modern-body d-flex flex-column align-items-center justify-content-center p-4">
+                <div style="width: 100%; max-width: 360px;">
                     <canvas id="trangThaiChart"></canvas>
                 </div>
+                @if(empty($chartLabels))
+                    <div class="text-center text-muted mt-3 small">
+                        <i class="fa-solid fa-circle-info me-1 text-cyan"></i> Chưa có dữ liệu nhóm đồ án trong hệ thống.
+                    </div>
+                @endif
             </div>
-            @if(empty($chartLabels))
-                <div class="text-center text-muted pb-3">Chưa có dữ liệu nhóm đồ án.</div>
-            @endif
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card card-premium h-100">
-            <div class="card-header-premium">
-                <i class="fa-solid fa-bullhorn me-2"></i>Lối Tắt Nhanh
+
+    <!-- Quick Shortcuts Grid -->
+    <div class="col-lg-6">
+        <div class="card-modern h-100">
+            <div class="card-modern-header">
+                <div class="title-group">
+                    <div class="title-icon">
+                        <i class="fa-solid fa-compass"></i>
+                    </div>
+                    <div>
+                        <div class="main-title">Lối Tắt Thao Tác Nhanh</div>
+                        <div class="sub-title">Truy cập nhanh các chức năng quản trị</div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="d-grid gap-3">
-                    <a href="{{ route('sinhvien.index') }}" class="btn btn-outline-primary text-start p-3 rounded-3">
-                        <i class="fa-solid fa-user-plus me-2"></i> Quản lý Sinh Viên
-                    </a>
-                    <a href="{{ route('giangvien.index') }}" class="btn btn-outline-success text-start p-3 rounded-3">
-                        <i class="fa-solid fa-user-tie me-2"></i> Quản lý Giảng Viên
-                    </a>
-                    <a href="{{ route('phancong.index') }}" class="btn btn-outline-warning text-start p-3 rounded-3">
-                        <i class="fa-solid fa-sitemap me-2"></i> Phân Công Hướng Dẫn
-                    </a>
-                    <a href="{{ route('thongbao.index') }}" class="btn btn-outline-danger text-start p-3 rounded-3">
-                        <i class="fa-solid fa-envelope me-2"></i> Quản Lý Thông Báo
-                    </a>
+            <div class="card-modern-body p-4">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <a href="{{ route('sinhvien.index') }}" class="saas-card text-decoration-none p-3 d-flex align-items-center gap-3">
+                            <div class="saas-card-avatar" style="width: 42px; height: 42px;">
+                                <i class="fa-solid fa-user-graduate"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark" style="font-size: 0.88rem;">Quản lý Sinh Viên</div>
+                                <div class="small text-muted">Danh sách &amp; Import</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="{{ route('giangvien.index') }}" class="saas-card text-decoration-none p-3 d-flex align-items-center gap-3">
+                            <div class="saas-card-avatar" style="width: 42px; height: 42px; background: #EEF2FF; color: var(--v-indigo);">
+                                <i class="fa-solid fa-chalkboard-user"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark" style="font-size: 0.88rem;">Quản lý Giảng Viên</div>
+                                <div class="small text-muted">Hồ sơ &amp; Đơn vị</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="{{ route('lop.index') }}" class="saas-card text-decoration-none p-3 d-flex align-items-center gap-3">
+                            <div class="saas-card-avatar" style="width: 42px; height: 42px; background: #ECFDF5; color: #047857;">
+                                <i class="fa-solid fa-users-rectangle"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark" style="font-size: 0.88rem;">Quản lý Lớp Hành Chính</div>
+                                <div class="small text-muted">8 Tabs Chi Tiết Lớp</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="{{ route('phancong.index') }}" class="saas-card text-decoration-none p-3 d-flex align-items-center gap-3">
+                            <div class="saas-card-avatar" style="width: 42px; height: 42px; background: #FFFBEB; color: #D97706;">
+                                <i class="fa-solid fa-sitemap"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark" style="font-size: 0.88rem;">Phân Công Lớp (GVHD)</div>
+                                <div class="small text-muted">Tự động gán GVHD</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="{{ route('thongbao.index') }}" class="saas-card text-decoration-none p-3 d-flex align-items-center gap-3">
+                            <div class="saas-card-avatar" style="width: 42px; height: 42px; background: var(--v-ice-blue); color: var(--v-cyan);">
+                                <i class="fa-solid fa-bullhorn"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark" style="font-size: 0.88rem;">Gửi Thông Báo</div>
+                                <div class="small text-muted">Thông báo toàn trường</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="{{ route('admin.yeucau.index') }}" class="saas-card text-decoration-none p-3 d-flex align-items-center gap-3">
+                            <div class="saas-card-avatar" style="width: 42px; height: 42px; background: #F1F5F9; color: var(--navy-deep);">
+                                <i class="fa-solid fa-key"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark" style="font-size: 0.88rem;">Duyệt Đổi Mật Khẩu</div>
+                                <div class="small text-muted">Duyệt cấp lại MK</div>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -115,13 +212,15 @@
                     datasets: [{
                         data: data,
                         backgroundColor: [
-                            '#6c757d', // Đang tạo
-                            '#0dcaf0', // Đã có đề tài
-                            '#ffc107', // Đang hướng dẫn
-                            '#0d6efd', // Đã nộp sản phẩm
-                            '#198754', // Đã có điểm
+                            '#27A4F2', // Vietnix Cyan
+                            '#6586E6', // Vietnix Indigo
+                            '#3EAEF4', // Vietnix Sky
+                            '#10B981', // Emerald Success
+                            '#F59E0B', // Amber
+                            '#91A8ED', // Lavender
                         ],
-                        borderWidth: 1
+                        borderWidth: 3,
+                        borderColor: '#ffffff'
                     }]
                 },
                 options: {
@@ -129,6 +228,13 @@
                     plugins: {
                         legend: {
                             position: 'bottom',
+                            labels: {
+                                padding: 16,
+                                font: {
+                                    family: "'Be Vietnam Pro', sans-serif",
+                                    size: 12
+                                }
+                            }
                         }
                     }
                 }

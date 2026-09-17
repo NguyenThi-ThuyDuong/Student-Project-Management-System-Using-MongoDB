@@ -6,19 +6,16 @@ use App\Models\ThongBao;
 use App\Models\SinhVien;
 use App\Models\NhomDoAn;
 use App\Models\DeTai;
-use App\Models\BaoCaoTienDo;
-use App\Models\ChamDiem;
-use App\Models\SanPham;
 
 class NotificationService
 {
     /**
      * Gửi thông báo đến 1 tài khoản
      */
-    public function guiThongBao(int $maTK, string $tieuDe, string $noiDung, ?string $loai = null, ?string $duongDan = null): ThongBao
+    public function guiThongBao($maTK, string $tieuDe, string $noiDung, ?string $loai = null, ?string $duongDan = null): ThongBao
     {
         return ThongBao::create([
-            'MaTK' => $maTK,
+            'MaTK' => (string) $maTK,
             'TieuDe' => $tieuDe,
             'NoiDung' => $noiDung,
             'LoaiThongBao' => $loai ?? 'HeThong',
@@ -33,10 +30,14 @@ class NotificationService
      */
     public function guiThongBaoNhom(NhomDoAn $nhom, string $tieuDe, string $noiDung, ?string $loai = null, ?string $duongDan = null): void
     {
-        $nhom->loadMissing('thanhVienNhoms.sinhVien');
-        foreach ($nhom->thanhVienNhoms as $tv) {
-            if ($tv->sinhVien && $tv->sinhVien->MaTK) {
-                $this->guiThongBao($tv->sinhVien->MaTK, $tieuDe, $noiDung, $loai, $duongDan);
+        // Lấy danh sách thành viên từ embedded array ThanhVien
+        $thanhVienList = $nhom->getThanhVienList();
+        $svIds = $thanhVienList->pluck('MaSV')->filter()->values();
+        $sinhViens = SinhVien::whereIn('_id', $svIds->toArray())->get();
+
+        foreach ($sinhViens as $sv) {
+            if ($sv->MaTK) {
+                $this->guiThongBao($sv->MaTK, $tieuDe, $noiDung, $loai, $duongDan);
             }
         }
     }
@@ -120,7 +121,7 @@ class NotificationService
     /**
      * Báo cáo có nhận xét mới
      */
-    public function guiNhanXetMoi(NhomDoAn $nhom, BaoCaoTienDo $baocao): void
+    public function guiNhanXetMoi(NhomDoAn $nhom, object $baocao): void
     {
         $this->guiThongBaoNhom(
             $nhom,
@@ -134,7 +135,7 @@ class NotificationService
     /**
      * Có điểm mới
      */
-    public function guiDiemMoi(NhomDoAn $nhom, ChamDiem $chamDiem): void
+    public function guiDiemMoi(NhomDoAn $nhom, object $chamDiem): void
     {
         $this->guiThongBaoNhom(
             $nhom,
@@ -148,7 +149,7 @@ class NotificationService
     /**
      * Nhóm nộp báo cáo mới -> thông báo cho giảng viên
      */
-    public function guiBaoCaoMoiChoGV(NhomDoAn $nhom, int $maTK_GV, BaoCaoTienDo $baocao): void
+    public function guiBaoCaoMoiChoGV(NhomDoAn $nhom, $maTK_GV, object $baocao): void
     {
         $this->guiThongBao(
             $maTK_GV,
@@ -162,7 +163,7 @@ class NotificationService
     /**
      * Nhóm nộp sản phẩm mới -> thông báo cho giảng viên
      */
-    public function guiSanPhamMoiChoGV(NhomDoAn $nhom, int $maTK_GV, SanPham $sanPham): void
+    public function guiSanPhamMoiChoGV(NhomDoAn $nhom, $maTK_GV, object $sanPham): void
     {
         $this->guiThongBao(
             $maTK_GV,
@@ -173,3 +174,4 @@ class NotificationService
         );
     }
 }
+

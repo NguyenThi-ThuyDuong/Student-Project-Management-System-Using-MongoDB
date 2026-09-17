@@ -40,6 +40,14 @@
                         </div>
                         <p class="mb-2 text-secondary" style="font-size: 1rem;">{{ $tb->NoiDung }}</p>
                         
+                        @if(!empty($tb->FileDinhKem))
+                            <div class="mb-2">
+                                <a href="{{ asset($tb->FileDinhKem) }}" target="_blank" class="btn btn-sm btn-outline-info rounded-pill px-3">
+                                    <i class="fa-solid fa-paperclip me-1"></i>Tải file đính kèm
+                                </a>
+                            </div>
+                        @endif
+
                         <div class="d-flex justify-content-between align-items-center mt-2">
                             <div>
                                 @if(optional($tb->taiKhoan)->MaVaiTro == 1)

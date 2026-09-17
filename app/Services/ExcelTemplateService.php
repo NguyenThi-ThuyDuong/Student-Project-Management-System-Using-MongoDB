@@ -32,8 +32,8 @@ class ExcelTemplateService
                 'title'    => 'MẪU NHẬP DANH SÁCH SINH VIÊN VÀO LỚP HỌC PHẦN',
                 'headers'  => ['MSSV', 'HoTen', 'TenLop', 'Email', 'SoDienThoai', 'TenLopHP'],
                 'examples' => [
-                    ['21DTH01001', 'Nguyễn Văn Bảo', '21DTH01', 'bao.nv@st.edu.vn', '0901234567', '14DHTH005'],
-                    ['21DTH02002', 'Trần Thị Bình', '21DTH02', 'binh.tt@st.edu.vn', '0987654321', '14DHTH005'],
+                    ['2001210001', 'Nguyễn Văn Bảo', '21DTH01', 'bao.nv@st.edu.vn', '0901234567', 'LHP06'],
+                    ['2001210002', 'Trần Thị Bình', '21DTH02', 'binh.tt@st.edu.vn', '0987654321', 'LHP06'],
                 ],
                 'note'     => 'Lưu ý: Cột MSSV là bắt buộc. Cột TenLop (Lớp hành chính), Email, SoDienThoai dùng để tự động tạo sinh viên nếu chưa có. Cột TenLopHP có thể bỏ qua khi import trực tiếp tại trang Chi Tiết Lớp HP.'
             ],
@@ -80,22 +80,22 @@ class ExcelTemplateService
             'giangvien' => [
                 'filename' => 'Template_GiangVien.xlsx',
                 'title'    => 'MẪU NHẬP LIỆU GIẢNG VIÊN',
-                'headers'  => ['TenDangNhap', 'HoTen', 'Email', 'SoDienThoai', 'HocVi', 'MaBoMon'],
+                'headers'  => ['MaGV', 'HoTen', 'Email', 'SoDienThoai', 'HocVi', 'MaBoMon'],
                 'examples' => [
-                    ['gv001', 'Nguyễn Văn A', 'gv001@fe.edu.vn', '0901234567', 'Thạc sĩ', 'Công Nghệ Phần Mềm'],
-                    ['gv002', 'Trần Thị B', 'gv002@fe.edu.vn', '0912345678', 'Tiến sĩ', 1],
+                    ['GV001', 'Nguyễn Văn A', 'gv001@fe.edu.vn', '0901234567', 'Thạc sĩ', 'Công Nghệ Phần Mềm'],
+                    ['GV002', 'Trần Thị B', 'gv002@fe.edu.vn', '0912345678', 'Tiến sĩ', 'Hệ Thống Thông Tin'],
                 ],
-                'note'     => 'Lưu ý: TenDangNhap (mã GV) bắt buộc không trùng. Email & SDT chuẩn 10 số. MaBoMon có thể nhập ID hoặc Tên Bộ Môn.'
+                'note'     => 'Lưu ý: MaGV (Tên đăng nhập) bắt buộc không trùng. Email & SDT chuẩn 10 số. MaBoMon có thể nhập ID hoặc Tên Bộ Môn.'
             ],
             'sinhvien' => [
                 'filename' => 'Template_SinhVien.xlsx',
                 'title'    => 'MẪU NHẬP LIỆU SINH VIÊN',
-                'headers'  => ['TenDangNhap', 'HoTen', 'Email', 'SoDienThoai', 'MaLop'],
+                'headers'  => ['MSSV', 'HoTen', 'NgaySinh', 'Email', 'SoDienThoai', 'MaLop', 'MaNganh', 'KhoaHoc'],
                 'examples' => [
-                    ['sv001', 'Phạm Văn C', 'sv001@st.fe.edu.vn', '0987654321', '21DTH01'],
-                    ['sv002', 'Lê Thị D', 'sv002@st.fe.edu.vn', '0976543210', 1],
+                    ['SV001', 'Nguyễn Văn An', '2002-03-15', 'sv001@student.huit.edu.vn', '0381000001', '12DHTH01', 'CNTT', '12'],
+                    ['SV002', 'Trần Thị Bình', '2002-07-22', 'sv002@student.huit.edu.vn', '0381000002', '12DHTH01', 'CNTT', '12'],
                 ],
-                'note'     => 'Lưu ý: TenDangNhap (MSSV) bắt buộc không trùng. MaLop có thể nhập ID Lớp hoặc Tên Lớp.'
+                'note'     => 'Lưu ý: Cột MSSV là bắt buộc và không trùng lặp. Ngày sinh định dạng YYYY-MM-DD. MaLop và MaNganh có thể điền Mã hoặc Tên.'
             ],
             'lophocphan' => [
                 'filename' => 'Template_LopHocPhan.xlsx',
@@ -136,15 +136,35 @@ class ExcelTemplateService
                 ],
                 'note'     => 'Lưu ý: TenNhom không trùng trong môn/lớp. MaSV_TruongNhom có thể nhập ID hoặc MSSV.'
             ],
-            'phancong' => [
-                'filename' => 'Template_PhanCongHuongDan.xlsx',
-                'title'    => 'MẪU NHẬP LIỆU PHÂN CÔNG HƯỚNG DẪN',
-                'headers'  => ['LoaiPhanCong', 'MaGV', 'TenLop_Hoac_TenLopHP', 'MaHocKy', 'NgayPhanCong'],
+            'phancong_hc' => [
+                'filename' => 'Template_PhanCong_LopHanhChinh.xlsx',
+                'title'    => 'MẪU NHẬP LIỆU PHÂN CÔNG GIẢNG VIÊN CHỦ NHIỆM LỚP HÀNH CHÍNH',
+                'headers'  => ['MaGV', 'HoTenGV', 'MaLop', 'TenLop', 'MaHocKy', 'NgayPhanCong'],
                 'examples' => [
-                    ['Lớp Hành Chính', 'TS. Nguyễn Văn An', '21DTH01', 'Học kỳ 1', date('Y-m-d')],
-                    ['Lớp Học Phần', 'ThS. Trần Thị Bình', '14DHTH005', 'Học kỳ 1', date('Y-m-d')],
+                    ['GV01', 'TS. Nguyễn Văn Minh', 'LOP01', '12DHTH01', 'HK241', date('Y-m-d')],
+                    ['GV02', 'ThS. Lê Thị Lan', 'LOP02', '12DHTH02', 'HK241', date('Y-m-d')],
                 ],
-                'note'     => 'Lưu ý: LoaiPhanCong ("Lớp Hành Chính" hoặc "Lớp Học Phần"). MaGV (ID, Mã GV hoặc Họ Tên). TenLop_Hoac_TenLopHP (Tên Lớp HC hoặc Tên Lớp HP). MaHocKy (Tên/ID Học Kỳ).'
+                'note'     => 'Lưu ý: MaGV (Mã GV hoặc Họ Tên). MaLop (Mã Lớp hoặc Tên Lớp). MaHocKy (Mã hoặc Tên Học Kỳ). NgayPhanCong (Định dạng YYYY-MM-DD).'
+            ],
+            'phancong_hp' => [
+                'filename' => 'Template_PhanCong_LopHocPhan.xlsx',
+                'title'    => 'MẪU NHẬP LIỆU PHÂN CÔNG GIẢNG VIÊN LỚP HỌC PHẦN',
+                'headers'  => ['MaLopHP', 'TenLopHP', 'MaGV', 'HoTenGV', 'Thu', 'CaHoc'],
+                'examples' => [
+                    ['LHP01', '12DHTH01 - Đồ án tốt nghiệp (HK241)', 'GV01', 'TS. Nguyễn Văn Minh', 'Thứ 2', 'Ca 1 (07h00 - 09h30)'],
+                    ['LHP02', '12DHTH02 - Đồ án môn học 1 (HK241)', 'GV02', 'ThS. Lê Thị Lan', 'Thứ 3', 'Ca 2 (09h30 - 12h00)'],
+                ],
+                'note'     => 'Lưu ý: MaLopHP (Mã Lớp HP hoặc Tên Lớp HP). MaGV (Mã GV hoặc Họ Tên). Thu (VD: Thứ 2). CaHoc (VD: Ca 1 (07h00 - 09h30)).'
+            ],
+            'phancong' => [
+                'filename' => 'Template_PhanCong_LopHanhChinh.xlsx',
+                'title'    => 'MẪU NHẬP LIỆU PHÂN CÔNG GIẢNG VIÊN CHỦ NHIỆM LỚP HÀNH CHÍNH',
+                'headers'  => ['MaGV', 'HoTenGV', 'MaLop', 'TenLop', 'MaHocKy', 'NgayPhanCong'],
+                'examples' => [
+                    ['GV01', 'TS. Nguyễn Văn Minh', 'LOP01', '12DHTH01', 'HK241', date('Y-m-d')],
+                    ['GV02', 'ThS. Lê Thị Lan', 'LOP02', '12DHTH02', 'HK241', date('Y-m-d')],
+                ],
+                'note'     => 'Lưu ý: MaGV (Mã GV hoặc Họ Tên). MaLop (Mã Lớp hoặc Tên Lớp). MaHocKy (Mã hoặc Tên Học Kỳ). NgayPhanCong (Định dạng YYYY-MM-DD).'
             ]
         ];
     }
@@ -167,7 +187,13 @@ class ExcelTemplateService
             'sinhviens'           => 'sinhvien',
             'hockys'              => 'hocky',
             'hockies'             => 'hocky',
-            'phancongs'           => 'phancong',
+            'phancongs'           => 'phancong_hc',
+            'phancong-hc'         => 'phancong_hc',
+            'phancong_hanhchinh'  => 'phancong_hc',
+            'phancong-hanhchinh'  => 'phancong_hc',
+            'phancong-hp'         => 'phancong_hp',
+            'phancong_hocphan'    => 'phancong_hp',
+            'phancong-hocphan'    => 'phancong_hp',
             'nhoms'               => 'nhom',
             'lophocphan'          => 'lophocphan',
             'lophocphans'         => 'lophocphan',

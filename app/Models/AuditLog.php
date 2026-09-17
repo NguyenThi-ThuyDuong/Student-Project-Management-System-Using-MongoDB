@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 
 class AuditLog extends Model
 {
+    protected $connection = 'mongodb';
     protected $table = 'audit_logs';
+    protected $collection = 'audit_logs';
 
     protected $fillable = [
         'MaTK',
@@ -25,7 +27,7 @@ class AuditLog extends Model
 
     public function taiKhoan()
     {
-        return $this->belongsTo(TaiKhoan::class, 'MaTK', 'MaTK');
+        return $this->belongsTo(TaiKhoan::class, 'MaTK', '_id');
     }
 
     public static function log(string $hanhDong, string $doiTuong, $doiTuongId = null, array $duLieu = [])
@@ -33,10 +35,10 @@ class AuditLog extends Model
         try {
             $user = Auth::user();
             return self::create([
-                'MaTK' => $user ? $user->MaTK : null,
+                'MaTK' => $user ? (string) $user->_id : null,
                 'HanhDong' => $hanhDong,
                 'DoiTuong' => $doiTuong,
-                'DoiTuongId' => $doiTuongId,
+                'DoiTuongId' => $doiTuongId ? (string) $doiTuongId : null,
                 'DuLieu' => !empty($duLieu) ? $duLieu : null,
                 'IPAddress' => Request::ip(),
             ]);

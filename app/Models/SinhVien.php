@@ -1,15 +1,60 @@
 <?php
+
 namespace App\Models;
-use Illuminate\Database\Eloquent\Model;
+
+use MongoDB\Laravel\Eloquent\Model;
+
 class SinhVien extends Model
 {
-    protected $table = 'sinh_viens';
-    protected $primaryKey = 'MaSV';
-    protected $fillable = ['MaTK', 'MaLop', 'HoTen', 'Email', 'SoDienThoai'];
-    
-    public function taiKhoan() { return $this->belongsTo(TaiKhoan::class, 'MaTK', 'MaTK'); }
-    public function lop() { return $this->belongsTo(Lop::class, 'MaLop', 'MaLop'); }
-    public function thanhVienNhom() { return $this->hasOne(ThanhVienNhom::class, 'MaSV', 'MaSV'); }
-    public function thanhVienNhoms() { return $this->hasMany(ThanhVienNhom::class, 'MaSV', 'MaSV'); }
-    public function lopHocPhans() { return $this->belongsToMany(LopHocPhan::class, 'sinh_vien_lop_hoc_phans', 'MaSV', 'MaLopHP'); }
+    protected $table = 'sinh_vien';
+    protected $collection = 'sinh_vien';
+
+    protected $fillable = [
+        'MaSV', 
+        'MaTK', 
+        'MaLop', 
+        'MaNganh', 
+        'KhoaHoc', 
+        'NgaySinh', 
+        'HoTen', 
+        'Email', 
+        'SoDienThoai', 
+        'TenDangNhap', 
+        'TrangThai'
+    ];
+
+    public function taiKhoan()
+    {
+        return $this->belongsTo(TaiKhoan::class, 'MaTK', '_id');
+    }
+
+    public function lop()
+    {
+        return $this->belongsTo(Lop::class, 'MaLop', 'MaLop');
+    }
+
+    public function nganh()
+    {
+        return $this->belongsTo(Nganh::class, 'MaNganh', 'MaNganh');
+    }
+
+    public function getNganhAttribute()
+    {
+        if (array_key_exists('nganh', $this->relations) && $this->relations['nganh']) {
+            return $this->relations['nganh'];
+        }
+        $val = $this->attributes['MaNganh'] ?? null;
+        if (!$val) return null;
+        return Nganh::where('MaNganh', $val)->orWhere('_id', $val)->first();
+    }
+
+    public function getNganhModelAttribute()
+    {
+        return $this->nganh;
+    }
+
+    public function lopHocPhans()
+    {
+        return $this->belongsToMany(LopHocPhan::class, null, 'sinh_vien_ids', 'lop_hoc_phan_ids');
+    }
 }

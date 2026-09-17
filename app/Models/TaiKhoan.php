@@ -2,20 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use MongoDB\Laravel\Auth\User as MongoUser;
 use Illuminate\Notifications\Notifiable;
 
-class TaiKhoan extends Authenticatable
+class TaiKhoan extends MongoUser
 {
     use Notifiable;
 
-    protected $table = 'tai_khoans';
-    protected $primaryKey = 'MaTK';
+    protected $connection = 'mongodb';
+    protected $table = 'tai_khoan';
+    protected $collection = 'tai_khoan';
 
     protected $fillable = [
         'TenDangNhap',
         'MatKhau',
-        'MaVaiTro',
+        'VaiTro',
         'TrangThai',
     ];
 
@@ -29,18 +30,13 @@ class TaiKhoan extends Authenticatable
         return $this->MatKhau;
     }
 
-    public function vaiTro()
-    {
-        return $this->belongsTo(VaiTro::class, 'MaVaiTro', 'MaVaiTro');
-    }
-
     public function sinhVien()
     {
-        return $this->hasOne(SinhVien::class, 'MaTK', 'MaTK');
+        return $this->hasOne(SinhVien::class, 'MaTK', '_id');
     }
 
     public function giangVien()
     {
-        return $this->hasOne(GiangVien::class, 'MaTK', 'MaTK');
+        return $this->hasOne(GiangVien::class, 'MaTK', '_id');
     }
 }

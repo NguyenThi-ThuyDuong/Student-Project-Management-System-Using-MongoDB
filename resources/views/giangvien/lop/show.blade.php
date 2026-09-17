@@ -23,11 +23,18 @@
             <div class="d-flex gap-2">
                 <div class="bg-light p-3 rounded-3 text-center border">
                     <div class="small text-muted">Sĩ Số / Tối Đa</div>
-                    <div class="fs-4 fw-bold text-dark">{{ $sinhVienLhps->count() }} / {{ $lopHP->SiSoToiDa }}</div>
+                    <div class="fs-4 fw-bold text-dark">{{ $sinhVienList->count() }} / {{ $lopHP->SiSoToiDa ?? 40 }}</div>
                 </div>
                 <div class="bg-light p-3 rounded-3 text-center border">
                     <div class="small text-muted">Tổng số nhóm</div>
                     <div class="fs-4 fw-bold text-primary">{{ $nhoms->count() }}</div>
+                </div>
+                <div class="bg-light p-3 rounded-3 text-center border">
+                    <div class="small text-muted">Giới hạn TV/Nhóm</div>
+                    <div class="fs-4 fw-bold text-success">{{ $lopHP->SoThanhVienNhomToiDa ?? 5 }} SV</div>
+                    <button class="btn btn-link p-0 text-decoration-none text-success small" data-bs-toggle="modal" data-bs-target="#editGroupLimitModal">
+                        <i class="fa-solid fa-pen me-1"></i>Thay đổi
+                    </button>
                 </div>
             </div>
         </div>
@@ -44,7 +51,7 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link rounded-pill" id="sv-tab" data-bs-toggle="tab" data-bs-target="#sv-pane" type="button">
-                    <i class="fa-solid fa-id-card me-1"></i>Danh Sách Sinh Viên Lớp HP ({{ $sinhVienLhps->count() }})
+                    <i class="fa-solid fa-id-card me-1"></i>Danh Sách Sinh Viên Lớp HP ({{ $sinhVienList->count() }})
                 </button>
             </li>
         </ul>
@@ -71,9 +78,8 @@
                                     <td class="px-4 fw-bold text-primary">{{ $n->TenNhom }}</td>
                                     <td>
                                         @php
-                                            $leader = $n->sinhVienTruongNhom 
-                                                ?? $n->thanhVienNhoms->firstWhere('VaiTro', 'Trưởng nhóm')->sinhVien 
-                                                ?? $n->thanhVienNhoms->first()->sinhVien 
+                                            $leader = $n->thanhVienSVs->firstWhere('VaiTro', 'Trưởng nhóm') 
+                                                ?? $n->thanhVienSVs->first() 
                                                 ?? null;
                                         @endphp
                                         <div><strong class="text-dark">{{ $leader->HoTen ?? 'Chưa xác định' }}</strong></div>
@@ -81,21 +87,25 @@
                                     </td>
                                     <td>{{ $n->monHoc->TenMon ?? 'N/A' }}</td>
                                     <td>
-                                        @if($n->dangKyDeTai && $n->dangKyDeTai->deTai)
-                                            <div class="fw-semibold text-dark">{{ $n->dangKyDeTai->deTai->TenDeTai }}</div>
-                                            <span class="badge bg-{{ $n->dangKyDeTai->TrangThai == 'Đã duyệt' ? 'success' : ($n->dangKyDeTai->TrangThai == 'Từ chối' ? 'danger' : 'warning text-dark') }}">
-                                                {{ $n->dangKyDeTai->TrangThai }}
+                                        @php
+                                            $dtTen = $n->getTenDeTaiDangKy();
+                                            $dtTrangThai = $n->getTrangThaiDangKy();
+                                        @endphp
+                                        @if($dtTen !== 'Chưa đăng ký')
+                                            <div class="fw-semibold text-dark">{{ $dtTen }}</div>
+                                            <span class="badge bg-{{ $dtTrangThai == 'Đã duyệt' ? 'success' : ($dtTrangThai == 'Từ chối' ? 'danger' : 'warning text-dark') }}">
+                                                {{ $dtTrangThai }}
                                             </span>
                                         @else
-                                            <span class="text-muted font-italic">Chưa đăng ký đề tài</span>
+                                            <span class="text-muted italic">Chưa đăng ký đề tài</span>
                                         @endif
                                     </td>
                                     <td>
                                         <div class="d-flex flex-wrap gap-1">
-                                            @foreach($n->thanhVienNhoms as $tv)
+                                            @foreach($n->ThanhVien ?? [] as $tv)
                                                 <span class="badge bg-light text-dark border small">
-                                                    {{ $tv->sinhVien->HoTen ?? $tv->MaSV }}
-                                                    @if($tv->MaSV == $n->TruongNhom)
+                                                    {{ $tv['HoTen'] ?? $tv['MaSV'] }}
+                                                    @if(($tv['VaiTro'] ?? '') == 'Trưởng nhóm')
                                                         <i class="fa-solid fa-crown text-warning ms-1"></i>
                                                     @endif
                                                 </span>
@@ -103,7 +113,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge bg-{{ $n->TrangThai == 'Đã có điểm' ? 'success' : ($n->TrangThai == 'Đã nộp sản phẩm' ? 'info' : 'secondary') }}">
+                                        <span class="badge bg-{{ $n->TrangThai == 'Đã hoàn thành' ? 'success' : ($n->TrangThai == 'Đang hoạt động' ? 'info' : 'secondary') }}">
                                             {{ $n->TrangThai }}
                                         </span>
                                     </td>
@@ -133,28 +143,25 @@
                                 <th>Lớp Hành Chính</th>
                                 <th>Email</th>
                                 <th>Số Điện Thoại</th>
-                                <th>Ngày Đăng Ký HP</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($sinhVienLhps as $idx => $svHp)
-                                @php $sv = $svHp->sinhVien; @endphp
+                            @forelse($sinhVienList as $idx => $sv)
                                 <tr>
                                     <td class="px-4 text-muted">{{ $idx + 1 }}</td>
                                     <td class="fw-bold text-primary">{{ $sv->MaSV ?? 'N/A' }}</td>
                                     <td class="fw-bold text-dark">{{ $sv->HoTen ?? 'N/A' }}</td>
                                     <td>
                                         <span class="badge bg-secondary-subtle text-dark border">
-                                            {{ $sv->lop->TenLop ?? 'N/A' }}
+                                            {{ $sv->lop->TenLop ?? $sv->MaLop ?? 'N/A' }}
                                         </span>
                                     </td>
                                     <td>{{ $sv->Email ?? 'N/A' }}</td>
                                     <td>{{ $sv->SoDienThoai ?? 'N/A' }}</td>
-                                    <td>{{ $svHp->NgayDangKy ? \Carbon\Carbon::parse($svHp->NgayDangKy)->format('d/m/Y') : '—' }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-5 text-muted">
+                                    <td colspan="6" class="text-center py-5 text-muted">
                                         <i class="fa-solid fa-user-slash fa-2x mb-2 d-block opacity-50"></i>
                                         Lớp học phần này chưa có sinh viên nào đăng ký.
                                     </td>
@@ -165,6 +172,34 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- MODAL THAY ĐỔI GIỚI HẠN THÀNH VIÊN NHÓM -->
+<div class="modal fade" id="editGroupLimitModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <form action="{{ route('giangvien.lop.updateLimit', $lopHP->_id) }}" method="POST">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white py-2">
+                    <h6 class="modal-title mb-0"><i class="fa-solid fa-users-gear me-2"></i>Quy Định Nhóm</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Số thành viên tối đa / 1 nhóm:</label>
+                        <input type="number" name="SoThanhVienNhomToiDa" class="form-control" value="{{ $lopHP->SoThanhVienNhomToiDa ?? 5 }}" min="1" max="20" required>
+                    </div>
+                    <p class="text-muted small mb-0">
+                        <i class="fa-solid fa-circle-info text-info me-1"></i>Sinh viên khi tạo nhóm trong Lớp HP này sẽ bị giới hạn không được vượt quá số lượng trên.
+                    </p>
+                </div>
+                <div class="modal-footer py-2">
+                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success btn-sm px-3">Lưu thay đổi</button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 

@@ -5,13 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\HandlesExcelImport;
 use App\Models\LopHocPhan;
-use App\Models\SinhVienLopHocPhan;
 use App\Models\MonHoc;
 use App\Models\HocKy;
 use App\Models\GiangVien;
 use App\Models\SinhVien;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class LopHocPhanController extends Controller
 {
@@ -21,9 +19,18 @@ class LopHocPhanController extends Controller
     {
         return $this->runImport($request, 'importLopHocPhan', [], 'Lớp Học Phần');
     }
+
     public function index(Request $request)
     {
-        $query = LopHocPhan::with(['monHoc', 'hocKy', 'giangVien', 'sinhVienLopHocPhans']);
+        $query = LopHocPhan::with(['monHoc', 'hocKy', 'giangVien']);
+
+        if ($request->filled('search')) {
+            $kw = $request->search;
+            $query->where(function($q) use ($kw) {
+                $q->where('TenLopHP', 'like', "%{$kw}%")
+                  ->orWhere('MaLopHP', 'like', "%{$kw}%");
+            });
+        }
 
         if ($request->filled('ma_mon')) {
             $query->where('MaMon', $request->ma_mon);
@@ -37,9 +44,9 @@ class LopHocPhanController extends Controller
             $query->where('MaGV', $request->ma_gv);
         }
 
-        $lopHocPhans = $query->orderBy('MaLopHP', 'desc')->paginate(15);
+        $lopHocPhans = $query->orderBy('_id', 'desc')->paginate(10)->withQueryString();
         $monHocs = MonHoc::all();
-        $hocKies = HocKy::orderBy('MaHocKy', 'desc')->get();
+        $hocKies = HocKy::orderBy('_id', 'desc')->get();
         $giangViens = GiangVien::all();
 
         return view('admin.lophocphan.index', compact('lopHocPhans', 'monHocs', 'hocKies', 'giangViens'));
@@ -48,7 +55,7 @@ class LopHocPhanController extends Controller
     public function create()
     {
         $monHocs = MonHoc::all();
-        $hocKies = HocKy::orderBy('MaHocKy', 'desc')->get();
+        $hocKies = HocKy::orderBy('_id', 'desc')->get();
         $giangViens = GiangVien::all();
 
         return view('admin.lophocphan.create', compact('monHocs', 'hocKies', 'giangViens'));
@@ -57,49 +64,67 @@ class LopHocPhanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'TenLopHP' => 'required|string|max:100|unique:lop_hoc_phans,TenLopHP',
-            'MaMon' => 'required|exists:mon_hocs,MaMon',
-            'MaHocKy' => 'required|exists:hoc_kies,MaHocKy',
-            'MaGV' => 'required|exists:giang_viens,MaGV',
+            'TenLopHP' => 'required|string|max:100',
+            'MaMon' => 'required|string',
+            'MaHocKy' => 'required|string',
+            'MaGV' => 'required|string',
             'SiSoToiDa' => 'required|integer|min:1|max:200',
             'TrangThai' => 'required|in:Đang mở,Đã đóng',
         ], [
             'TenLopHP.required' => 'Vui lòng nhập tên lớp học phần.',
-            'TenLopHP.unique' => 'Tên lớp học phần này đã tồn tại.',
             'MaMon.required' => 'Vui lòng chọn môn học.',
             'MaHocKy.required' => 'Vui lòng chọn học kỳ.',
             'MaGV.required' => 'Vui lòng chọn giảng viên phụ trách.',
             'SiSoToiDa.required' => 'Vui lòng nhập sĩ số tối đa.',
         ]);
 
-        LopHocPhan::create($request->all());
+        // Kiểm tra trùng tên lớp học phần
+        if (LopHocPhan::where('TenLopHP', $request->TenLopHP)->exists()) {
+            return redirect()->back()->withErrors('Tên lớp học phần này đã tồn tại.')->withInput();
+        }
+
+        LopHocPhan::create([
+            'TenLopHP' => $request->TenLopHP,
+            'MaMon' => $request->MaMon,
+            'MaHocKy' => $request->MaHocKy,
+            'MaGV' => $request->MaGV,
+            'SiSoToiDa' => (int) $request->SiSoToiDa,
+            'TrangThai' => $request->TrangThai,
+            'DanhSachSinhVien' => [],
+        ]);
 
         return redirect()->route('admin.lophocphan.index')
             ->with('success', 'Tạo Lớp Học Phần thành công!');
     }
 
+    private function findLopHocPhan($id)
+    {
+        return LopHocPhan::where('_id', $id)->orWhere('MaLopHP', $id)->firstOrFail();
+    }
+
     public function show($id)
     {
-        $lopHocPhan = LopHocPhan::with(['monHoc', 'hocKy', 'giangVien', 'sinhVienLopHocPhans.sinhVien.lop'])
-            ->findOrFail($id);
+        $lopHocPhan = $this->findLopHocPhan($id);
 
-        // All students enrolled in this section
-        $enrolledSvIds = $lopHocPhan->sinhVienLopHocPhans->pluck('MaSV')->toArray();
+        // All students enrolled in this section (from embedded array)
+        $enrolledSvIds = $lopHocPhan->getSinhVienIds()->toArray();
+        $enrolledStudents = SinhVien::with('lop')->whereIn('_id', $enrolledSvIds)->orWhereIn('MaSV', $enrolledSvIds)->get();
 
         // Query available students not yet in this section
         $availableStudents = SinhVien::with('lop')
+            ->whereNotIn('_id', $enrolledSvIds)
             ->whereNotIn('MaSV', $enrolledSvIds)
             ->orderBy('HoTen')
             ->get();
 
-        return view('admin.lophocphan.show', compact('lopHocPhan', 'availableStudents'));
+        return view('admin.lophocphan.show', compact('lopHocPhan', 'enrolledStudents', 'availableStudents'));
     }
 
     public function edit($id)
     {
-        $lopHocPhan = LopHocPhan::findOrFail($id);
+        $lopHocPhan = $this->findLopHocPhan($id);
         $monHocs = MonHoc::all();
-        $hocKies = HocKy::orderBy('MaHocKy', 'desc')->get();
+        $hocKies = HocKy::orderBy('_id', 'desc')->get();
         $giangViens = GiangVien::all();
 
         return view('admin.lophocphan.edit', compact('lopHocPhan', 'monHocs', 'hocKies', 'giangViens'));
@@ -107,18 +132,25 @@ class LopHocPhanController extends Controller
 
     public function update(Request $request, $id)
     {
-        $lopHocPhan = LopHocPhan::findOrFail($id);
+        $lopHocPhan = $this->findLopHocPhan($id);
 
         $request->validate([
-            'TenLopHP' => 'required|string|max:100|unique:lop_hoc_phans,TenLopHP,' . $id . ',MaLopHP',
-            'MaMon' => 'required|exists:mon_hocs,MaMon',
-            'MaHocKy' => 'required|exists:hoc_kies,MaHocKy',
-            'MaGV' => 'required|exists:giang_viens,MaGV',
+            'TenLopHP' => 'required|string|max:100',
+            'MaMon' => 'required|string',
+            'MaHocKy' => 'required|string',
+            'MaGV' => 'required|string',
             'SiSoToiDa' => 'required|integer|min:1|max:200',
             'TrangThai' => 'required|in:Đang mở,Đã đóng',
         ]);
 
-        $lopHocPhan->update($request->all());
+        $lopHocPhan->update([
+            'TenLopHP' => $request->TenLopHP,
+            'MaMon' => $request->MaMon,
+            'MaHocKy' => $request->MaHocKy,
+            'MaGV' => $request->MaGV,
+            'SiSoToiDa' => (int) $request->SiSoToiDa,
+            'TrangThai' => $request->TrangThai,
+        ]);
 
         return redirect()->route('admin.lophocphan.index')
             ->with('success', 'Cập nhật Lớp Học Phần thành công!');
@@ -126,7 +158,7 @@ class LopHocPhanController extends Controller
 
     public function destroy($id)
     {
-        $lopHocPhan = LopHocPhan::findOrFail($id);
+        $lopHocPhan = $this->findLopHocPhan($id);
         $lopHocPhan->delete();
 
         return redirect()->route('admin.lophocphan.index')
@@ -135,60 +167,63 @@ class LopHocPhanController extends Controller
 
     public function addStudent(Request $request, $id)
     {
-        $lopHocPhan = LopHocPhan::findOrFail($id);
+        $lopHocPhan = $this->findLopHocPhan($id);
 
         $request->validate([
-            'MaSV' => 'required|exists:sinh_viens,MaSV',
+            'MaSV' => 'required|string',
         ], [
             'MaSV.required' => 'Vui lòng chọn sinh viên.',
         ]);
 
         $maSV = $request->MaSV;
 
+        // Kiểm tra sinh viên tồn tại
+        $sv = SinhVien::where('MaSV', $maSV)->orWhere('_id', $maSV)->first();
+        if (!$sv) {
+            return back()->with('error', 'Không tìm thấy sinh viên!');
+        }
+
+        // Check if student is already in this section
+        if ($lopHocPhan->hasSinhVien($maSV)) {
+            return back()->with('error', 'Sinh viên này đã thuộc Lớp Học Phần này rồi!');
+        }
+
         // Check if student is already in ANY class section for this Subject & Semester
-        $existing = SinhVienLopHocPhan::with('lopHocPhan')
-            ->where('MaSV', $maSV)
-            ->where('MaMon', $lopHocPhan->MaMon)
+        $otherLhp = LopHocPhan::where('MaMon', $lopHocPhan->MaMon)
             ->where('MaHocKy', $lopHocPhan->MaHocKy)
+            ->where('_id', '!=', (string) $lopHocPhan->_id)
+            ->where('DanhSachSinhVien.MaSV', (string) $maSV)
             ->first();
 
-        if ($existing) {
-            $tenLopCu = $existing->lopHocPhan->TenLopHP ?? 'Khác';
-            return back()->with('error', "Sinh viên này đã thuộc Lớp Học Phần '{$tenLopCu}' của môn này trong cùng học kỳ!");
+        if ($otherLhp) {
+            return back()->with('error', "Sinh viên này đã thuộc Lớp Học Phần '{$otherLhp->TenLopHP}' của môn này trong cùng học kỳ!");
         }
 
         // Check class capacity limit
-        $currentCount = SinhVienLopHocPhan::where('MaLopHP', $lopHocPhan->MaLopHP)->count();
+        $currentCount = count($lopHocPhan->DanhSachSinhVien ?? []);
         if ($currentCount >= $lopHocPhan->SiSoToiDa) {
             return back()->with('error', "Lớp Học Phần đã đủ sĩ số tối đa ({$lopHocPhan->SiSoToiDa} sinh viên)!");
         }
 
-        // Add student
-        SinhVienLopHocPhan::create([
-            'MaSV' => $maSV,
-            'MaLopHP' => $lopHocPhan->MaLopHP,
-            'MaMon' => $lopHocPhan->MaMon,
-            'MaHocKy' => $lopHocPhan->MaHocKy,
-            'NgayDangKy' => now(),
-        ]);
+        // Add student via embedded array
+        $lopHocPhan->addSinhVien($maSV);
 
         return back()->with('success', 'Thêm sinh viên vào Lớp Học Phần thành công!');
     }
 
     public function removeStudent($id, $maSV)
     {
-        $lopHocPhan = LopHocPhan::findOrFail($id);
+        $lopHocPhan = $this->findLopHocPhan($id);
 
-        SinhVienLopHocPhan::where('MaLopHP', $lopHocPhan->MaLopHP)
-            ->where('MaSV', $maSV)
-            ->delete();
+        // Remove student via embedded array
+        $lopHocPhan->removeSinhVien($maSV);
 
         return back()->with('success', 'Đã xóa sinh viên khỏi Lớp Học Phần!');
     }
 
     public function importStudents(Request $request, $id)
     {
-        $lopHocPhan = LopHocPhan::findOrFail($id);
+        $lopHocPhan = $this->findLopHocPhan($id);
 
         $request->validate([
             'file' => 'required|file|mimes:xlsx,xls,csv,txt|max:10240',
@@ -199,7 +234,7 @@ class LopHocPhanController extends Controller
 
         try {
             $importService = new \App\Services\ExcelImportService();
-            $result = $importService->importSinhVienLopHocPhan($request->file('file'), $lopHocPhan->MaLopHP);
+            $result = $importService->importSinhVienLopHocPhan($request->file('file'), (string) $lopHocPhan->_id);
 
             $msg = "Đã import thành công {$result['success_count']} sinh viên vào Lớp Học Phần!";
             if (!empty($result['errors'])) {
@@ -212,3 +247,4 @@ class LopHocPhanController extends Controller
         }
     }
 }
+

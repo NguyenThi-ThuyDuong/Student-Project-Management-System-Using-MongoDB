@@ -79,7 +79,7 @@ class ApiController extends Controller
      */
     public function getDeTaiDetail($id)
     {
-        $detai = DeTai::with(['giangVien:MaGV,HoTen,MaTK', 'dangKyDeTais.nhomDoAn'])
+        $detai = DeTai::with(['giangVien:MaGV,HoTen,MaTK'])
             ->find($id);
 
         if (!$detai) {
@@ -200,7 +200,12 @@ class ApiController extends Controller
      */
     public function getNhoms()
     {
-        $nhoms = NhomDoAn::with(['thanhVienNhoms.sinhVien:MaSV,HoTen'])->get();
+        $nhoms = NhomDoAn::with(['monHoc', 'hocKy'])->get();
+
+        // Enrich embedded data
+        foreach ($nhoms as $nhom) {
+            $nhom->setAttribute('thanhVienSVs', $nhom->getSinhVienThanhVien());
+        }
 
         return response()->json([
             'status' => 'success',
@@ -215,7 +220,12 @@ class ApiController extends Controller
      */
     public function getNhomDetail($id)
     {
-        $nhom = NhomDoAn::with(['thanhVienNhoms.sinhVien:MaSV,HoTen,MaSV', 'deTai'])->find($id);
+        $nhom = NhomDoAn::with(['monHoc', 'hocKy'])->find($id);
+
+        if ($nhom) {
+            $nhom->setAttribute('thanhVienSVs', $nhom->getSinhVienThanhVien());
+            $nhom->setAttribute('deTaiDangKy', $nhom->getDeTaiDangKy());
+        }
 
         if (!$nhom) {
             return response()->json([

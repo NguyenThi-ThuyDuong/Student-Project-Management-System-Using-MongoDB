@@ -6,45 +6,36 @@ use App\Http\Controllers\Controller;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 
 class LoginController extends Controller implements HasMiddleware
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
     use AuthenticatesUsers;
 
     /**
-     * Where to redirect users after login.
+     * Tối đa 5 lần đăng nhập sai liên tiếp trước khi khóa
      */
-    protected function redirectTo()
+    protected int $maxAttempts = 5;
+
+    /**
+     * Thời gian khóa tạm thời: 3 phút (180 giây)
+     */
+    protected int $decayMinutes = 3;
+
+    public function redirectTo()
     {
         /** @var \App\Models\TaiKhoan $user */
         $user = auth()->user();
-        $user->loadMissing('vaiTro');
-        $role = $user->vaiTro->TenVaiTro ?? '';
+        $role = $user->VaiTro ?? '';
 
         if ($role === 'Admin') return route('admin.dashboard');
         if ($role === 'Giảng viên') return route('giangvien.dashboard');
         if ($role === 'Sinh viên') return route('sinhvien.dashboard');
 
-        return '/';
+        return route('login');
     }
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    
     public static function middleware(): array
     {
         return [
@@ -53,45 +44,97 @@ class LoginController extends Controller implements HasMiddleware
         ];
     }
 
-
-    /**
-     * Get the login username to be used by the controller.
-     *
-     * @return string
-     */
     public function username()
     {
         return 'TenDangNhap';
     }
 
-    /**
-     * Chỉ cho phép đăng nhập nếu tài khoản chưa bị khóa (TrangThai = 1)
-     */
-    protected function credentials(\Illuminate\Http\Request $request)
+    protected function credentials(Request $request)
     {
         return [
             'TenDangNhap' => $request->get('TenDangNhap'),
             'password' => $request->get('password'),
-            'TrangThai' => 1
+            'TrangThai' => true
         ];
     }
 
-    /**
-     * Attempt to log the user into the application.
-     */
-    protected function attemptLogin(\Illuminate\Http\Request $request)
+    public function login(Request $request)
     {
-        return $this->guard()->attempt(
-            $this->credentials($request), $request->boolean('remember')
-        );
+        $this->validateLogin($request);
+
+        // Kiểm tra xem tài khoản/IP có bị khóa tạm thời do sai quá 5 lần không
+        if ($this->hasTooManyLoginAttempts($request)) {
+            $this->fireLockoutEvent($request);
+            return $this->sendLockoutResponse($request);
+        }
+
+        if ($this->attemptLogin($request)) {
+            if ($request->hasSession()) {
+                $request->session()->put('auth.password_confirmed_at', time());
+            }
+
+            // Đăng nhập thành công -> Reset số lần đăng nhập sai
+            $this->clearLoginAttempts($request);
+
+            return $this->sendLoginResponse($request);
+        }
+
+        // Đăng nhập thất bại -> Tăng số lần thử sai
+        $this->incrementLoginAttempts($request);
+
+        $key = $this->throttleKey($request);
+        $attempts = RateLimiter::attempts($key);
+        $remaining = max(0, $this->maxAttempts - $attempts);
+
+        if ($remaining > 0) {
+            $errorMsg = "Mật khẩu hoặc tên đăng nhập không chính xác. Bạn còn {$remaining} lần thử.";
+        } else {
+            $errorMsg = "Bạn đã nhập sai mật khẩu 5 lần. Tài khoản tạm thời bị khóa đăng nhập trong 3 phút.";
+        }
+
+        return $this->sendFailedLoginResponse($request, $errorMsg);
     }
 
-    protected function authenticated(\Illuminate\Http\Request $request, $user)
+    protected function sendFailedLoginResponse(Request $request, ?string $message = null)
+    {
+        return redirect()->back()
+            ->withInput($request->only($this->username(), 'remember'))
+            ->withErrors([
+                $this->username() => $message ?? trans('auth.failed'),
+            ]);
+    }
+
+    protected function sendLockoutResponse(Request $request)
+    {
+        $seconds = RateLimiter::availableIn($this->throttleKey($request));
+        $minutes = floor($seconds / 60);
+        $remainingSecs = $seconds % 60;
+        $formattedTime = sprintf('%02d:%02d', $minutes, $remainingSecs);
+
+        $msg = "Bạn đã nhập sai mật khẩu quá 5 lần. Tài khoản tạm thời bị khóa đăng nhập. Vui lòng thử lại sau {$formattedTime}.";
+
+        return redirect()->back()
+            ->withInput($request->only($this->username(), 'remember'))
+            ->with('lockout_seconds', $seconds)
+            ->withErrors([
+                $this->username() => $msg,
+            ]);
+    }
+
+    protected function authenticated(Request $request, $user)
     {
         if (!$user->TrangThai) {
             auth()->logout();
             return redirect()->route('login')->withErrors(['TenDangNhap' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin.']);
         }
-        \App\Models\AuditLog::log('dang_nhap', 'TaiKhoan', $user->MaTK, ['TenDangNhap' => $user->TenDangNhap]);
+        \App\Models\AuditLog::log('dang_nhap', 'TaiKhoan', $user->_id, ['TenDangNhap' => $user->TenDangNhap]);
+
+        $role = $user->VaiTro ?? '';
+        if ($role === 'Admin') return redirect()->route('admin.dashboard');
+        if ($role === 'Giảng viên') return redirect()->route('giangvien.dashboard');
+        if ($role === 'Sinh viên') return redirect()->route('sinhvien.dashboard');
+
+        return redirect()->route('login');
     }
 }
+

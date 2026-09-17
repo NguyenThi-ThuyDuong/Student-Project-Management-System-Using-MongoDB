@@ -10,11 +10,6 @@ class CheckRole
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  mixed  ...$roles
-     * @return mixed
      */
     public function handle(Request $request, Closure $next, ...$roles)
     {
@@ -24,13 +19,10 @@ class CheckRole
 
         /** @var \App\Models\TaiKhoan $user */
         $user = Auth::user();
-        // Load relationship vaiTro to get the role name
-        $user->loadMissing('vaiTro');
-        $roleName = $user->vaiTro->TenVaiTro ?? '';
+        $roleName = $user->VaiTro ?? '';
 
-        // If user role is not in the allowed roles array
         if (!in_array($roleName, $roles)) {
-            \Illuminate\Support\Facades\Log::error('CheckRole Failed', ['roleName' => $roleName, 'roles' => $roles, 'user' => $user->toArray(), 'vaiTro' => $user->vaiTro]);
+            \Illuminate\Support\Facades\Log::error('CheckRole Failed', ['roleName' => $roleName, 'roles' => $roles, 'user' => $user->toArray()]);
             abort(403, 'Bạn không có quyền truy cập trang này. Vui lòng liên hệ Admin. (' . $roleName . ' vs ' . implode(',', $roles) . ')');
         }
 

@@ -23,7 +23,7 @@
                             <p class="fw-medium mb-0">{{ $user->TenDangNhap }}</p>
                         </div>
                         <div class="col-md-6">
-                            <label class="text-muted small fw-bold mb-1">Lớp</label>
+                            <label class="text-muted small fw-bold mb-1">Lớp Hành Chính</label>
                             <p class="fw-medium mb-0">{{ $profile->lop->TenLop ?? 'Chưa cập nhật' }}</p>
                         </div>
                         <div class="col-md-6">
@@ -33,6 +33,47 @@
                         <div class="col-md-6">
                             <label class="text-muted small fw-bold mb-1">Số Điện Thoại</label>
                             <p class="fw-medium mb-0">{{ $profile->SoDienThoai ?? 'Chưa cập nhật' }}</p>
+                        </div>
+
+                        <!-- Bảng Danh Sách Lớp Học Phần Đã Đăng Ký Theo Học Kỳ -->
+                        <div class="col-md-12 mt-4">
+                            <h6 class="fw-bold text-primary mb-3">
+                                <i class="fa-solid fa-graduation-cap me-2"></i> Danh Sách Lớp Học Phần Đã Đăng Ký Theo Học Kỳ
+                            </h6>
+                            @if(isset($myLhps) && $myLhps->count() > 0)
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover align-middle border">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>STT</th>
+                                                <th>Lớp Học Phần</th>
+                                                <th>Môn / Học Phần</th>
+                                                <th>Học Kỳ</th>
+                                                <th>GV Phụ Trách</th>
+                                                <th>Trạng Thái</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($myLhps as $idx => $lhp)
+                                                <tr>
+                                                    <td>{{ $idx + 1 }}</td>
+                                                    <td><strong class="text-navy">{{ $lhp->TenLopHP ?? $lhp->MaLopHP }}</strong></td>
+                                                    <td>{{ $lhp->monHocModel->TenMon ?? $lhp->MaMon }}</td>
+                                                    <td><span class="badge bg-info text-dark">{{ $lhp->hocKyModel->TenHocKy ?? 'N/A' }}</span></td>
+                                                    <td>{{ $lhp->giangVienModel->HoTen ?? 'Chưa gán' }}</td>
+                                                    <td>
+                                                        <span class="badge bg-success">{{ $lhp->TrangThai ?? 'Đang mở' }}</span>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="alert alert-warning py-2 text-center" style="font-size: 0.85rem;">
+                                    <i class="fa-solid fa-info-circle me-1"></i> Chưa ghi nhận Lớp Học Phần được đăng ký trong hệ thống.
+                                </div>
+                            @endif
                         </div>
                     @elseif($role === 'Giảng viên')
                         <div class="col-md-6">

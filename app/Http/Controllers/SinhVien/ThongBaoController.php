@@ -13,7 +13,7 @@ class ThongBaoController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $sv = \App\Models\SinhVien::where('MaTK', $user->MaTK)->first();
+        $sv = \App\Models\SinhVien::where('MaTK', (string) $user->_id)->first();
 
         if (!$sv) {
             $thongbaos = collect();
@@ -21,36 +21,44 @@ class ThongBaoController extends Controller
         }
 
         // 1. Admin accounts
-        $adminTKs = TaiKhoan::where('MaVaiTro', 1)->pluck('MaTK')->toArray();
+        $adminTKs = TaiKhoan::where('VaiTro', 'Admin')->get()->map(fn($item) => (string) $item->_id)->toArray();
 
         // 2. Student's registered Lớp Học Phần IDs
-        $studentLhpIds = \App\Models\SinhVienLopHocPhan::where('MaSV', $sv->MaSV)->pluck('MaLopHP')->toArray();
+        $studentLhpModels = \App\Models\LopHocPhan::where('DanhSachSinhVien.MaSV', (string) $sv->_id)
+            ->orWhere('DanhSachSinhVien.MaSV', (string) $sv->MaSV)->get();
+        $studentLhpIds = [];
+        foreach ($studentLhpModels as $slhp) {
+            if (!empty($slhp->_id)) $studentLhpIds[] = (string) $slhp->_id;
+            if (!empty($slhp->MaLopHP)) $studentLhpIds[] = (string) $slhp->MaLopHP;
+        }
+        $studentLhpIds = array_values(array_unique(array_filter($studentLhpIds)));
 
-        // 3. Lecturers assigned to student's Lớp Hành chính or Lớp Học Phần
-        $lecturerGvIdsFromLh = \App\Models\PhanCongHuongDanLop::where('MaLop', $sv->MaLop)->pluck('MaGV')->toArray();
-        $lecturerGvIdsFromLhp = \App\Models\LopHocPhan::whereIn('MaLopHP', $studentLhpIds)->whereNotNull('MaGV')->pluck('MaGV')->toArray();
-        $allGvIds = array_unique(array_merge($lecturerGvIdsFromLh, $lecturerGvIdsFromLhp));
-        $lecturerTKs = \App\Models\GiangVien::whereIn('MaGV', $allGvIds)->pluck('MaTK')->toArray();
+        // 3. Lecturers assigned to student's Lớp Học Phần
+        $lecturerGvIds = \App\Models\LopHocPhan::whereIn('_id', $studentLhpIds)
+            ->whereNotNull('MaGV')
+            ->pluck('MaGV')->map(fn($id) => (string) $id)->unique()->toArray();
+
+        $lecturerTKs = \App\Models\GiangVien::whereIn('_id', $lecturerGvIds)
+            ->pluck('MaTK')->map(fn($id) => (string) $id)->toArray();
 
         $thongbaos = ThongBao::where(function($query) use ($adminTKs, $sv, $studentLhpIds, $lecturerTKs) {
-                                $query->whereIn('MaTK', $adminTKs);
-                                if ($sv->MaLop) {
-                                    $query->orWhere('MaLop', $sv->MaLop);
-                                }
-                                if (!empty($studentLhpIds)) {
-                                    $query->orWhereIn('MaLopHP', $studentLhpIds);
-                                }
-                                if (!empty($lecturerTKs)) {
-                                    $query->orWhere(function($subQ) use ($lecturerTKs) {
-                                        $subQ->whereIn('MaTK', $lecturerTKs)
-                                             ->whereNull('MaLop')
-                                             ->whereNull('MaLopHP');
-                                    });
-                                }
-                            })
-                            ->with(['taiKhoan.giangVien', 'lop', 'lopHocPhan'])
-                            ->orderBy('MaThongBao', 'desc')
-                            ->paginate(15);
+                            $query->whereIn('MaTK', $adminTKs);
+                            if ($sv->MaLop) {
+                                $query->orWhere('MaLop', (string) $sv->MaLop);
+                            }
+                            if (!empty($studentLhpIds)) {
+                                $query->orWhereIn('MaLopHP', $studentLhpIds);
+                            }
+                            if (!empty($lecturerTKs)) {
+                                $query->orWhere(function($subQ) use ($lecturerTKs) {
+                                    $subQ->whereIn('MaTK', $lecturerTKs)
+                                         ->whereNull('MaLop')
+                                         ->whereNull('MaLopHP');
+                                });
+                            }
+                        })
+                        ->orderBy('_id', 'desc')
+                        ->paginate(15);
 
         return view('sinhvien.thongbao.index', compact('thongbaos'));
     }
@@ -67,16 +75,23 @@ class ThongBaoController extends Controller
     public function markAllRead()
     {
         $user = Auth::user();
-        $sv = \App\Models\SinhVien::where('MaTK', $user->MaTK)->first();
+        $sv = \App\Models\SinhVien::where('MaTK', (string) $user->_id)->first();
 
         if ($sv) {
-            $adminTKs = TaiKhoan::where('MaVaiTro', 1)->pluck('MaTK')->toArray();
-            $studentLhpIds = \App\Models\SinhVienLopHocPhan::where('MaSV', $sv->MaSV)->pluck('MaLopHP')->toArray();
+            $adminTKs = TaiKhoan::where('VaiTro', 'Admin')->get()->map(fn($item) => (string) $item->_id)->toArray();
+            $studentLhpModels = \App\Models\LopHocPhan::where('DanhSachSinhVien.MaSV', (string) $sv->_id)
+                ->orWhere('DanhSachSinhVien.MaSV', (string) $sv->MaSV)->get();
+            $studentLhpIds = [];
+            foreach ($studentLhpModels as $slhp) {
+                if (!empty($slhp->_id)) $studentLhpIds[] = (string) $slhp->_id;
+                if (!empty($slhp->MaLopHP)) $studentLhpIds[] = (string) $slhp->MaLopHP;
+            }
+            $studentLhpIds = array_values(array_unique(array_filter($studentLhpIds)));
 
             ThongBao::where(function($query) use ($adminTKs, $sv, $studentLhpIds) {
                 $query->whereIn('MaTK', $adminTKs);
                 if ($sv->MaLop) {
-                    $query->orWhere('MaLop', $sv->MaLop);
+                    $query->orWhere('MaLop', (string) $sv->MaLop);
                 }
                 if (!empty($studentLhpIds)) {
                     $query->orWhereIn('MaLopHP', $studentLhpIds);

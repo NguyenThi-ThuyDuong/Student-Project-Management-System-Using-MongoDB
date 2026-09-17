@@ -3,34 +3,61 @@
 namespace App\Http\Controllers\GiangVien;
 
 use App\Http\Controllers\Controller;
-use App\Models\ChamDiem;
-use App\Models\HuongDan;
 use App\Models\NhomDoAn;
+use App\Models\GiangVien;
+use App\Models\DeTai;
+use App\Models\AuditLog;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ChamDiemController extends Controller
 {
+    private function getGiangVienKeys($gv, $user)
+    {
+        return array_values(array_unique(array_filter([
+            (string) ($gv->_id ?? ''),
+            (string) ($gv->MaGV ?? ''),
+            (string) ($gv->MaTK ?? ''),
+            (string) ($user->_id ?? ''),
+        ])));
+    }
+
     public function index() {
-        $gv = \App\Models\GiangVien::where('MaTK', Auth::user()->MaTK)->first();
-        if (!$gv) abort(403);
+        $user = Auth::user();
+        $gv = GiangVien::where('MaTK', (string) $user->_id)->first();
+        if (!$gv) abort(403, 'Không tìm thấy thông tin giảng viên');
 
-        $nhomIds1 = HuongDan::where('MaGV', $gv->MaGV)->pluck('MaNhom')->toArray();
-        $nhomIds2 = NhomDoAn::whereHas('lopHocPhan', function($q) use ($gv) {
-            $q->where('MaGV', $gv->MaGV);
-        })->pluck('MaNhom')->toArray();
+        $gvKeys = $this->getGiangVienKeys($gv, $user);
 
-        $nhomIds = array_unique(array_merge($nhomIds1, $nhomIds2));
-        
-        // Lấy các nhóm do Giảng viên này hướng dẫn đã nộp sản phẩm hoặc đã được chấm điểm
-        $nhoms = NhomDoAn::whereIn('MaNhom', $nhomIds)
-                         ->where(function($q) {
-                             $q->where('TrangThai', 'Đã nộp sản phẩm')
-                               ->orWhereHas('chamDiem');
-                         })
-                         ->with(['sanPhams', 'chamDiem'])
-                         ->get();
+        $lhps = \App\Models\LopHocPhan::whereIn('MaGV', $gvKeys)
+            ->orWhereIn('GiangVienMaGV', $gvKeys)->get();
+        $lhpKeys = [];
+        foreach ($lhps as $lhp) {
+            if (!empty($lhp->_id)) $lhpKeys[] = (string) $lhp->_id;
+            if (!empty($lhp->MaLopHP)) $lhpKeys[] = (string) $lhp->MaLopHP;
+        }
+        $lhpKeys = array_values(array_unique(array_filter($lhpKeys)));
+
+        $deTais = DeTai::whereIn('MaTK', $gvKeys)
+            ->orWhereIn('MaGV', $gvKeys)
+            ->get();
+        $deTaiKeys = [];
+        foreach ($deTais as $dt) {
+            if (!empty($dt->_id)) $deTaiKeys[] = (string) $dt->_id;
+            if (!empty($dt->MaDeTai)) $deTaiKeys[] = (string) $dt->MaDeTai;
+            if (!empty($dt->MaDT)) $deTaiKeys[] = (string) $dt->MaDT;
+        }
+        $deTaiKeys = array_values(array_unique(array_filter($deTaiKeys)));
+
+        $nhoms = NhomDoAn::where(function ($q) use ($gvKeys, $lhpKeys, $deTaiKeys) {
+                $q->whereIn('HuongDan.MaGV', $gvKeys)
+                  ->orWhereIn('MaLopHP', $lhpKeys)
+                  ->orWhereIn('DangKyDeTai.MaDeTai', $deTaiKeys);
+            })
+            ->with(['monHoc', 'hocKy'])
+            ->get();
 
         return view('giangvien.chamdiem.index', compact('nhoms'));
     }
@@ -40,44 +67,45 @@ class ChamDiemController extends Controller
             'DiemBaoCao' => 'required|numeric|min:0|max:10',
             'DiemBaoVe' => 'required|numeric|min:0|max:10',
             'NhanXet' => 'nullable|string'
+        ], [
+            'DiemBaoCao.required' => 'Vui lòng nhập điểm báo cáo (0 - 10).',
+            'DiemBaoVe.required' => 'Vui lòng nhập điểm bảo vệ (0 - 10).',
+            'DiemBaoCao.min' => 'Điểm số phải từ 0 đến 10.',
+            'DiemBaoCao.max' => 'Điểm số tối đa là 10.',
+            'DiemBaoVe.min' => 'Điểm số phải từ 0 đến 10.',
+            'DiemBaoVe.max' => 'Điểm số tối đa là 10.',
         ]);
 
-        $gv = \App\Models\GiangVien::where('MaTK', Auth::user()->MaTK)->first();
+        $user = Auth::user();
+        $gv = GiangVien::where('MaTK', (string) $user->_id)->first();
 
-        // Tính điểm tổng trọng số 50 - 50
-        $diemTong = ($request->DiemBaoCao * 0.5) + ($request->DiemBaoVe * 0.5);
+        $diemTong = round(($request->DiemBaoCao * 0.5) + ($request->DiemBaoVe * 0.5), 2);
 
         try {
-            DB::beginTransaction();
+            $nhom = NhomDoAn::find($maNhom) ?? NhomDoAn::findOrFail($maNhom);
 
-            $cd = ChamDiem::updateOrCreate(
-                ['MaNhom' => $maNhom, 'MaGV' => $gv->MaGV],
-                [
-                    'LoaiCham' => 'Cuối kỳ',
-                    'DiemBaoCao' => $request->DiemBaoCao,
-                    'DiemBaoVe' => $request->DiemBaoVe,
-                    'DiemTong' => $diemTong,
-                    'NhanXet' => $request->NhanXet,
-                    'NgayCham' => date('Y-m-d')
-                ]
+            $nhom->setChamDiem(
+                (string) ($gv->_id ?? $user->_id),
+                $request->DiemBaoCao,
+                $request->DiemBaoVe,
+                $diemTong,
+                $request->NhanXet,
+                'Cuối kỳ'
             );
 
-            $nhom = NhomDoAn::find($maNhom);
             $nhom->update(['TrangThai' => 'Đã có điểm']);
 
-            DB::commit();
-
             // Gửi thông báo đến nhóm
-            $notiService = new \App\Services\NotificationService();
-            $notiService->guiDiemMoi($nhom, $cd);
+            $notiService = new NotificationService();
+            $cdObj = (object) ['DiemTong' => $diemTong];
+            $notiService->guiDiemMoi($nhom, $cdObj);
 
-            \App\Models\AuditLog::log('cham_diem', 'ChamDiem', $cd->id ?? null, ['MaNhom' => $maNhom, 'DiemTong' => $diemTong]);
+            AuditLog::log('cham_diem', 'ChamDiem', (string)$nhom->_id, ['MaNhom' => (string) $nhom->_id, 'DiemTong' => $diemTong]);
 
-            return redirect()->back()->with('success', 'Chấm điểm thành công!');
+            return redirect()->back()->with('success', 'Chấm điểm cho nhóm "' . $nhom->TenNhom . '" thành công!');
         } catch (\Exception $e) {
-            DB::rollBack();
-            \Illuminate\Support\Facades\Log::error('Lỗi khi chấm điểm: ' . $e->getMessage());
-            return redirect()->back()->withErrors('Có lỗi khi chấm điểm, vui lòng thử lại.');
+            Log::error('Lỗi khi chấm điểm: ' . $e->getMessage());
+            return redirect()->back()->withErrors('Có lỗi khi chấm điểm: ' . $e->getMessage());
         }
     }
 }

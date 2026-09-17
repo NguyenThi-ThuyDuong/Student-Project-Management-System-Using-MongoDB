@@ -2,11 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 
 class Nganh extends Model
 {
-    protected $table = 'nganhs';
-    protected $primaryKey = 'MaNganh';
-    protected $fillable = ['TenNganh', 'MoTa'];
+    protected $table = 'nganh';
+    protected $collection = 'nganh';
+
+    protected $fillable = ['MaNganh', 'TenNganh', 'MaBoMon', 'MoTa'];
+
+    public function boMon()
+    {
+        return $this->belongsTo(BoMon::class, 'MaBoMon', 'MaBoMon');
+    }
+
+    public function getBoMonModelAttribute()
+    {
+        if ($this->boMon) return $this->boMon;
+        return BoMon::where('MaBoMon', $this->MaBoMon)->orWhere('_id', $this->MaBoMon)->first();
+    }
 }

@@ -12,30 +12,38 @@ class ProfileController extends Controller
     public function showProfile()
     {
         $user = Auth::user();
-        $role = $user->vaiTro->TenVaiTro ?? '';
+        $role = strtolower($user->VaiTro ?? '');
         $profile = null;
+        $maTK = (string) ($user->_id ?? $user->MaTK);
 
-        if ($role === 'Admin') {
+        $myLhps = collect();
+        if ($role === 'admin') {
             $layout = 'layouts.admin';
-        } elseif ($role === 'Giảng viên') {
+        } elseif ($role === 'giangvien') {
             $layout = 'layouts.giangvien';
-            $profile = \App\Models\GiangVien::with('boMon')->where('MaTK', $user->MaTK)->first();
+            $profile = \App\Models\GiangVien::with('boMon')->where('MaTK', $maTK)->first();
         } else {
             $layout = 'layouts.sinhvien';
-            $profile = \App\Models\SinhVien::with('lop')->where('MaTK', $user->MaTK)->first();
+            $profile = \App\Models\SinhVien::with('lop')->where('MaTK', $maTK)->first();
+            if ($profile) {
+                $allLhps = \App\Models\LopHocPhan::all();
+                $myLhps = $allLhps->filter(function($lhp) use ($profile) {
+                    return $lhp->hasSinhVien($profile->MaSV) || $lhp->hasSinhVien((string)$profile->_id);
+                });
+            }
         }
 
-        return view('profile.show', compact('layout', 'profile', 'role', 'user'));
+        return view('profile.show', compact('layout', 'profile', 'role', 'user', 'myLhps'));
     }
     public function showChangePasswordForm()
     {
         $user = Auth::user();
-        $role = $user->vaiTro->TenVaiTro ?? '';
+        $role = strtolower($user->VaiTro ?? '');
         
         // Determine which layout to use based on role
-        if ($role === 'Admin') {
+        if ($role === 'admin') {
             $layout = 'layouts.admin';
-        } elseif ($role === 'Giảng viên') {
+        } elseif ($role === 'giangvien') {
             $layout = 'layouts.giangvien';
         } else {
             $layout = 'layouts.sinhvien';

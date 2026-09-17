@@ -2,24 +2,7 @@
 @section('page_title', 'Quản Lý Lớp Học Phần')
 
 @section('content')
-@if(session('success'))
-<div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
-    <i class="fa-solid fa-check-circle me-2"></i>{{ session('success') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-@endif
-@if(session('error'))
-<div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
-    <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ session('error') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-@endif
-@if($errors->any())
-<div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
-    <ul class="mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-@endif
+
 
 <!-- BỘ LỌC TÌM KIẾM -->
 <div class="card card-premium mb-4">
@@ -105,7 +88,7 @@
                 </thead>
                 <tbody>
                     @forelse($lopHocPhans as $item)
-                    @php $siSoHienTai = $item->sinhVienLopHocPhans->count(); @endphp
+                    @php $siSoHienTai = optional($item->sinhVienLopHocPhans)->count() ?? (is_countable($item->sinhVienLopHocPhans ?? null) ? count($item->sinhVienLopHocPhans) : 0); @endphp
                     <tr>
                         <td><span class="badge bg-light text-dark fw-bold border">HP#{{ $item->MaLopHP }}</span></td>
                         <td>

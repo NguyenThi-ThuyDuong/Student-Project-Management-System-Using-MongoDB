@@ -27,16 +27,20 @@ trait HandlesExcelImport
         array $extraArgs = [],
         string $entityLabel = 'Dữ liệu'
     ) {
+        $fileInput = $request->hasFile('excel_file') ? 'excel_file' : 'file';
+
         $request->validate([
-            'file' => 'required|file|mimes:xlsx,csv,xls',
+            $fileInput => 'required|file|mimes:xlsx,csv,xls|max:5120',
         ], [
-            'file.required' => 'Vui lòng chọn file CSV/Excel để import.',
-            'file.mimes'    => 'Chỉ chấp nhận file định dạng .xlsx, .xls, .csv.',
+            "{$fileInput}.required" => 'Vui lòng chọn file CSV/Excel để nhập dữ liệu.',
+            "{$fileInput}.mimes"    => 'Chỉ chấp nhận file định dạng Excel (.xlsx, .xls) hoặc CSV (.csv).',
+            "{$fileInput}.max"      => 'Dung lượng file tải lên vượt quá giới hạn 5MB. Vui lòng giảm dung lượng file.',
         ]);
 
         try {
+            $uploadedFile = $request->file($fileInput);
             $service = new \App\Services\ExcelImportService();
-            $res = call_user_func_array([$service, $serviceMethod], array_merge([$request->file('file')], $extraArgs));
+            $res = call_user_func_array([$service, $serviceMethod], array_merge([$uploadedFile], $extraArgs));
 
             $msg = "Import hoàn tất! Tổng dòng: <strong>{$res['total_count']}</strong> | "
                  . "Thành công: <strong class='text-success'>{$res['success_count']}</strong> | "

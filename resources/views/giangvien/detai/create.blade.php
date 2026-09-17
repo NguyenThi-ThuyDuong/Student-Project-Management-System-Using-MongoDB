@@ -21,7 +21,7 @@
         <i class="fa-solid fa-plus-circle me-2 text-primary"></i>Tạo Đề Tài Mới
     </div>
     <div class="card-body p-4">
-        <form action="{{ route('giangvien.detai.store') }}" method="POST">
+        <form action="{{ route('giangvien.detai.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             {{-- Tên đề tài --}}
@@ -38,7 +38,7 @@
                 <select name="MaLopHP" id="select_MaLopHP" class="form-select border-primary @error('MaLopHP') is-invalid @enderror" required onchange="onLopHPSelectChange(this)">
                     <option value="">— Chọn Lớp Học Phần —</option>
                     @foreach($lopHocPhans as $lhp)
-                        <option value="{{ $lhp->MaLopHP }}" data-mamon="{{ $lhp->MaMon }}" data-mahocky="{{ $lhp->MaHocKy }}" {{ old('MaLopHP') == $lhp->MaLopHP ? 'selected' : '' }}>
+                        <option value="{{ $lhp->_id }}" data-mamon="{{ $lhp->MaMon }}" data-mahocky="{{ $lhp->MaHocKy }}" {{ old('MaLopHP') == $lhp->_id || old('MaLopHP') == $lhp->MaLopHP ? 'selected' : '' }}>
                             {{ $lhp->TenLopHP }} — {{ $lhp->monHoc->TenMon ?? '' }} ({{ $lhp->hocKy->TenHocKy ?? '' }} - GV: {{ $lhp->giangVien->HoTen ?? 'Chưa gán' }})
                         </option>
                     @endforeach
@@ -118,9 +118,11 @@
                 <label class="form-label fw-semibold">Mô Tả</label>
                 <textarea name="MoTa" rows="3" class="form-control" placeholder="Mô tả nội dung đề tài...">{{ old('MoTa') }}</textarea>
             </div>
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Yêu Cầu Cụ Thể</label>
-                <textarea name="YeuCau" rows="3" class="form-control" placeholder="Các yêu cầu kỹ thuật, công nghệ...">{{ old('YeuCau') }}</textarea>
+            {{-- File tài liệu đính kèm --}}
+            <div class="mb-3 p-3 bg-light rounded-3 border">
+                <label class="form-label fw-bold text-dark"><i class="fa-solid fa-paperclip me-1 text-primary"></i>Tài Liệu Đính Kèm / Đề Cương Đề Tài</label>
+                <input type="file" name="file_tai_lieu" class="form-control" accept=".pdf,.doc,.docx,.zip,.rar">
+                <div class="form-text small text-muted">Tải lên tệp đề cương chi tiết hoặc tài liệu hướng dẫn (Định dạng: .pdf, .docx, .zip - Tối đa 20MB).</div>
             </div>
 
             <div class="text-end mt-4 d-flex gap-2 justify-content-end">

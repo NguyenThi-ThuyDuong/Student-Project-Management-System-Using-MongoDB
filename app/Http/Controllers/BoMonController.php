@@ -9,9 +9,20 @@ use Illuminate\Http\Request;
 class BoMonController extends Controller
 {
     use HandlesExcelImport;
-    public function index()
+    public function index(Request $request)
     {
-        $bomons = BoMon::paginate(10);
+        $query = BoMon::query();
+
+        if ($request->filled('search')) {
+            $kw = $request->search;
+            $query->where(function($q) use ($kw) {
+                $q->where('TenBoMon', 'like', "%{$kw}%")
+                  ->orWhere('MaBoMon', 'like', "%{$kw}%")
+                  ->orWhere('MoTa', 'like', "%{$kw}%");
+            });
+        }
+
+        $bomons = $query->orderBy('_id', 'desc')->paginate(10)->withQueryString();
         return view('admin.bomon.index', compact('bomons'));
     }
 
@@ -35,22 +46,31 @@ class BoMonController extends Controller
         return redirect()->route('bomon.index')->with('success', 'Thêm bộ môn thành công!');
     }
 
+    private function findBoMon($id)
+    {
+        return BoMon::where('_id', $id)->orWhere('MaBoMon', $id)->firstOrFail();
+    }
+
+    public function show($id)
+    {
+        return $this->edit($id);
+    }
+
     public function edit($id)
     {
-        $bomon = BoMon::findOrFail($id);
+        $bomon = $this->findBoMon($id);
         return view('admin.bomon.edit', compact('bomon'));
     }
 
     public function update(Request $request, $id)
     {
-        $bomon = BoMon::findOrFail($id);
+        $bomon = $this->findBoMon($id);
 
         $request->validate([
-            'TenBoMon' => 'required|string|max:100|unique:bo_mons,TenBoMon,' . $id . ',MaBoMon',
+            'TenBoMon' => 'required|string|max:100',
             'MoTa' => 'nullable|string|max:500'
         ], [
             'TenBoMon.required' => 'Vui lòng nhập tên bộ môn.',
-            'TenBoMon.unique' => 'Tên bộ môn này đã tồn tại trong hệ thống.',
             'TenBoMon.max' => 'Tên bộ môn không được vượt quá 100 ký tự.'
         ]);
 
@@ -61,10 +81,12 @@ class BoMonController extends Controller
     public function destroy($id)
     {
         try {
-            BoMon::destroy($id);
+            $bomon = $this->findBoMon($id);
+            $bomon->delete();
             return redirect()->route('bomon.index')->with('success', 'Xóa thành công!');
         } catch (\Throwable $e) {
-            return redirect()->back()->withErrors('Không thể xóa bộ môn này do đang có ngành học hoặc môn học liên quan.');
+            \Illuminate\Support\Facades\Log::error('Xóa Bộ môn lỗi: ' . $e->getMessage());
+            return redirect()->back()->withErrors('Không thể xóa bộ môn: ' . $e->getMessage());
         }
     }
 

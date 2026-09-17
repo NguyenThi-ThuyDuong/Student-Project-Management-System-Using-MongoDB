@@ -8,8 +8,7 @@ Route::get('/', function () {
     if (Auth::check()) {
         /** @var \App\Models\TaiKhoan $user */
         $user = Auth::user();
-        $user->loadMissing('vaiTro');
-        $role = $user->vaiTro->TenVaiTro ?? '';
+        $role = $user->VaiTro ?? '';
         
         if ($role === 'Admin') return redirect()->route('admin.dashboard');
         if ($role === 'Giảng viên') return redirect()->route('giangvien.dashboard');
@@ -18,7 +17,11 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Auth::routes();
+Route::get('/home', function () {
+    return redirect('/');
+})->name('home');
+
+Auth::routes(['verify' => true]);
 
 // Quên mật khẩu gửi Admin duyệt (Custom Flow)
 Route::get('/password/reset-request', [\App\Http\Controllers\Auth\QuenMatKhauController::class, 'showForm'])->name('password.request');
@@ -83,9 +86,11 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
     Route::resource('monhoc', \App\Http\Controllers\MonHocController::class);
     
     Route::post('giangvien/import', [\App\Http\Controllers\GiangVienController::class, 'importExcel'])->name('admin.giangvien.import');
+    Route::post('giangvien/{id}/toggle-status', [\App\Http\Controllers\GiangVienController::class, 'toggleStatus'])->name('admin.giangvien.toggleStatus');
     Route::resource('giangvien', \App\Http\Controllers\GiangVienController::class);
 
     Route::post('sinhvien/import', [\App\Http\Controllers\SinhVienController::class, 'importExcel'])->name('admin.sinhvien.import');
+    Route::post('sinhvien/{id}/toggle-status', [\App\Http\Controllers\SinhVienController::class, 'toggleStatus'])->name('admin.sinhvien.toggleStatus');
     Route::resource('sinhvien', \App\Http\Controllers\SinhVienController::class);
 
     Route::post('hocky/import', [\App\Http\Controllers\HocKyController::class, 'importExcel'])->name('admin.hocky.import');
@@ -93,10 +98,18 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
 
     Route::post('phancong/import', [\App\Http\Controllers\PhanCongController::class, 'importExcel'])->name('admin.phancong.import');
     Route::delete('phancong/lhp/{id}', [\App\Http\Controllers\PhanCongController::class, 'unassignLhp'])->name('admin.phancong.unassign_lhp');
+    Route::get('phancong/thongke-gvhd', [\App\Http\Controllers\PhanCongController::class, 'thongKeGvhd'])->name('admin.phancong.thongke_gvhd');
     Route::resource('phancong', \App\Http\Controllers\PhanCongController::class)->only(['index', 'store', 'destroy']);
     
+    // Tiến Độ 5 Tầng
+    Route::get('tiendo', [\App\Http\Controllers\Admin\TienDoAdminController::class, 'index'])->name('admin.tiendo.index');
+    
+    // Thống Kê & Báo Cáo 8 Góc Nhìn
+    Route::get('thongke-baocao', [\App\Http\Controllers\Admin\ThongKeBaoCaoController::class, 'index'])->name('admin.thongke.baocao');
+    Route::get('thongke-baocao/export', [\App\Http\Controllers\Admin\ThongKeBaoCaoController::class, 'exportExcel'])->name('admin.thongke.export');
+    
 
-    Route::resource('thongbao', \App\Http\Controllers\ThongBaoController::class)->only(['index', 'store', 'destroy']);
+    Route::resource('thongbao', \App\Http\Controllers\ThongBaoController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::get('sanpham', [\App\Http\Controllers\Admin\SanPhamController::class, 'index'])->name('admin.sanpham.index');
     Route::get('ketqua', [\App\Http\Controllers\Admin\KetQuaController::class, 'index'])->name('admin.ketqua.index');
     
@@ -111,13 +124,17 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
     Route::resource('lop-hoc-phan', \App\Http\Controllers\Admin\LopHocPhanController::class)->names('admin.lophocphan');
     Route::post('lop-hoc-phan/{id}/add-sv', [\App\Http\Controllers\Admin\LopHocPhanController::class, 'addStudent'])->name('admin.lophocphan.addStudent');
     Route::delete('lop-hoc-phan/{id}/remove-sv/{maSV}', [\App\Http\Controllers\Admin\LopHocPhanController::class, 'removeStudent'])->name('admin.lophocphan.removeStudent');
+
+    // Phê Duyệt Đề Tài (Giáo vụ)
+    Route::get('duyet-detai', [\App\Http\Controllers\Admin\DuyetDeTaiAdminController::class, 'index'])->name('admin.duyet_detai.index');
+    Route::post('duyet-detai/{id}/duyet', [\App\Http\Controllers\Admin\DuyetDeTaiAdminController::class, 'approve'])->name('admin.duyet_detai.approve');
+    Route::post('duyet-detai/{id}/tu-choi', [\App\Http\Controllers\Admin\DuyetDeTaiAdminController::class, 'reject'])->name('admin.duyet_detai.reject');
+    Route::post('duyet-detai/{id}/yeu-cau-dieu-chinh', [\App\Http\Controllers\Admin\DuyetDeTaiAdminController::class, 'requestAdjustment'])->name('admin.duyet_detai.requestAdjustment');
 });
 
-// Giảng Viên Routes
-Route::middleware(['auth', 'role:Giảng viên'])->prefix('giangvien')->group(function () {
-    Route::get('/', function() {
-        return redirect()->route('giangvien.detai.index');
-    })->name('giangvien.dashboard');
+// Giảng Viên & Admin Routes (Duyệt Đề Tài, Quản Lý Đề Tài, Tiến Độ)
+Route::middleware(['auth', 'role:Admin,Giảng viên'])->prefix('giangvien')->group(function () {
+    Route::get('/', [\App\Http\Controllers\GiangVien\DashboardController::class, 'index'])->name('giangvien.dashboard');
     
     Route::post('detai/import', [\App\Http\Controllers\GiangVien\DeTaiController::class, 'importExcel'])->name('giangvien.detai.import');
     Route::post('detai/{id}/upload-tai-lieu', [\App\Http\Controllers\GiangVien\DeTaiController::class, 'uploadTaiLieu'])->name('giangvien.detai.uploadTaiLieu');
@@ -127,6 +144,7 @@ Route::middleware(['auth', 'role:Giảng viên'])->prefix('giangvien')->group(fu
     Route::resource('detai', App\Http\Controllers\GiangVien\DeTaiController::class)->names('giangvien.detai');
     Route::get('/lop', [\App\Http\Controllers\GiangVien\LopController::class, 'index'])->name('giangvien.lop.index');
     Route::get('/lop/{id}', [\App\Http\Controllers\GiangVien\LopController::class, 'show'])->name('giangvien.lop.show');
+    Route::post('/lop/{id}/update-limit', [\App\Http\Controllers\GiangVien\LopController::class, 'updateGroupLimit'])->name('giangvien.lop.updateLimit');
     Route::resource('duyet', App\Http\Controllers\GiangVien\DuyetDeTaiController::class)->names('giangvien.duyet')->only(['index', 'update']);
     Route::get('/baocao', [\App\Http\Controllers\GiangVien\DuyetBaoCaoController::class, 'index'])->name('giangvien.baocao.index');
     Route::post('/baocao/{maBaoCao}/nhanxet', [\App\Http\Controllers\GiangVien\DuyetBaoCaoController::class, 'storeNhanXet'])->name('giangvien.baocao.nhanxet');
@@ -135,7 +153,7 @@ Route::middleware(['auth', 'role:Giảng viên'])->prefix('giangvien')->group(fu
     Route::get('/chamdiem', [\App\Http\Controllers\GiangVien\ChamDiemController::class, 'index'])->name('giangvien.chamdiem.index');
     Route::post('/chamdiem/{maNhom}', [\App\Http\Controllers\GiangVien\ChamDiemController::class, 'store'])->name('giangvien.chamdiem.store');
     
-    Route::resource('thongbao', \App\Http\Controllers\ThongBaoController::class)->names('giangvien.thongbao')->only(['index', 'store', 'destroy']);
+    Route::resource('thongbao', \App\Http\Controllers\ThongBaoController::class)->names('giangvien.thongbao')->only(['index', 'store', 'update', 'destroy']);
 });
 
 // Sinh Viên Routes
@@ -151,6 +169,7 @@ Route::middleware(['auth', 'role:Sinh viên'])->prefix('sinhvien')->group(functi
     Route::post('nhom/moi/{id}/xac-nhan', [App\Http\Controllers\SinhVien\NhomController::class, 'xacNhanLoiMoi'])->name('sinhvien.nhom.xacNhan');
     Route::post('nhom/moi/{id}/tu-choi', [App\Http\Controllers\SinhVien\NhomController::class, 'tuChoiLoiMoi'])->name('sinhvien.nhom.tuChoi');
     
+    Route::post('dangky/tu-de-xuat', [\App\Http\Controllers\SinhVien\DangKyDeTaiController::class, 'tuDeXuat'])->name('sinhvien.dangky.tuDeXuat');
     Route::resource('dangky', App\Http\Controllers\SinhVien\DangKyDeTaiController::class)->names('sinhvien.dangky')->only(['index', 'store', 'destroy']);
 
     Route::get('/baocao', [\App\Http\Controllers\SinhVien\BaoCaoController::class, 'index'])->name('sinhvien.baocao.index');

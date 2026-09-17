@@ -12,11 +12,9 @@ use App\Models\DeTai;
 use App\Models\HocKy;
 use App\Models\PhanCongHuongDanLop;
 use App\Models\NhomDoAn;
-use App\Models\ThanhVienNhom;
 use App\Models\TaiKhoan;
 use App\Models\LopHocPhan;
 use App\Models\SinhVienLopHocPhan;
-use App\Models\VaiTro;
 use App\Models\AuditLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -74,7 +72,7 @@ class ExcelImportService
             'MSSV', 'HoTen', 'TenLop', 'Email', 'SoDienThoai', 'TenDeTai', 'TenBoMon', 'TenNganh', 'TenMon', 'TenDangNhap',
             'TenHocKy', 'MaGV', 'MaLop', 'MaLopHP', 'TenLopHP', 'MaMon', 'MaHocKy', 'TenHoiDong', 'MaHoiDong',
             'MaSV_TruongNhom', 'TruongNhom', 'VaiTroHoiDong', 'SoTinChi', 'SiSoToiDa', 'MoTa', 'YeuCau',
-            'HanDangKy', 'HanBaoCao', 'HanNopSanPham'
+            'HanDangKy', 'HanBaoCao', 'HanNopSanPham', 'LoaiPhanCong', 'TenLop_Hoac_TenLopHP', 'NgayPhanCong'
         ];
 
         // --- Strategy 3: Native PHP fgetcsv fallback (no extensions needed) ---
@@ -523,18 +521,19 @@ class ExcelImportService
 
         foreach ($rows as $row) {
             $rNum = $row['_row_num'];
-            $username = trim($row['TenDangNhap'] ?? '');
+            $username = trim($row['MaGV'] ?? $row['TenDangNhap'] ?? '');
             $hoTen = trim($row['HoTen'] ?? '');
             $email = trim($row['Email'] ?? '');
             $phone = trim($row['SoDienThoai'] ?? '');
+            $maBoMon = trim($row['MaBoMon'] ?? $row['TenBoMon'] ?? 'BM01');
 
             if (empty($username) || empty($hoTen)) {
-                $errors[] = ['row' => $rNum, 'reason' => 'Tên đăng nhập / Mã GV và Họ tên không được để trống', 'data' => $row];
+                $errors[] = ['row' => $rNum, 'reason' => 'Mã GV / Tên đăng nhập và Họ tên không được để trống', 'data' => $row];
                 continue;
             }
 
             if (in_array(mb_strtolower($username), $seenUsernames)) {
-                $errors[] = ['row' => $rNum, 'reason' => "Mã giảng viên / Tên đăng nhập '{$username}' bị trùng lặp trong file Excel", 'data' => $row];
+                $errors[] = ['row' => $rNum, 'reason' => "Mã giảng viên '{$username}' bị trùng lặp trong file Excel", 'data' => $row];
                 continue;
             }
             $seenUsernames[] = mb_strtolower($username);
@@ -564,7 +563,7 @@ class ExcelImportService
             }
 
             if (TaiKhoan::where('TenDangNhap', $username)->exists()) {
-                $errors[] = ['row' => $rNum, 'reason' => "Mã giảng viên / Tên đăng nhập '{$username}' đã tồn tại trong hệ thống", 'data' => $row];
+                $errors[] = ['row' => $rNum, 'reason' => "Mã giảng viên '{$username}' đã tồn tại trong hệ thống", 'data' => $row];
                 continue;
             }
 
@@ -574,23 +573,23 @@ class ExcelImportService
             }
 
             try {
-                DB::transaction(function () use ($username, $hoTen, $email, $phone, $row) {
-                    $tk = TaiKhoan::create([
-                        'TenDangNhap' => $username,
-                        'MatKhau' => Hash::make('123456'),
-                        'MaVaiTro' => 2, // Giảng viên
-                        'TrangThai' => true
-                    ]);
+                $tk = TaiKhoan::create([
+                    'TenDangNhap' => $username,
+                    'MatKhau' => Hash::make('123456'),
+                    'VaiTro' => 'Giảng viên',
+                    'TrangThai' => true
+                ]);
 
-                    GiangVien::create([
-                        'MaTK' => $tk->MaTK,
-                        'MaBoMon' => $row['MaBoMon'] ?? 1,
-                        'HoTen' => $hoTen,
-                        'Email' => !empty($email) ? $email : ($username . '@fe.edu.vn'),
-                        'SoDienThoai' => !empty($phone) ? $phone : ('090' . rand(1000000, 9999999)),
-                        'HocVi' => $row['HocVi'] ?? 'Thạc sĩ'
-                    ]);
-                });
+                GiangVien::create([
+                    'MaGV' => strtoupper($username),
+                    'MaTK' => (string) $tk->_id,
+                    'TenDangNhap' => $username,
+                    'MaBoMon' => $maBoMon,
+                    'HoTen' => $hoTen,
+                    'Email' => !empty($email) ? $email : ($username . '@huit.edu.vn'),
+                    'SoDienThoai' => !empty($phone) ? $phone : ('090' . rand(1000000, 9999999)),
+                    'HocVi' => $row['HocVi'] ?? 'Thạc sĩ'
+                ]);
                 $success++;
             } catch (Exception $e) {
                 $errors[] = ['row' => $rNum, 'reason' => $e->getMessage(), 'data' => $row];
@@ -621,13 +620,17 @@ class ExcelImportService
 
         foreach ($rows as $row) {
             $rNum = $row['_row_num'];
-            $username = trim($row['TenDangNhap'] ?? '');
+            $username = trim($row['MSSV'] ?? $row['MaSV'] ?? $row['TenDangNhap'] ?? '');
             $hoTen = trim($row['HoTen'] ?? '');
             $email = trim($row['Email'] ?? '');
             $phone = trim($row['SoDienThoai'] ?? '');
+            $ngaySinh = trim($row['NgaySinh'] ?? '');
+            $maLop = trim($row['MaLop'] ?? $row['TenLop'] ?? 'LOP01');
+            $maNganh = trim($row['MaNganh'] ?? $row['TenNganh'] ?? 'NG01');
+            $khoaHoc = trim($row['KhoaHoc'] ?? '12');
 
             if (empty($username) || empty($hoTen)) {
-                $errors[] = ['row' => $rNum, 'reason' => 'Tên đăng nhập (MSSV) và Họ tên không được để trống', 'data' => $row];
+                $errors[] = ['row' => $rNum, 'reason' => 'MSSV / Mã sinh viên và Họ tên không được để trống', 'data' => $row];
                 continue;
             }
 
@@ -672,22 +675,26 @@ class ExcelImportService
             }
 
             try {
-                DB::transaction(function () use ($username, $hoTen, $email, $phone, $row) {
-                    $tk = TaiKhoan::create([
-                        'TenDangNhap' => $username,
-                        'MatKhau' => Hash::make('123456'),
-                        'MaVaiTro' => 3, // Sinh viên
-                        'TrangThai' => true
-                    ]);
+                $tk = TaiKhoan::create([
+                    'TenDangNhap' => $username,
+                    'MatKhau' => Hash::make('123456'),
+                    'VaiTro' => 'Sinh viên',
+                    'TrangThai' => true
+                ]);
 
-                    SinhVien::create([
-                        'MaTK' => $tk->MaTK,
-                        'MaLop' => $row['MaLop'] ?? 1,
-                        'HoTen' => $hoTen,
-                        'Email' => !empty($email) ? $email : ($username . '@st.fe.edu.vn'),
-                        'SoDienThoai' => !empty($phone) ? $phone : ('098' . rand(1000000, 9999999))
-                    ]);
-                });
+                SinhVien::create([
+                    'MaSV' => strtoupper($username),
+                    'MaTK' => (string) $tk->_id,
+                    'TenDangNhap' => $username,
+                    'MaLop' => $maLop,
+                    'MaNganh' => $maNganh,
+                    'KhoaHoc' => $khoaHoc,
+                    'NgaySinh' => !empty($ngaySinh) ? $ngaySinh : null,
+                    'HoTen' => $hoTen,
+                    'Email' => !empty($email) ? $email : ($username . '@student.huit.edu.vn'),
+                    'SoDienThoai' => !empty($phone) ? $phone : ('098' . rand(1000000, 9999999)),
+                    'TrangThai' => 1
+                ]);
                 $success++;
             } catch (Exception $e) {
                 $errors[] = ['row' => $rNum, 'reason' => $e->getMessage(), 'data' => $row];
@@ -900,9 +907,11 @@ class ExcelImportService
         foreach ($rows as $row) {
             $rNum = $row['_row_num'] ?? 2;
             $loai = mb_strtolower(trim($row['LoaiPhanCong'] ?? $row['Loai'] ?? ''));
-            $gvVal = trim($row['MaGV'] ?? $row['GiangVien'] ?? $row['TenGiangVien'] ?? '');
-            $lopVal = trim($row['TenLop_Hoac_TenLopHP'] ?? $row['MaLop'] ?? $row['TenLop'] ?? $row['TenLopHP'] ?? $row['MaLopHP'] ?? '');
+            $gvVal = trim($row['MaGV'] ?? $row['GiangVien'] ?? $row['TenGiangVien'] ?? $row['HoTenGV'] ?? '');
+            $lopVal = trim($row['MaLopHP'] ?? $row['TenLopHP'] ?? $row['TenLop_Hoac_TenLopHP'] ?? $row['MaLop'] ?? $row['TenLop'] ?? '');
             $hkVal = trim($row['MaHocKy'] ?? $row['TenHocKy'] ?? '');
+            $thuVal = trim($row['Thu'] ?? '');
+            $caHocVal = trim($row['CaHoc'] ?? '');
 
             if (empty($gvVal) || empty($lopVal)) {
                 $errors[] = ['row' => $rNum, 'reason' => 'Giảng viên và Lớp (Hành chính hoặc Học phần) không được để trống', 'data' => $row];
@@ -911,6 +920,7 @@ class ExcelImportService
 
             // Resolve GiangVien
             $gv = GiangVien::where('MaGV', $gvVal)
+                ->orWhere('_id', $gvVal)
                 ->orWhere('HoTen', $gvVal)
                 ->orWhereHas('taiKhoan', function ($q) use ($gvVal) {
                     $q->where('TenDangNhap', $gvVal);
@@ -922,36 +932,49 @@ class ExcelImportService
             }
 
             // Determine if Lớp Học Phần or Lớp Hành Chính
-            $isLhp = (str_contains($loai, 'học phần') || str_contains($loai, 'tín chỉ') || str_contains($loai, 'hp')) 
-                || (!str_contains($loai, 'hành chính') && LopHocPhan::where('TenLopHP', $lopVal)->orWhere('MaLopHP', $lopVal)->exists());
+            $isLhp = (!empty($row['MaLopHP']) || !empty($row['TenLopHP']) || !empty($thuVal) || !empty($caHocVal)) 
+                || str_contains($loai, 'học phần') || str_contains($loai, 'tín chỉ') || str_contains($loai, 'hp')
+                || (!str_contains($loai, 'hành chính') && LopHocPhan::where('TenLopHP', $lopVal)->orWhere('MaLopHP', $lopVal)->orWhere('_id', $lopVal)->exists());
 
             if ($isLhp) {
-                $lhp = LopHocPhan::where('TenLopHP', $lopVal)->orWhere('MaLopHP', $lopVal)->first();
+                $lhp = LopHocPhan::where('TenLopHP', $lopVal)->orWhere('MaLopHP', $lopVal)->orWhere('_id', $lopVal)->first();
                 if (!$lhp) {
                     $errors[] = ['row' => $rNum, 'reason' => "Không tìm thấy Lớp Học Phần '{$lopVal}'", 'data' => $row];
                     continue;
                 }
-                $lhp->update(['MaGV' => $gv->MaGV]);
+
+                $updateData = ['MaGV' => $gv->MaGV];
+                if (!empty($thuVal)) $updateData['Thu'] = $thuVal;
+                if (!empty($caHocVal)) $updateData['CaHoc'] = $caHocVal;
+
+                $lhp->update($updateData);
                 $success++;
             } else {
-                $lop = Lop::where('TenLop', $lopVal)->orWhere('MaLop', $lopVal)->first();
+                $lop = Lop::where('TenLop', $lopVal)->orWhere('MaLop', $lopVal)->orWhere('_id', $lopVal)->first();
                 if (!$lop) {
                     $errors[] = ['row' => $rNum, 'reason' => "Không tìm thấy Lớp Hành Chính '{$lopVal}'", 'data' => $row];
                     continue;
                 }
 
-                $hk = HocKy::where('TenHocKy', $hkVal)->orWhere('MaHocKy', $hkVal)->first() ?? HocKy::first();
+                $hk = HocKy::where('TenHocKy', $hkVal)->orWhere('MaHocKy', $hkVal)->orWhere('MaHK', $hkVal)->orWhere('_id', $hkVal)->first() ?? HocKy::first();
                 if (!$hk) {
                     $errors[] = ['row' => $rNum, 'reason' => "Không tìm thấy Học kỳ '{$hkVal}'", 'data' => $row];
                     continue;
                 }
 
-                $existing = PhanCongHuongDanLop::where('MaLop', $lop->MaLop)->where('MaHocKy', $hk->MaHocKy)->first();
+                $existing = PhanCongHuongDanLop::where(function($q) use ($lop) {
+                    $q->where('MaLop', $lop->MaLop)->orWhere('MaLop', $lop->_id);
+                })->where(function($q) use ($hk) {
+                    $q->where('MaHocKy', $hk->MaHocKy)->orWhere('MaHocKy', $hk->_id);
+                })->first();
+
                 if ($existing) {
                     $existing->update(['MaGV' => $gv->MaGV]);
                     $success++;
                 } else {
+                    $maxId = PhanCongHuongDanLop::max('MaPhanCong') ?? 0;
                     PhanCongHuongDanLop::create([
+                        'MaPhanCong' => (int)$maxId + 1,
                         'MaGV' => $gv->MaGV,
                         'MaLop' => $lop->MaLop,
                         'MaHocKy' => $hk->MaHocKy,
@@ -1028,25 +1051,18 @@ class ExcelImportService
             }
 
             try {
-                DB::transaction(function () use ($tenNhom, $maMon, $maLop, $maHocKy, $maSVLeader) {
-                    $nhom = NhomDoAn::create([
-                        'TenNhom' => $tenNhom,
-                        'MaMon' => $maMon,
-                        'MaLop' => $maLop,
-                        'MaHocKy' => $maHocKy,
-                        'MaCode' => strtoupper(substr(md5(uniqid()), 0, 8)),
-                        'NgayTao' => now()->toDateString()
-                    ]);
+                $nhom = NhomDoAn::create([
+                    'TenNhom' => $tenNhom,
+                    'MaMon' => $maMon,
+                    'MaLop' => $maLop,
+                    'MaHocKy' => $maHocKy,
+                    'MaCode' => strtoupper(substr(md5(uniqid()), 0, 8)),
+                    'NgayTao' => now()->toDateString()
+                ]);
 
-                    if (!empty($maSVLeader)) {
-                        ThanhVienNhom::create([
-                            'MaNhom' => $nhom->MaNhom,
-                            'MaSV' => $maSVLeader,
-                            'VaiTro' => 'Trưởng nhóm',
-                            'TrangThai' => 'da_chap_nhan'
-                        ]);
-                    }
-                });
+                if (!empty($maSVLeader)) {
+                    $nhom->addThanhVien($maSVLeader, 'Trưởng nhóm', 'da_chap_nhan');
+                }
                 $success++;
             } catch (Exception $e) {
                 $errors[] = ['row' => $rNum, 'reason' => $e->getMessage(), 'data' => $row];
@@ -1141,10 +1157,7 @@ class ExcelImportService
         $rows = $this->parseFile($file);
         $success = 0;
         $errors = [];
-
-        // Role ID cho Sinh viên
-        $roleSV = VaiTro::where('TenVaiTro', 'Sinh viên')->first();
-        $roleId = $roleSV->MaVaiTro ?? 3;
+        $lhp = $targetMaLopHP ? LopHocPhan::where('_id', $targetMaLopHP)->orWhere('MaLopHP', $targetMaLopHP)->first() : null;
 
         foreach ($rows as $index => $row) {
             $rNum = $index + 2;
@@ -1154,44 +1167,61 @@ class ExcelImportService
                 continue;
             }
 
-            // Tìm sinh viên theo MSSV hoặc Tên đăng nhập
-            $sv = SinhVien::where('MaSV', $mssv)
-                ->orWhereHas('taiKhoan', function ($q) use ($mssv) {
-                    $q->where('TenDangNhap', $mssv);
-                })->first();
+            // Tìm tài khoản & hồ sơ sinh viên
+            $hoTenStr = trim($row['HoTen'] ?? "Sinh Viên {$mssv}");
+            $emailStr = trim($row['Email'] ?? "{$mssv}@st.edu.vn");
+            $sdtStr   = trim($row['SoDienThoai'] ?? '');
 
-            // Nếu sinh viên chưa có trong CSDL, tự động tạo tài khoản & hồ sơ sinh viên
-            if (!$sv) {
-                $maLop = null;
-                $tenLop = trim($row['TenLop'] ?? $row['MaLop'] ?? '');
-                if (!empty($tenLop)) {
-                    $lopObj = Lop::where('TenLop', $tenLop)->orWhere('MaLop', $tenLop)->first();
-                    if (!$lopObj) {
-                        $nganhFirst = Nganh::first();
-                        $lopObj = Lop::create([
-                            'TenLop' => $tenLop,
-                            'MaNganh' => $nganhFirst->MaNganh ?? 1,
-                            'KhoaHoc' => date('Y') . '-' . (date('Y') + 4)
+            $tkObj = TaiKhoan::where('TenDangNhap', $mssv)->first();
+            $sv = SinhVien::where('MaSV', $mssv)
+                ->orWhere('_id', $mssv)
+                ->orWhere('Email', $emailStr)
+                ->first();
+
+            if (!$sv && $tkObj) {
+                $sv = SinhVien::where('MaTK', (string)$tkObj->_id)->first();
+            }
+
+            // Xử lý Lớp Hành Chính từ Excel (TenLop / MaLop / LopHanhChinh)
+            $tenLop = trim($row['TenLop'] ?? $row['MaLop'] ?? $row['LopHanhChinh'] ?? $row['Lop'] ?? '');
+            $maLopResolved = null;
+            if (!empty($tenLop)) {
+                $lopObj = Lop::where('TenLop', $tenLop)->orWhere('MaLop', $tenLop)->orWhere('_id', $tenLop)->first();
+                if (!$lopObj) {
+                    $nganhFirst = Nganh::first();
+                    $lopObj = Lop::create([
+                        'MaLop'   => $tenLop,
+                        'TenLop'  => $tenLop,
+                        'MaNganh' => $nganhFirst->MaNganh ?? 1,
+                        'KhoaHoc' => date('Y') . '-' . (date('Y') + 4)
+                    ]);
+                } else if (empty($lopObj->MaLop)) {
+                    $lopObj->update(['MaLop' => $lopObj->TenLop ?? $tenLop]);
+                }
+                $maLopResolved = $lopObj->MaLop ?? $lopObj->TenLop ?? (string)$lopObj->_id;
+            }
+
+            // Nếu sinh viên đã có hồ sơ, cập nhật MaLop nếu sinh viên chưa có hoặc có thông tin Lớp từ Excel
+            if ($sv) {
+                if (!empty($maLopResolved) && (empty($sv->MaLop) || $sv->MaLop !== $maLopResolved)) {
+                    $sv->update(['MaLop' => $maLopResolved]);
+                    $sv->refresh();
+                }
+            } else {
+                try {
+                    if (!$tkObj) {
+                        $tkObj = TaiKhoan::where('TenDangNhap', $mssv)->first() ?? TaiKhoan::create([
+                            'TenDangNhap' => $mssv,
+                            'MatKhau' => Hash::make('123456'),
+                            'VaiTro' => 'Sinh viên',
+                            'TrangThai' => true
                         ]);
                     }
-                    $maLop = $lopObj->MaLop;
-                }
 
-                try {
-                    $tkObj = TaiKhoan::create([
-                        'TenDangNhap' => $mssv,
-                        'MatKhau' => Hash::make('123456'),
-                        'MaVaiTro' => $roleId,
-                        'TrangThai' => true
-                    ]);
-
-                    $hoTenStr = trim($row['HoTen'] ?? "Sinh Viên {$mssv}");
-                    $emailStr = trim($row['Email'] ?? "{$mssv}@st.edu.vn");
-                    $sdtStr   = trim($row['SoDienThoai'] ?? '');
-
-                    $sv = SinhVien::create([
-                        'MaTK' => $tkObj->MaTK,
-                        'MaLop' => $maLop,
+                    $sv = SinhVien::where('Email', $emailStr)->first() ?? SinhVien::create([
+                        'MaSV' => $mssv,
+                        'MaTK' => (string) $tkObj->_id,
+                        'MaLop' => $maLopResolved,
                         'HoTen' => $hoTenStr,
                         'Email' => $emailStr,
                         'SoDienThoai' => $sdtStr
@@ -1203,58 +1233,42 @@ class ExcelImportService
             }
 
             // Tìm Lớp Học Phần
-            $lhp = null;
-            if ($targetMaLopHP) {
-                $lhp = LopHocPhan::find($targetMaLopHP);
-            } else {
+            $currentLhp = $lhp;
+            if (!$currentLhp) {
                 $tenLhp = trim($row['TenLopHP'] ?? $row['MaLopHP'] ?? '');
                 if (!empty($tenLhp)) {
-                    $lhp = LopHocPhan::where('TenLopHP', $tenLhp)->orWhere('MaLopHP', $tenLhp)->first();
+                    $currentLhp = LopHocPhan::where('TenLopHP', $tenLhp)->orWhere('MaLopHP', $tenLhp)->orWhere('_id', $tenLhp)->first();
                 }
             }
 
-            if (!$lhp) {
+            if (!$currentLhp) {
                 $errors[] = ['row' => $rNum, 'reason' => "Không tìm thấy Lớp Học Phần tương ứng", 'data' => $row];
                 continue;
             }
 
-            // Kiểm tra xem sinh viên đã thuộc Lớp HP nào của môn này trong học kỳ này chưa
-            $existing = SinhVienLopHocPhan::where('MaSV', $sv->MaSV)
-                ->where('MaMon', $lhp->MaMon)
-                ->where('MaHocKy', $lhp->MaHocKy)
-                ->first();
+            $lhp = $currentLhp;
 
-            if ($existing) {
-                if ($existing->MaLopHP == $lhp->MaLopHP) {
-                    // Đã có trong lớp HP này rồi thì bỏ qua không báo lỗi
-                    continue;
-                }
-                $errors[] = ['row' => $rNum, 'reason' => "Sinh viên '{$mssv}' đã thuộc Lớp HP khác của môn này trong cùng học kỳ!", 'data' => $row];
+            // Kiểm tra xem sinh viên đã có trong Lớp Học Phần này chưa
+            if ($lhp->hasSinhVien($sv->MaSV) || $lhp->hasSinhVien($sv->_id)) {
                 continue;
             }
 
             // Kiểm tra giới hạn sĩ số tối đa
-            $currentCount = SinhVienLopHocPhan::where('MaLopHP', $lhp->MaLopHP)->count();
+            $currentCount = count($lhp->DanhSachSinhVien ?? []);
             if ($currentCount >= $lhp->SiSoToiDa) {
                 $errors[] = ['row' => $rNum, 'reason' => "Lớp Học Phần '{$lhp->TenLopHP}' đã đạt sĩ số tối đa ({$lhp->SiSoToiDa} SV)!", 'data' => $row];
                 continue;
             }
 
             try {
-                SinhVienLopHocPhan::create([
-                    'MaSV' => $sv->MaSV,
-                    'MaLopHP' => $lhp->MaLopHP,
-                    'MaMon' => $lhp->MaMon,
-                    'MaHocKy' => $lhp->MaHocKy,
-                    'NgayDangKy' => now(),
-                ]);
+                $lhp->addSinhVien($sv->MaSV);
                 $success++;
             } catch (Exception $e) {
                 $errors[] = ['row' => $rNum, 'reason' => $e->getMessage(), 'data' => $row];
             }
         }
 
-        AuditLog::log('import_sinhvien_lophocphan', 'SinhVienLopHocPhan', null, ['success' => $success, 'errors' => count($errors)]);
+        AuditLog::log('import_sinhvien_lophocphan', 'LopHocPhan', $lhp ? $lhp->_id : null, ['success' => $success, 'errors' => count($errors)]);
 
         return [
             'total_count' => count($rows),

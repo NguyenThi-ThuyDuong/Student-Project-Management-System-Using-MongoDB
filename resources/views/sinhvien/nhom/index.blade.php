@@ -2,19 +2,7 @@
 @section('page_title', 'Nhóm Đồ Án Của Tôi')
 @section('content')
 
-@if(session('success'))
-<div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
-    <i class="fa-solid fa-check-circle me-2"></i>{{ session('success') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-@endif
-@if($errors->any())
-<div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
-    <strong class="d-block mb-1"><i class="fa-solid fa-triangle-exclamation me-1"></i>Thông báo:</strong>
-    <ul class="mb-0 ps-3">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-@endif
+
 
 <!-- HEADER BANNER & ACTION -->
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -91,12 +79,12 @@
                     @if($nhom->lopHocPhan)
                         <span class="badge bg-primary-subtle text-primary border border-primary me-2"><i class="fa-solid fa-graduation-cap me-1"></i>Lớp HP: {{ $nhom->lopHocPhan->TenLopHP }}</span>
                     @endif
-                    <i class="fa-solid fa-book me-1"></i>Môn: <strong>{{ $nhom->monHoc->TenMon ?? '—' }}</strong> &nbsp;|&nbsp;
-                    <i class="fa-solid fa-calendar me-1"></i>Học kỳ: <strong>{{ $nhom->hocKy->TenHocKy ?? '—' }}</strong>
+                    <i class="fa-solid fa-book me-1"></i>Môn: <strong>{{ $nhom->monHoc->TenMon ?? $nhom->MaMon ?? '—' }}</strong> &nbsp;|&nbsp;
+                    <i class="fa-solid fa-calendar me-1"></i>Học kỳ: <strong>{{ $nhom->hocKy->TenHocKy ?? $nhom->MaHocKy ?? '—' }}</strong>
                 </div>
             </div>
             
-            @if($nhom->TruongNhom == $sinhVien->MaSV)
+            @if($nhom->isTruongNhom($sinhVien))
                 <span class="badge bg-warning text-dark px-3 py-2 fs-7"><i class="fa-solid fa-crown me-1"></i>Bạn là Trưởng Nhóm</span>
             @else
                 <span class="badge bg-light text-secondary border px-3 py-2 fs-7"><i class="fa-solid fa-user me-1"></i>Thành viên</span>
@@ -107,7 +95,10 @@
             <div class="row g-4">
                 {{-- Cột trái: Thành viên & Đề tài --}}
                 <div class="col-md-7">
-                    <h6 class="fw-bold mb-3"><i class="fa-solid fa-user-group me-2 text-primary"></i>Danh Sách Thành Viên ({{ $nhom->thanhVienNhoms->count() }}/5)</h6>
+                    @php
+                        $thanhViens = $nhom->thanhVienSVs ?? $nhom->getSinhVienThanhVien();
+                    @endphp
+                    <h6 class="fw-bold mb-3"><i class="fa-solid fa-user-group me-2 text-primary"></i>Danh Sách Thành Viên ({{ $nhom->countThanhVien() }}/{{ $nhom->getSoThanhVienToiDa() }})</h6>
                     <div class="table-responsive mb-4 border rounded">
                         <table class="table table-sm table-hover align-middle mb-0">
                             <thead class="table-light">
@@ -119,13 +110,13 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($nhom->thanhVienNhoms as $tv)
+                                @foreach($thanhViens as $sv)
                                 <tr>
-                                    <td class="fw-semibold text-primary">{{ $tv->sinhVien->taiKhoan->TenDangNhap ?? '—' }}</td>
-                                    <td>{{ $tv->sinhVien->HoTen ?? '—' }}</td>
-                                    <td class="small text-muted">{{ $tv->sinhVien->lop->TenLop ?? '—' }}</td>
+                                    <td class="fw-semibold text-primary">{{ $sv->taiKhoan->TenDangNhap ?? $sv->MaSV ?? '—' }}</td>
+                                    <td>{{ $sv->HoTen ?? '—' }}</td>
+                                    <td class="small text-muted">{{ $sv->lop->TenLop ?? $sv->MaLop ?? '—' }}</td>
                                     <td>
-                                        @if($tv->VaiTro == 'Trưởng nhóm' || $nhom->TruongNhom == $tv->MaSV)
+                                        @if((string)$nhom->TruongNhom === (string)$sv->_id || (string)$nhom->TruongNhom === (string)$sv->MaSV)
                                             <span class="badge bg-warning text-dark"><i class="fa-solid fa-crown me-1"></i>Trưởng nhóm</span>
                                         @else
                                             <span class="badge bg-secondary">Thành viên</span>
@@ -138,19 +129,25 @@
                     </div>
 
                     {{-- Thông tin Đề Tài đăng ký --}}
+                    @php
+                        $deTaiObj = $nhom->getDeTaiDangKy();
+                        $tenDeTai = $deTaiObj->TenDeTai ?? (is_array($nhom->DangKyDeTai) ? ($nhom->DangKyDeTai['TenDeTai'] ?? null) : null) ?? $nhom->getTenDeTaiDangKy();
+                        $trangThaiDK = $nhom->getTrangThaiDangKy();
+                        $gvHD = $nhom->getGiangVienHuongDan() ?? ($deTaiObj ? $deTaiObj->giangVien : null);
+                    @endphp
                     <div class="p-3 bg-light rounded border mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="text-muted small fw-bold"><i class="fa-solid fa-book-bookmark me-1 text-info"></i>ĐỀ TÀI ĐỒ ÁN:</span>
-                            @if($nhom->dangKyDeTai)
-                                <span class="badge bg-{{ $nhom->dangKyDeTai->TrangThai == 'Đã duyệt' ? 'success' : ($nhom->dangKyDeTai->TrangThai == 'Từ chối' ? 'danger' : 'warning text-dark') }}">
-                                    {{ $nhom->dangKyDeTai->TrangThai }}
+                            @if($trangThaiDK !== 'Chưa đăng ký')
+                                <span class="badge bg-{{ $trangThaiDK == 'Đã duyệt' || $trangThaiDK == 'Đã duyệt đề tài' ? 'success' : ($trangThaiDK == 'Từ chối' ? 'danger' : 'warning text-dark') }}">
+                                    {{ $trangThaiDK }}
                                 </span>
                             @endif
                         </div>
-                        @if($nhom->dangKyDeTai && $nhom->dangKyDeTai->deTai)
-                            <h6 class="fw-bold text-primary mb-1">{{ $nhom->dangKyDeTai->deTai->TenDeTai }}</h6>
+                        @if($tenDeTai !== 'Chưa đăng ký' && !empty($tenDeTai))
+                            <h6 class="fw-bold text-primary mb-1">{{ $tenDeTai }}</h6>
                             <div class="small text-muted">
-                                Giảng viên hướng dẫn: <strong>{{ $nhom->dangKyDeTai->deTai->giangVien->HoTen ?? '—' }}</strong>
+                                Giảng viên hướng dẫn: <strong>{{ $gvHD->HoTen ?? 'Chưa phân công' }}</strong>
                             </div>
                         @else
                             <p class="text-muted small mb-0">Chưa đăng ký đề tài nào. <a href="{{ route('sinhvien.dangky.index') }}" class="fw-bold text-primary">Đăng ký ngay</a></p>
@@ -158,7 +155,7 @@
                     </div>
 
                     {{-- Mời thành viên mới (Chỉ dành cho Trưởng nhóm) --}}
-                    @if($nhom->TruongNhom == $sinhVien->MaSV && $nhom->thanhVienNhoms->count() < 5)
+                    @if($nhom->isTruongNhom($sinhVien) && $nhom->countThanhVien() < $nhom->getSoThanhVienToiDa())
                     <div class="p-3 bg-white border rounded shadow-sm">
                         <h6 class="fw-bold small text-success mb-2"><i class="fa-solid fa-user-plus me-1"></i>Mời thành viên mới vào nhóm (Cùng Lớp Học Phần)</h6>
                         <form action="{{ route('sinhvien.nhom.moiThanhVien') }}" method="POST" class="row g-2">
@@ -286,18 +283,21 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3 p-3 bg-light rounded border border-primary-subtle">
-                        <label class="form-label fw-bold text-primary"><i class="fa-solid fa-graduation-cap me-1"></i>Lớp Học Phần <span class="badge bg-primary text-white ms-1">Mới</span></label>
+                        <label class="form-label fw-bold text-primary"><i class="fa-solid fa-graduation-cap me-1"></i>Lớp Học Phần Theo Học Kỳ <span class="badge bg-primary text-white ms-1">Đã Đăng Ký</span></label>
                         <select name="MaLopHP" id="select_MaLopHP" class="form-select border-primary" onchange="onLopHocPhanChange(this)">
-                            <option value="">-- Chọn Lớp Học Phần (Khuyên dùng) --</option>
+                            <option value="">-- Chọn Lớp Học Phần --</option>
                             @if(isset($allLopHocPhans))
                                 @foreach($allLopHocPhans as $lhp)
-                                    <option value="{{ $lhp->MaLopHP }}" data-mamon="{{ $lhp->MaMon }}" data-mahocky="{{ $lhp->MaHocKy }}">
-                                        {{ $lhp->TenLopHP }} ({{ $lhp->monHoc->TenMon ?? 'Môn' }} - {{ $lhp->hocKy->TenHocKy ?? 'Kỳ' }} - GV: {{ $lhp->giangVien->HoTen ?? 'Chưa gán' }})
+                                    <option value="{{ $lhp->MaLopHP }}" data-mamon="{{ $lhp->MaMon }}" data-mahocky="{{ $lhp->MaHocKy }}" data-maxmembers="{{ $lhp->SoThanhVienNhomToiDa }}">
+                                        @if($lhp->is_enrolled) [Lớp HP của bạn] @endif {{ $lhp->TenLopHP }} ({{ $lhp->monHoc->TenMon ?? 'Môn' }} - {{ $lhp->hocKy->TenHocKy ?? 'Kỳ' }} - GV: {{ $lhp->giangVien->HoTen ?? 'Chưa gán' }})
                                     </option>
                                 @endforeach
                             @endif
                         </select>
-                        <div class="form-text text-muted small">Chọn Lớp Học Phần để tự động gán đúng Môn học, Học kỳ và Giảng viên hướng dẫn.</div>
+                        <div class="form-text text-muted small">Chọn Lớp Học Phần đã được xếp lớp để tạo nhóm đúng môn & đúng số lượng thành viên tối đa quy định.</div>
+                        <div id="lhp_member_limit_info" class="alert alert-info py-2 px-3 mb-0 mt-2 small d-none">
+                            <i class="fa-solid fa-users me-1"></i>Số thành viên tối đa do Giảng viên quy định: <strong id="lhp_max_members_val">5</strong> sinh viên/nhóm.
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -334,11 +334,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Hủy</button>
-                    @if(isset($availableMonHocs) && $availableMonHocs->isNotEmpty())
-                        <button type="submit" class="btn btn-primary rounded-pill px-4">
-                            <i class="fa-solid fa-check me-1"></i>Tạo Nhóm
-                        </button>
-                    @endif
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">
+                        <i class="fa-solid fa-check me-1"></i>Tạo Nhóm Mới
+                    </button>
                 </div>
             </div>
         </form>
@@ -401,6 +399,7 @@ function onLopHocPhanChange(selectEl) {
     const selectedOption = selectEl.options[selectEl.selectedIndex];
     const maMon = selectedOption.getAttribute('data-mamon');
     const maHocKy = selectedOption.getAttribute('data-mahocky');
+    const maxMembers = selectedOption.getAttribute('data-maxmembers');
 
     if (maMon) {
         const monSelect = document.getElementById('select_MaMon');
@@ -409,6 +408,15 @@ function onLopHocPhanChange(selectEl) {
     if (maHocKy) {
         const hkSelect = document.getElementById('select_MaHocKy');
         if (hkSelect) hkSelect.value = maHocKy;
+    }
+    
+    const limitInfoDiv = document.getElementById('lhp_member_limit_info');
+    const limitValSpan = document.getElementById('lhp_max_members_val');
+    if (maxMembers && limitInfoDiv && limitValSpan) {
+        limitValSpan.textContent = maxMembers;
+        limitInfoDiv.classList.remove('d-none');
+    } else if (limitInfoDiv) {
+        limitInfoDiv.classList.add('d-none');
     }
 }
 </script>

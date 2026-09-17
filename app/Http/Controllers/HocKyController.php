@@ -10,9 +10,24 @@ class HocKyController extends Controller
 {
     use HandlesExcelImport;
 
-    public function index()
+    public function index(Request $request)
     {
-        $hockys = HocKy::paginate(10);
+        $query = HocKy::query();
+
+        if ($request->filled('search')) {
+            $kw = $request->search;
+            $query->where(function($q) use ($kw) {
+                $q->where('TenHocKy', 'like', "%{$kw}%")
+                  ->orWhere('NamHoc', 'like', "%{$kw}%")
+                  ->orWhere('MaHocKy', 'like', "%{$kw}%");
+            });
+        }
+
+        if ($request->filled('NamHoc')) {
+            $query->where('NamHoc', $request->NamHoc);
+        }
+
+        $hockys = $query->orderBy('_id', 'desc')->paginate(10)->withQueryString();
         return view('admin.hocky.index', compact('hockys'));
     }
 
@@ -38,15 +53,25 @@ class HocKyController extends Controller
         return redirect()->route('hocky.index')->with('success', 'Thêm học kỳ thành công!');
     }
 
+    private function findHocKy($id)
+    {
+        return HocKy::where('_id', $id)->orWhere('MaHocKy', $id)->firstOrFail();
+    }
+
+    public function show($id)
+    {
+        return $this->edit($id);
+    }
+
     public function edit($id)
     {
-        $hocky = HocKy::findOrFail($id);
+        $hocky = $this->findHocKy($id);
         return view('admin.hocky.edit', compact('hocky'));
     }
 
     public function update(Request $request, $id)
     {
-        $hocky = HocKy::findOrFail($id);
+        $hocky = $this->findHocKy($id);
 
         $request->validate([
             'TenHocKy' => 'required|string|max:50',
@@ -65,12 +90,13 @@ class HocKyController extends Controller
 
     public function destroy($id)
     {
-        $hocky = HocKy::findOrFail($id);
         try {
-            HocKy::destroy($id);
+            $hocky = $this->findHocKy($id);
+            $hocky->delete();
             return redirect()->route('hocky.index')->with('success', 'Xóa học kỳ thành công!');
         } catch (\Throwable $e) {
-            return redirect()->back()->withErrors("Không thể xóa học kỳ '{$hocky->TenHocKy}' do đang có đề tài, nhóm đồ án hoặc phân công liên quan.");
+            \Illuminate\Support\Facades\Log::error('Xóa Học kỳ lỗi: ' . $e->getMessage());
+            return redirect()->back()->withErrors("Không thể xóa học kỳ: " . $e->getMessage());
         }
     }
 

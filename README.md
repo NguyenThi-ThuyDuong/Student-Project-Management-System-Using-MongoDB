@@ -1,121 +1,115 @@
-# 🎓 ĐỒ ÁN MÔN DỮ LIỆU NoSQL: HỆ THỐNG QUẢN LÝ ĐỒ ÁN & KHÓA LUẬN TỐT NGHIỆP (HUIT)
+# 🎓 HỆ THỐNG QUẢN LÝ ĐỒ ÁN & KHÓA LUẬN TỐT NGHIỆP (HUIT) - NOSQL MONGODB
 
 ![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
 ![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-8.0-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
 ![MongoDB Compass](https://img.shields.io/badge/MongoDB%20Compass-GUI-13AA52?style=for-the-badge&logo=mongodb&logoColor=white)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-5-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)
+![Gemini AI](https://img.shields.io/badge/AI%20Assist-Gemini%202.5%20Flash-8E44AD?style=for-the-badge&logo=google&logoColor=white)
 
-Hệ thống Quản lý Đồ án và Khóa luận Tốt nghiệp dành riêng cho **Giảng Viên và Sinh Viên** Trường Đại Học Công Thương TP. Hồ Chí Minh (HUIT). 
+Hệ thống Quản lý Đồ án & Khóa luận Tốt nghiệp trực tuyến dành riêng cho **Sinh viên, Giảng viên và Quản trị viên (Admin)** Trường Đại Học Công Thương TP. Hồ Chí Minh (HUIT). 
 
-Dự án đã được chuyển đổi hoàn toàn kiến trúc lưu trữ từ **MySQL (RDBMS)** sang **MongoDB (NoSQL Document Store)**, đáp ứng đầy đủ yêu cầu bài toán nghiệp vụ, tối ưu hóa truy vấn tài liệu nhúng (Embedded Documents) và tích hợp công cụ **MongoDB Compass** để kiểm thử, quản lý dữ liệu.
+Dự án được xây dựng chuẩn kiến trúc CSDL **MongoDB (NoSQL Document Store)**, tối ưu hóa truy vấn tài liệu nhúng (Embedded Documents), tích hợp công cụ **MongoDB Compass** và công cụ đánh giá tiến độ thông minh **AI Assistant (Gemini 2.5 Flash Academic Edition)**.
 
----
-
-## 📌 1. Vì Sao KHÔNG Sử Dụng `DatabaseSeeder` Của Laravel?
-
-Trong các dự án Laravel MySQL truyền thống, `DatabaseSeeder.php` thường được dùng để sinh dữ liệu qua Eloquent PHP. Tuy nhiên, đối với bài toán môn **Dữ liệu NoSQL**:
-
-1. **Chuẩn hóa quy trình NoSQL thuần:** Dữ liệu và cấu trúc tài liệu (JSON/BSON) được tạo và quản lý trực tiếp thông qua các công cụ NoSQL chuẩn (`mongosh`, MongoDB Compass) thay vì phụ thuộc vào PHP ORM.
-2. **Quản lý Schema Validation & Indexes bằng JavaScript:** MongoDB hỗ trợ JSON Schema Validation (`$jsonSchema`), Unique Index, Compound Index, và Text Index. Việc định nghĩa bằng các script `.js` chạy trong `mongosh` giúp giảng viên và người đánh giá kiểm tra trực tiếp cấu trúc NoSQL.
-3. **Dễ dàng xem và làm việc trên MongoDB Compass:** Khi khởi tạo dữ liệu qua bộ script `mongodb/`, toàn bộ Collections, Document structures, Embedded arrays (`ThanhVien`, `DangKyDeTai`, `BaoCaoTienDo`, `SanPham`, `ChamDiem`) hiển thị trực quan và chuẩn xác 100% trên giao diện GUI của **MongoDB Compass**.
+> [!NOTE]
+> **Repository GitHub Chính thức:**  
+> [https://github.com/NguyenThi-ThuyDuong/Student-Project-Management-System-Using-MongoDB.git](https://github.com/NguyenThi-ThuyDuong/Student-Project-Management-System-Using-MongoDB.git)
 
 ---
 
-## 🛠️ 2. Hướng Dẫn Chi Tiết Cài Đặt & Kết Nối MongoDB Compass
+## 🌟 1. Tính Năng Nổi Bật
 
-### Bước 2.1. Cài đặt & Khởi động MongoDB Service
-- Đảm bảo máy tính đã cài đặt **MongoDB Community Server** (Service `MongoDB` đang ở trạng thái `Running`).
-- Cổng mặc định của MongoDB: `27017`.
+### 👨‍🎓 Đối với Sinh Viên
+- **Quản lý Nhóm Đồ án:** Tạo nhóm, mời thành viên qua MSSV, chấp nhận/từ chối lời mời gia nhập nhóm.
+- **Đăng ký Đề tài:** Chọn đề tài từ danh sách giảng viên công bố hoặc đề xuất đề tài mới.
+- **Nộp Báo cáo Tiến độ (5 Giai đoạn):** Nộp file báo cáo PDF/Word, đính kèm link GitHub Source Code.
+- **Nộp Sản phẩm & Theo dõi Điểm:** Nộp sản phẩm đồ án hoàn chỉnh, xem nhận xét và điểm số từ Giảng viên.
 
-### Bước 2.2. Kết nối bằng MongoDB Compass
-1. Mở phần mềm **MongoDB Compass**.
-2. Tại màn hình New Connection, nhập chuỗi URI:
-   ```text
-   mongodb://127.0.0.1:27017
-   ```
-3. Nhấn **Connect**.
-4. Bạn sẽ thấy danh sách các Databases. Khi thực hiện nạp dữ liệu ở Bước 3, Database tên là **`quanly_doan`** sẽ xuất hiện tại đây.
+### 👨‍🏫 Đối với Giảng Viên
+- **Quản lý & Đề xuất Đề tài:** Tạo đề tài cho Lớp học phần, quản lý hạn đăng ký, hạn nộp báo cáo.
+- **Phê duyệt Đăng ký Đề tài:** Phê duyệt hoặc từ chối đề tài do sinh viên đề xuất.
+- **Đánh Giá Tiến Độ Tích hợp AI (AI Assist):**
+  - **Tóm tắt AI (AI SUMMARY):** Tự động phân tích báo cáo PDF/Word, tổng hợp *Công việc hoàn thành*, *Khó khăn gặp phải* và *Kế hoạch tuần tới*.
+  - **Xem trước Báo cáo PDF:** Bộ xem tài liệu tương tác hỗ trợ chuyển trang, zoom và hiển thị trực tiếp.
+  - **Nhận xét & Duyệt tiến độ:** Nhập phản hồi và phê duyệt từng lần nộp của sinh viên.
+- **Quản lý Sản phẩm & Chấm điểm:** Đánh giá điểm báo cáo, điểm bảo vệ và tổng kết điểm đồ án.
+
+### 🏛️ Đối với Quản Trị Viên (Admin)
+- **Quản lý Danh mục Core:** Quản lý Bộ môn, Ngành học, Lớp hành chính, Môn học, Học kỳ, Lớp học phần.
+- **Phân công Giảng viên:** Phân công GVCN lớp hành chính và Giảng viên phụ trách Lớp học phần.
+- **Quản lý & Phê duyệt Đề tài Toàn trường:** Duyệt/từ chối đề tài do giảng viên và sinh viên đề xuất.
+- **Giám sát Tiến độ & Thống kê:** Báo cáo thống kê tiến độ đồ án toàn trường, theo dõi các nhóm chậm tiến độ.
 
 ---
 
-## 🚀 3. Các Lệnh Tạo CSDL, Đánh Index, Validation & Nạp 50+ Dữ Liệu Mẫu
+## 🏗️ 2. Kiến Trúc Cơ Sở Dữ Liệu NoSQL (MongoDB)
 
-Dự án cung cấp sẵn bộ script JavaScript trong thư mục `mongodb/` phục vụ khởi tạo CSDL NoSQL từ đầu:
+Dự án tận dụng tối đa sức mạnh của MongoDB để lưu trữ dữ liệu dưới dạng tài liệu (Document) linh hoạt:
 
-### 📂 Cấu trúc thư mục `mongodb/`:
-```
-mongodb/
-├── 01_create_database.js       # Khởi tạo & chọn DB quanly_doan
-├── 02_create_collections.js    # Tạo 14 Collections
-├── 03_create_indexes.js        # Đánh Unique, Compound & Full-text Indexes
-├── 04_create_validation.js     # Thiết lập JSON Schema Validation ($jsonSchema)
-├── 05_import_data.js           # Nạp dữ liệu mẫu theo thứ tự chuẩn NoSQL
-├── 06_check_data.js            # Kiểm tra số lượng & tính toàn vẹn bản ghi
-├── run_all.js                  # Master script chạy tự động từ 01 -> 06
-│
-├── data/                       # Bộ 15 file dữ liệu mẫu (50+ bản ghi / file)
-│   ├── 01_users.js             # 101 Tài khoản (Admin, 50 GV, 50 SV)
-│   ├── 02_departments.js       # 50 Bộ môn
-│   ├── 03_majors.js            # 50 Ngành
-│   ├── 04_classes.js           # 50 Lớp
-│   ├── 05_semesters.js         # 50 Học kỳ
-│   ├── 06_lecturers.js         # 50 Giảng viên
-│   ├── 07_students.js          # 50 Sinh viên
-│   ├── 08_projects.js           # 50 Đề tài đồ án
-│   ├── 09_groups.js            # 50 Nhóm đồ án (với embedded document đầy đủ)
-│   ├── 10_registrations.js     # Đăng ký đề tài
-│   ├── 11_progress_reports.js  # Báo cáo tiến độ
-│   ├── 12_submissions.js       # Nộp sản phẩm
-│   ├── 13_councils.js          # Hội đồng chấm đồ án
-│   ├── 14_evaluations.js       # Đánh giá & chấm điểm
-│   └── 15_notifications.js     # 50 Thông báo
-│
-└── queries/                    # Bộ 11 file truy vấn NoSQL nghiệp vụ (báo cáo đồ án)
+```mermaid
+graph TD
+    TaiKhoan[tai_khoan] --> SinhVien[sinh_vien]
+    TaiKhoan --> GiangVien[giang_vien]
+    LopHocPhan[lop_hoc_phan] --> DeTai[de_tai]
+    NhomDoAn[nhom_do_an] -->|Embedded| ThanhVien[ThanhVien Array]
+    NhomDoAn -->|Embedded| DangKyDeTai[DangKyDeTai Object]
+    NhomDoAn -->|Embedded| HuongDan[HuongDan Object]
+    NhomDoAn -->|Embedded| BaoCaoTienDo[BaoCaoTienDo Array + NhanXet]
+    NhomDoAn -->|Embedded| SanPham[SanPham Array]
+    NhomDoAn -->|Embedded| ChamDiem[ChamDiem Object]
 ```
 
-### ⚡ Các Lệnh Thực Hiện (Chạy qua Terminal hoặc File Batch):
+### Cấu trúc Embedded Documents tiêu biểu (`nhom_do_an` collection):
+* `ThanhVien`: Danh sách mảng nhúng thông tin sinh viên & vai trò (Trưởng nhóm, Thành viên).
+* `DangKyDeTai`: Thông tin đề tài đã đăng ký & trạng thái phê duyệt.
+* `HuongDan`: Thông tin giảng viên hướng dẫn phân công.
+* `BaoCaoTienDo`: Mảng nhúng đợt nộp báo cáo kèm danh sách nhận xét `NhanXet`.
+* `SanPham`: Mảng nhúng sản phẩm hoàn chỉnh & link repository GitHub.
+* `ChamDiem`: Đối tượng lưu điểm báo cáo, điểm bảo vệ, điểm tổng kết và nhận xét cuối kỳ.
+
+---
+
+## 📌 3. Vì Sao KHÔNG Sử Dụng `DatabaseSeeder` MySQL Truyền Thống?
+
+1. **Chuẩn hóa quy trình NoSQL thuần:** Dữ liệu và cấu trúc tài liệu (JSON/BSON) được tạo và quản lý trực tiếp thông qua các công cụ NoSQL chuẩn (`mongosh`, MongoDB Compass).
+2. **Quản lý Schema Validation & Indexes bằng JavaScript:** MongoDB hỗ trợ JSON Schema Validation (`$jsonSchema`), Unique Index, Compound Index, và Text Index qua bộ script `.js`.
+3. **Quản lý trực quan trên MongoDB Compass:** Toàn bộ Collections, Document structures, Embedded arrays hiển thị trực quan và chuẩn xác 100% trên GUI của **MongoDB Compass**.
+
+---
+
+## 🛠️ 4. Hướng Dẫn Cài Đặt & Khởi Tạo Dữ Liệu
+
+### Bước 4.1. Cài đặt MongoDB Service & Extension PHP
+- Cài đặt **MongoDB Community Server** (Cổng mặc định: `27017`).
+- Bật extension `php_mongodb.dll` trong `php.ini`:
+  ```ini
+  extension=mongodb
+  ```
+
+### Bước 4.2. Khởi tạo Cơ sở dữ liệu MongoDB
+Sử dụng script nạp tự động trong thư mục `mongodb/`:
 
 #### Cách 1: Chạy Master Script qua Terminal (`mongosh`)
 ```bash
 mongosh mongodb://127.0.0.1:27017/quanly_doan mongodb/run_all.js
 ```
 
-#### Cách 2: Chạy qua File Batch (Dành cho Windows)
-Trong thư mục gốc dự án, double-click hoặc gõ lệnh:
+#### Cách 2: Chạy qua File Batch (Windows)
+Double-click hoặc chạy lệnh trong terminal:
 ```cmd
 .\run_mongodb.bat
 ```
 
-### 📊 Kết quả Thống kê Dữ liệu trong MongoDB Compass (50+ bản ghi/collection):
-- `tai_khoan`: **101** bản ghi (Admin + 50 GV + 50 SV)
-- `bo_mon`: **50** bản ghi
-- `nganh`: **50** bản ghi
-- `lop`: **50** bản ghi
-- `hoc_ky`: **50** bản ghi
-- `giang_vien`: **50** bản ghi
-- `sinh_vien`: **50** bản ghi
-- `de_tai`: **50** bản ghi
-- `nhom_do_an`: **50** bản ghi (Tích hợp Embedded Documents: `ThanhVien`, `DangKyDeTai`, `HuongDan`, `BaoCaoTienDo`, `SanPham`, `ChamDiem`)
-- `thong_bao`: **50** bản ghi
-- `hoi_dong`: **50** bản ghi
+#### Cách 3: Nạp kịch bản dữ liệu kiểm thử Laravel PHP
+```bash
+php scratch/seed_kich_ban_test.php
+```
 
 ---
 
-## 🔗 4. Cách Kết Nối MongoDB Compass / MongoDB Server Với Source Code PHP (Laravel)
+## 🔗 5. Cấu Hình Laravel Kết Nối MongoDB
 
-Sau khi dữ liệu đã được tạo sẵn trong MongoDB Server, source code PHP/Laravel sẽ kết nối tới CSDL thông qua các bước cấu hình sau:
-
-### Bước 4.1. Cài đặt PHP Extension `mongodb`
-PHP chạy dưới máy cục bộ cần extension `php_mongodb.dll` (dành cho PHP 8.3 NTS x64):
-- Khai báo trong `php.ini`:
-  ```ini
-  extension=mongodb
-  ```
-- Thư viện kết nối trong Laravel (`composer.json`): `"mongodb/laravel-mongodb": "^5.11"`
-
-### Bước 4.2. Cấu hình file `.env`
-File `.env` khai báo kết nối trùng khớp với thông tin kết nối trên MongoDB Compass:
+### File `.env`:
 ```env
 DB_CONNECTION=mongodb
 DB_HOST=127.0.0.1
@@ -125,8 +119,7 @@ DB_USERNAME=
 DB_PASSWORD=
 ```
 
-### Bước 4.3. Cấu hình Connection trong `config/database.php`
-Trong `config/database.php`, connection `mongodb` được định nghĩa như sau:
+### File `config/database.php`:
 ```php
 'mongodb' => [
     'driver'   => 'mongodb',
@@ -141,68 +134,47 @@ Trong `config/database.php`, connection `mongodb` được định nghĩa như s
 ],
 ```
 
-### Bước 4.4. Đánh ánh quan hệ trong Model PHP
-Các Model trong thư mục `app/Models/` (ví dụ `NhomDoAn.php`, `SinhVien.php`, `GiangVien.php`) kế thừa lớp Model của MongoDB Laravel Driver:
-```php
-use MongoDB\Laravel\Eloquent\Model;
-
-class NhomDoAn extends Model
-{
-    protected $connection = 'mongodb';
-    protected $collection = 'nhom_do_an';
-    protected $primaryKey = '_id';
-    
-    // Cấu hình các trường nhúng (Embedded Arrays)
-    protected $casts = [
-        'ThanhVien' => 'array',
-        'DangKyDeTai' => 'array',
-        'BaoCaoTienDo' => 'array',
-        'SanPham' => 'array',
-        'ChamDiem' => 'array',
-    ];
-}
-```
-Nhờ cơ chế này, toàn bộ hàm điều khiển (Controllers) chỉ cần truy vấn dữ liệu từ MongoDB mà không hề phụ thuộc vào MySQL hay PHP Seeder.
-
 ---
 
-## 🖥️ 5. Khởi Chạy Ứng Dụng Laravel & Tài Khoản Mẫu
+## 🚀 6. Khởi Chạy Ứng Dụng
 
-### 1. Biên dịch tài nguyên giao diện:
+### 1. Cài đặt các gói phụ thuộc:
 ```bash
+composer install
+npm install
 npm run build
 ```
 
-### 2. Chạy máy chủ Laravel:
+### 2. Khởi chạy Server Laravel:
 ```bash
 php artisan serve
 ```
-Truy cập ứng dụng tại địa chỉ: **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
-
-### 🔑 Thông tin Đăng nhập Mẫu (Mật khẩu mặc định: `123456`):
-- **Quản Trị Viên (Admin)**: `admin` / `123456`
-- **Giảng Viên**: `gv01`, `gv02`, ..., `gv50` / `123456`
-- **Sinh Viên (Trưởng nhóm)**: `sv01`, `sv02`, ..., `sv50` / `123456`
+Truy cập ứng dụng tại: **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
 
 ---
 
-## 🔍 6. Bộ Truy Vấn NoSQL Nghiệp Vụ (`mongodb/queries/`)
+## 🔑 7. Tài Khoản Đăng Nhập Kiểm Thử
 
-Dự án chuẩn bị sẵn 11 file truy vấn NoSQL bằng `mongosh` để phục vụ demo và thuyết minh báo cáo đồ án:
+| Vai Trò | Tên Đăng Nhập | Mật Khẩu | Ghi Chú |
+|:---|:---|:---|:---|
+| **Quản Trị Viên (Admin)** | `admin` | `123456` | Quản trị toàn bộ hệ thống |
+| **Giảng Viên Phụ Trách** | `gv100` | `123456` | Tiến sĩ Nguyễn Văn A (GV100) |
+| **Giảng Viên Mẫu** | `gv01`, `gv02`, ... | `123456` | Danh sách Giảng viên HUIT |
+| **Sinh Viên (Nhóm trưởng)** | `sv100` | `123456` | Trần Văn Nam (SV100) |
+| **Sinh Viên (Thành viên)** | `sv200` | `123456` | Lê Thị Hoa (SV200) |
 
-| Tên File | Nghiệp Vụ Truy Vấn NoSQL | Lệnh Chạy Mẫu qua mongosh |
-|:---|:---|:---|
-| `01_users_queries.js` | Tra cứu tài khoản, phân quyền vai trò | `mongosh mongodb://127.0.0.1:27017/quanly_doan mongodb/queries/01_users_queries.js` |
-| `02_students_queries.js` | Tra cứu sinh viên kết hợp `$lookup` sang Lớp học | `mongosh mongodb://127.0.0.1:27017/quanly_doan mongodb/queries/02_students_queries.js` |
-| `03_lecturers_queries.js` | Lọc giảng viên theo học vị, thống kê theo bộ môn | `mongosh mongodb://127.0.0.1:27017/quanly_doan mongodb/queries/03_lecturers_queries.js` |
-| `04_projects_queries.js` | Tìm kiếm full-text `$text` đề tài đồ án | `mongosh mongodb://127.0.0.1:27017/quanly_doan mongodb/queries/04_projects_queries.js` |
-| `05_groups_queries.js` | Truy vấn mảng nhúng `ThanhVien`, `DangKyDeTai` | `mongosh mongodb://127.0.0.1:27017/quanly_doan mongodb/queries/05_groups_queries.js` |
-| `06_registrations_queries.js` | Tra cứu đăng ký đề tài | `mongosh mongodb://127.0.0.1:27017/quanly_doan mongodb/queries/06_registrations_queries.js` |
-| `07_progress_queries.js` | Thao tác trên mảng `BaoCaoTienDo` với `$unwind` | `mongosh mongodb://127.0.0.1:27017/quanly_doan mongodb/queries/07_progress_queries.js` |
-| `08_submissions_queries.js` | Truy vấn trạng thái nộp sản phẩm | `mongosh mongodb://127.0.0.1:27017/quanly_doan mongodb/queries/08_submissions_queries.js` |
-| `09_evaluations_queries.js` | Lọc điểm số đồ án cao hơn threshold | `mongosh mongodb://127.0.0.1:27017/quanly_doan mongodb/queries/09_evaluations_queries.js` |
-| `10_statistics_queries.js` | Aggregation Pipeline: `$group`, `$avg`, `$max`, `$min` | `mongosh mongodb://127.0.0.1:27017/quanly_doan mongodb/queries/10_statistics_queries.js` |
-| `11_advanced_queries.js` | Multi-facet Search (`$facet`) | `mongosh mongodb://127.0.0.1:27017/quanly_doan mongodb/queries/11_advanced_queries.js` |
+---
+
+## 📤 8. Hướng Dẫn Đẩy Code Lên GitHub
+
+Nếu bạn cần đẩy các thay đổi mới lên repository GitHub chính thức:
+
+```bash
+git add .
+git commit -m "Feat: Complete Student Project Management System with Laravel & MongoDB"
+git remote set-url origin https://github.com/NguyenThi-ThuyDuong/Student-Project-Management-System-Using-MongoDB.git
+git push -u origin main
+```
 
 ---
 

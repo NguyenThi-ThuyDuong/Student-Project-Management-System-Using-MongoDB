@@ -4,6 +4,7 @@
 <div class="card card-premium w-50 mx-auto"><div class="card-body p-4">
     <form action="{{ route('hocky.update', $hocky->MaHocKy) }}" method="POST">
         @csrf @method('PUT')
+        <div class="mb-3"><label>Mã Học Kỳ</label><input type="text" name="MaHocKy" class="form-control" value="{{ $hocky->MaHocKy }}" placeholder="Tự động tạo từ Tên & Năm học nếu để trống"></div>
         <div class="mb-3"><label>Tên Học Kỳ</label><input type="text" name="TenHocKy" class="form-control" value="{{ $hocky->TenHocKy }}" required></div>
         <div class="mb-3"><label>Năm Học</label><input type="text" name="NamHoc" class="form-control" value="{{ $hocky->NamHoc }}" required></div>
         <div class="mb-3"><label>Ngày Bắt Đầu</label><input type="date" name="NgayBatDau" class="form-control" value="{{ $hocky->NgayBatDau }}" required></div>

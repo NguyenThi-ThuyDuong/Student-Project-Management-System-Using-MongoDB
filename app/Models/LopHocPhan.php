@@ -28,6 +28,14 @@ class LopHocPhan extends Model
         'DanhSachSinhVien' => 'array',
     ];
 
+    public function getMaLopHPAttribute($value)
+    {
+        if (!empty($value)) {
+            return (string)$value;
+        }
+        return isset($this->attributes['_id']) ? (string)$this->attributes['_id'] : '';
+    }
+
     public function getSoThanhVienNhomToiDaAttribute($value)
     {
         return $value ? (int)$value : 5;

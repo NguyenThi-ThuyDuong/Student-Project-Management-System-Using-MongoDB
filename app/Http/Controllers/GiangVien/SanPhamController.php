@@ -78,7 +78,7 @@ class SanPhamController extends Controller
             $query->where('_id', $selectedNhomId);
         }
 
-        $nhoms = $query->paginate(10)->withQueryString();
+        $nhoms = $query->paginate(5)->withQueryString();
 
         return view('giangvien.sanpham.index', compact('nhoms', 'allNhoms', 'selectedNhomId'));
     }

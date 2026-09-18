@@ -123,7 +123,7 @@
                                     <div class="d-inline-flex gap-1 align-items-center">
                                         <button type="button" class="btn btn-sm btn-outline-cyan rounded-pill px-3 btn-assign-hc me-1"
                                                 data-lop-id="{{ $pc->MaLop }}"
-                                                data-hk-id="{{ $pc->MaHocKy }}"
+                                                data-hk-id="{{ $pc->hocKy->MaHocKy ?? $pc->MaHocKy }}"
                                                 data-gv-id="{{ $pc->MaGV }}">
                                             <i class="fa-solid fa-user-pen me-1"></i>Đổi GV
                                         </button>

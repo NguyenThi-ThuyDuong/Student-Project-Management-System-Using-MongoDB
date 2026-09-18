@@ -9,7 +9,7 @@
         margin: 0 !important;
         padding: 0 !important;
         font-family: 'Be Vietnam Pro', 'Inter', sans-serif !important;
-        background: #091322;
+        background: #051528;
     }
 
     /* ═══ PROPORTIONED DESKTOP SAAS CONTAINER ═══ */
@@ -18,21 +18,21 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(160deg, #091322 0%, #0F2942 50%, #6586E6 100%);
+        background: linear-gradient(160deg, #051528 0%, #0A2540 50%, #0066B2 100%);
         padding: 40px 20px;
     }
 
     /* PERFECT CARD DIMENSIONS (NOT TOO BIG, NOT TOO SMALL) */
     .login-saas-card {
         width: 94%;
-        max-width: 1160px;
-        min-height: 620px;
-        border-radius: 24px;
+        max-width: 1120px;
+        min-height: 600px;
+        border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 24px 80px rgba(9, 19, 34, 0.45);
+        box-shadow: 0 20px 60px rgba(5, 21, 40, 0.45);
         display: flex;
         background: #ffffff;
-        border: 1.5px solid rgba(255, 255, 255, 0.18);
+        border: 1.5px solid rgba(255, 255, 255, 0.2);
     }
 
     /* ── LEFT SIDE: BRANDING (50% WIDTH) ── */
@@ -40,11 +40,11 @@
         width: 50%;
         position: relative;
         overflow: hidden;
-        background: #0F2942;
+        background: #0A2540;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 44px 40px;
+        padding: 40px 36px;
         color: #ffffff;
     }
 
@@ -67,9 +67,9 @@
         position: absolute;
         inset: 0;
         background: linear-gradient(145deg, 
-            rgba(9, 19, 34, 0.9) 0%, 
-            rgba(15, 41, 66, 0.8) 50%, 
-            rgba(39, 164, 242, 0.5) 100%);
+            rgba(5, 21, 40, 0.92) 0%, 
+            rgba(10, 37, 64, 0.85) 50%, 
+            rgba(0, 102, 178, 0.55) 100%);
         z-index: 1;
     }
 
@@ -82,13 +82,13 @@
     }
 
     .school-logo-glow {
-        width: 58px;
-        height: 58px;
-        border-radius: 14px;
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
         object-fit: cover;
-        border: 2px solid #27A4F2;
+        border: 2px solid #0066B2;
         background: #ffffff;
-        box-shadow: 0 0 20px rgba(39, 164, 242, 0.4);
+        box-shadow: 0 0 20px rgba(0, 102, 178, 0.45);
     }
 
     .school-title-text {
@@ -102,7 +102,7 @@
 
     .school-sub-text {
         font-size: 0.78rem;
-        color: #9FD7F9;
+        color: #C7E5F4;
         font-weight: 500;
         display: block;
         margin-top: 2px;
@@ -119,19 +119,19 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: rgba(39, 164, 242, 0.18);
+        background: rgba(199, 229, 244, 0.2);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(39, 164, 242, 0.4);
+        border: 1px solid rgba(91, 155, 213, 0.4);
         padding: 6px 16px;
         border-radius: 30px;
         font-size: 0.8rem;
         font-weight: 700;
-        color: #CFEBFC;
+        color: #C7E5F4;
         margin-bottom: 20px;
     }
 
     .hero-headline-text {
-        font-size: 1.95rem;
+        font-size: 1.85rem;
         font-weight: 800;
         line-height: 1.3;
         color: #ffffff;
@@ -139,11 +139,11 @@
     }
 
     .hero-headline-text span {
-        color: #6EC2F7;
+        color: #5B9BD5;
     }
 
     .hero-desc-text {
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         color: rgba(255, 255, 255, 0.85);
         line-height: 1.65;
         margin-bottom: 24px;
@@ -160,21 +160,21 @@
         background: rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 255, 255, 0.16);
-        border-radius: 14px;
+        border-radius: 12px;
         padding: 12px;
         text-align: center;
     }
 
     .stat-pill-box .num {
-        font-size: 1.25rem;
+        font-size: 1.2rem;
         font-weight: 800;
         color: #ffffff;
         line-height: 1;
     }
 
     .stat-pill-box .lbl {
-        font-size: 0.7rem;
-        color: #9FD7F9;
+        font-size: 0.68rem;
+        color: #C7E5F4;
         font-weight: 600;
         margin-top: 4px;
         text-transform: uppercase;
@@ -184,7 +184,7 @@
         position: relative;
         z-index: 2;
         font-size: 0.78rem;
-        color: rgba(255, 255, 255, 0.7);
+        color: rgba(255, 255, 255, 0.75);
         border-top: 1px solid rgba(255, 255, 255, 0.12);
         padding-top: 16px;
         display: flex;
@@ -198,41 +198,41 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        padding: 48px 44px;
+        padding: 44px 40px;
     }
 
     .form-inner-wrapper {
-        max-width: 420px;
+        max-width: 400px;
         width: 100%;
         margin: 0 auto;
     }
 
     .form-head-zone {
-        margin-bottom: 28px;
+        margin-bottom: 24px;
     }
 
     .form-head-zone .welcome-heading {
-        font-size: 1.75rem;
+        font-size: 1.65rem;
         font-weight: 800;
-        color: #0F2942;
+        color: #0A2540;
         margin-bottom: 6px;
         letter-spacing: -0.2px;
     }
 
     .form-head-zone .welcome-subheading {
-        font-size: 0.88rem;
-        color: #64748B;
+        font-size: 0.86rem;
+        color: #475569;
         line-height: 1.5;
     }
 
     .field-group {
-        margin-bottom: 20px;
+        margin-bottom: 18px;
     }
 
     .field-group label {
-        font-size: 0.84rem;
+        font-size: 0.83rem;
         font-weight: 700;
-        color: #0F2942;
+        color: #0A2540;
         margin-bottom: 6px;
         display: flex;
         align-items: center;
@@ -240,7 +240,7 @@
     }
 
     .field-group label i {
-        color: #27A4F2;
+        color: #0066B2;
         font-size: 0.88rem;
     }
 
@@ -253,73 +253,73 @@
         left: 16px;
         top: 50%;
         transform: translateY(-50%);
-        font-size: 0.95rem;
+        font-size: 0.92rem;
         color: #64748B;
         transition: color 0.25s ease;
     }
 
     .input-icon-wrap input {
         width: 100%;
-        height: 48px;
-        border-radius: 12px;
-        border: 1.5px solid #BDCBF4;
-        background: #F0F7FE;
-        padding-left: 46px;
+        height: 46px;
+        border-radius: 10px;
+        border: 1.5px solid #BCE0F5;
+        background: #F3F7FA;
+        padding-left: 44px;
         padding-right: 16px;
-        font-size: 0.92rem;
+        font-size: 0.9rem;
         font-family: 'Be Vietnam Pro', 'Inter', sans-serif !important;
-        color: #0F172A;
+        color: #1E293B;
         transition: all 0.25s ease;
     }
 
     .input-icon-wrap input:focus {
-        border-color: #27A4F2;
+        border-color: #0066B2;
         background: #ffffff;
         outline: none;
-        box-shadow: 0 0 0 4px rgba(39, 164, 242, 0.16);
+        box-shadow: 0 0 0 4px rgba(0, 102, 178, 0.14);
     }
 
     .input-icon-wrap input:focus ~ .field-icon {
-        color: #27A4F2;
+        color: #0066B2;
     }
 
     .form-meta {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 24px;
-        font-size: 0.85rem;
+        margin-bottom: 22px;
+        font-size: 0.84rem;
     }
 
     .form-check-input:checked {
-        background-color: #27A4F2;
-        border-color: #27A4F2;
+        background-color: #0066B2;
+        border-color: #0066B2;
     }
 
     .link-forgot {
-        color: #27A4F2;
+        color: #0066B2;
         font-weight: 700;
         text-decoration: none;
         transition: all 0.2s ease;
     }
 
     .link-forgot:hover {
-        color: #1A90DD;
+        color: #005291;
         text-decoration: underline;
     }
 
     .btn-login-submit {
         width: 100%;
-        height: 50px;
+        height: 48px;
         border: none;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #27A4F2 0%, #6586E6 100%);
+        border-radius: 10px;
+        background: linear-gradient(135deg, #0066B2 0%, #5B9BD5 100%);
         color: #ffffff;
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: 700;
-        transition: all 0.25s ease;
+        transition: all 0.22s ease;
         cursor: pointer;
-        box-shadow: 0 4px 16px rgba(39, 164, 242, 0.35);
+        box-shadow: 0 4px 14px rgba(0, 102, 178, 0.3);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -328,18 +328,18 @@
     }
 
     .btn-login-submit:hover {
-        background: linear-gradient(135deg, #1A90DD 0%, #4F70D4 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(39, 164, 242, 0.45);
+        background: linear-gradient(135deg, #005291 0%, #4A8AC4 100%);
+        transform: translateY(-1.5px);
+        box-shadow: 0 6px 20px rgba(0, 102, 178, 0.4);
     }
 
     .form-footer-note {
-        margin-top: 28px;
+        margin-top: 24px;
         text-align: center;
         font-size: 0.75rem;
         color: #64748B;
-        border-top: 1px solid #CFEBFC;
-        padding-top: 16px;
+        border-top: 1px solid #E3F2FC;
+        padding-top: 14px;
     }
 
     @media (max-width: 992px) {
@@ -362,42 +362,27 @@
                 <img src="{{ asset('images/logotruong.jpg') }}" alt="Logo HUIT" class="school-logo-glow">
                 <div>
                     <div class="school-title-text">ĐH Công Thương TP.HCM</div>
-                    <span class="school-sub-text">HUIT Student Project Management Portal</span>
+                    <span class="school-sub-text">Hệ Thống Quản Lý Đồ Án</span>
                 </div>
             </div>
 
             <div class="brand-main-body">
                 <div class="hero-badge-pill">
-                    <i class="fa-solid fa-graduation-cap"></i> Hệ Thống Đồ Án Tốt Nghiệp Trực Tuyến
+                    <i class="fa-solid fa-graduation-cap"></i> Cổng Đăng Nhập Trực Tuyến
                 </div>
 
                 <h1 class="hero-headline-text">
-                    Quản Lý Đồ Án <span>Hiện Đại &amp; Chuyên Nghiệp</span>
+                    Quản Lý Đồ Án <span>Tốt Nghiệp</span>
                 </h1>
 
                 <p class="hero-desc-text">
-                    Nền tảng số kết nối toàn bộ quy trình Đăng ký đề tài, Quản lý nhóm, Theo dõi tiến độ, Nộp báo cáo và Chấm điểm đồ án trực tuyến dành cho Giảng viên &amp; Sinh viên HUIT.
+                    Hệ thống theo dõi tiến độ, nộp báo cáo và quản lý đồ án dành cho Giảng viên và Sinh viên HUIT.
                 </p>
-
-                <div class="stats-pills-row">
-                    <div class="stat-pill-box">
-                        <div class="num">10,000+</div>
-                        <div class="lbl">Sinh Viên</div>
-                    </div>
-                    <div class="stat-pill-box">
-                        <div class="num">500+</div>
-                        <div class="lbl">Giảng Viên</div>
-                    </div>
-                    <div class="stat-pill-box">
-                        <div class="num">99.8%</div>
-                        <div class="lbl">Hoàn Thành</div>
-                    </div>
-                </div>
             </div>
 
             <div class="brand-bottom-info">
-                <div><i class="fa-solid fa-location-dot me-1" style="color: #27A4F2;"></i> 140 Lê Trọng Tấn, Tân Phú, TP.HCM</div>
-                <div><i class="fa-solid fa-phone me-1" style="color: #27A4F2;"></i> (028) 38 163 318</div>
+                <div><i class="fa-solid fa-location-dot me-1" style="color: #5B9BD5;"></i> 140 Lê Trọng Tấn, Tân Phú, TP.HCM</div>
+                <div><i class="fa-solid fa-graduation-cap me-1" style="color: #5B9BD5;"></i> HUIT {{ date('Y') }}</div>
             </div>
         </div>
 
@@ -406,8 +391,8 @@
             <div class="form-inner-wrapper">
 
                 <div class="form-head-zone">
-                    <h1 class="welcome-heading">Đăng Nhập Hệ Thống</h1>
-                    <p class="welcome-subheading">Vui lòng nhập Mã số Sinh viên / Mã số Giảng viên và Mật khẩu để tiếp tục</p>
+                    <h1 class="welcome-heading">Đăng Nhập</h1>
+                    <p class="welcome-subheading">Vui lòng nhập MSSV hoặc MSGV và mật khẩu để tiếp tục</p>
                 </div>
 
                 @if (session('lockout_seconds'))
@@ -433,7 +418,7 @@
                     {{-- Tên đăng nhập --}}
                     <div class="field-group">
                         <label for="TenDangNhap">
-                            <i class="fa-solid fa-id-badge"></i> Tên Đăng Nhập (MSSV / MSGV)
+                            <i class="fa-solid fa-id-badge"></i> Tên Đăng Nhập
                         </label>
                         <div class="input-icon-wrap">
                             <i class="fa-solid fa-user field-icon"></i>
@@ -442,7 +427,7 @@
                                 type="text"
                                 name="TenDangNhap"
                                 value="{{ old('TenDangNhap') }}"
-                                placeholder="Ví dụ: 2001200101 hoặc GV001..."
+                                placeholder="Nhập MSSV hoặc MSGV..."
                                 required
                                 autocomplete="username"
                                 autofocus
@@ -467,7 +452,7 @@
                                 id="password"
                                 type="password"
                                 name="password"
-                                placeholder="Nhập mật khẩu tài khoản..."
+                                placeholder="Nhập mật khẩu..."
                                 required
                                 autocomplete="current-password"
                                 class="{{ $errors->has('password') ? 'is-invalid' : '' }}"
@@ -495,7 +480,7 @@
                     {{-- Submit Button --}}
                     <button type="submit" class="btn-login-submit" id="btn-submit-login">
                         <i class="fa-solid fa-right-to-bracket"></i>
-                        ĐĂNG NHẬP HỆ THỐNG
+                        Đăng Nhập
                     </button>
                 </form>
 
@@ -534,8 +519,8 @@
                 </script>
 
                 <div class="form-footer-note">
-                    <i class="fa-solid fa-shield-halved me-1" style="color: #27A4F2;"></i>
-                    Hệ thống bảo mật dữ liệu theo tiêu chuẩn nhà trường &bull; &copy; {{ date('Y') }} HUIT
+                    <i class="fa-solid fa-shield-halved me-1" style="color: #0066B2;"></i>
+                    Bảo mật dữ liệu HUIT &bull; &copy; {{ date('Y') }}
                 </div>
 
             </div>

@@ -35,7 +35,7 @@ class SinhVienController extends Controller
             $query->where('MaNganh', $request->MaNganh);
         }
 
-        $sinhviens = $query->orderBy('_id', 'desc')->paginate(10)->withQueryString();
+        $sinhviens = $query->orderBy('_id', 'desc')->paginate(5)->withQueryString();
         return view('admin.sinhvien.index', compact('sinhviens'));
     }
 

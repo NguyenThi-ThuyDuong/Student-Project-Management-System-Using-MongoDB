@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends($layout ?? 'layouts.admin')
 @section('page_title', 'Tổng Hợp Đề Tài & Kết Quả')
 
 @section('content')

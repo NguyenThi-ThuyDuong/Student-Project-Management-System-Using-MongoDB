@@ -159,7 +159,7 @@ class DangKyDeTaiController extends Controller
             $query->where('TenDeTai', 'like', '%' . trim($request->search) . '%');
         }
 
-        $detais = $query->orderBy('_id', 'desc')->paginate(10);
+        $detais = $query->orderBy('_id', 'desc')->paginate(5);
 
         foreach ($detais as $dt) {
             $gv = \App\Models\GiangVien::where('MaTK', $dt->MaTK)->first();
@@ -359,8 +359,12 @@ class DangKyDeTaiController extends Controller
      */
     public function tuDeXuat(Request $request)
     {
-        $sinhVien = SinhVien::where('MaTK', (string) Auth::user()->_id)->first();
-        if (!$sinhVien) abort(403);
+        $user = Auth::user();
+        $sinhVien = SinhVien::where('MaTK', (string) $user->_id)->first();
+        if (!$sinhVien) {
+            $sinhVien = SinhVien::where('Email', 'like', $user->TenDangNhap . '%')->orWhere('MaSV', $user->TenDangNhap)->first();
+        }
+        if (!$sinhVien) abort(403, 'Không tìm thấy thông tin hồ sơ Sinh viên.');
 
         $request->validate([
             'TenDeTai' => 'required|string|max:200',
@@ -378,14 +382,35 @@ class DangKyDeTaiController extends Controller
 
         $lhp = \App\Models\LopHocPhan::where('_id', $request->MaLopHP)->orWhere('MaLopHP', $request->MaLopHP)->firstOrFail();
 
+        $lhpMatchKeys = array_values(array_unique(array_filter([
+            (string)$lhp->_id,
+            (string)$lhp->MaLopHP,
+            (string)$request->MaLopHP
+        ])));
+
+        $svKeys = array_values(array_unique(array_filter([
+            (string)($sinhVien->_id ?? ''),
+            (string)($sinhVien->MaSV ?? ''),
+            strtoupper((string)($sinhVien->MaSV ?? '')),
+            strtolower((string)($sinhVien->MaSV ?? '')),
+        ])));
+
         // Tìm nhóm của sinh viên trong Lớp HP này
-        $nhom = NhomDoAn::where('MaLopHP', (string)$lhp->_id)
-            ->where(function($q) use ($sinhVien) {
-                $q->where('ThanhVien.MaSV', (string)$sinhVien->_id)
-                  ->orWhere('TruongNhom', (string)$sinhVien->_id)
-                  ->orWhere('TruongNhom', (string)$sinhVien->MaSV);
+        $nhom = NhomDoAn::whereIn('MaLopHP', $lhpMatchKeys)
+            ->where(function($q) use ($svKeys) {
+                $q->whereIn('ThanhVien.MaSV', $svKeys)
+                  ->orWhereIn('TruongNhom', $svKeys);
             })
             ->first();
+
+        if (!$nhom && $lhp->MaMon) {
+            $nhom = NhomDoAn::where('MaMon', $lhp->MaMon)
+                ->where(function($q) use ($svKeys) {
+                    $q->whereIn('ThanhVien.MaSV', $svKeys)
+                      ->orWhereIn('TruongNhom', $svKeys);
+                })
+                ->first();
+        }
 
         if (!$nhom) {
             return redirect()->back()->withErrors('Bạn cần phải tạo nhóm hoặc gia nhập nhóm trong Lớp HP này trước khi đề xuất đề tài!');

@@ -44,8 +44,20 @@ class SinhVien extends Model
             return $this->relations['nganh'];
         }
         $val = $this->attributes['MaNganh'] ?? null;
-        if (!$val) return null;
-        return Nganh::where('MaNganh', $val)->orWhere('_id', $val)->first();
+        if ($val) {
+            $ng = Nganh::where('MaNganh', $val)->orWhere('_id', $val)->first();
+            if ($ng) return $ng;
+        }
+        $lop = $this->lop;
+        if ($lop) {
+            if ($lop->nganh) return $lop->nganh;
+            $maNganhLop = $lop->MaNganh ?? null;
+            if ($maNganhLop) {
+                $ng = Nganh::where('MaNganh', $maNganhLop)->orWhere('_id', $maNganhLop)->first();
+                if ($ng) return $ng;
+            }
+        }
+        return Nganh::first();
     }
 
     public function getNganhModelAttribute()

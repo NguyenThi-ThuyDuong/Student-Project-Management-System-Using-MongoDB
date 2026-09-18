@@ -22,7 +22,7 @@ class BoMonController extends Controller
             });
         }
 
-        $bomons = $query->orderBy('_id', 'desc')->paginate(10)->withQueryString();
+        $bomons = $query->orderBy('_id', 'desc')->paginate(5)->withQueryString();
         return view('admin.bomon.index', compact('bomons'));
     }
 

@@ -58,7 +58,7 @@ class ThongBaoController extends Controller
                             }
                         })
                         ->orderBy('_id', 'desc')
-                        ->paginate(15);
+                        ->paginate(5);
 
         return view('sinhvien.thongbao.index', compact('thongbaos'));
     }

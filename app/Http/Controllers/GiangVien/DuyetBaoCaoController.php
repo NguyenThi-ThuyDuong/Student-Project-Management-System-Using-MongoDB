@@ -138,11 +138,14 @@ class DuyetBaoCaoController extends Controller
         $gv = GiangVien::where('MaTK', (string) $user->_id)->orWhere('_id', (string) $user->_id)->first();
         $gvId = $gv ? (string)($gv->MaTK ?? $gv->_id) : (string) $user->_id;
         
-        // Tìm nhóm chứa báo cáo này
-        $nhom = NhomDoAn::where('BaoCaoTienDo._id', $maBaoCao)->first();
+        // Tìm nhóm chứa báo cáo này theo id, _id hoặc MaBaoCao
+        $nhom = NhomDoAn::where('BaoCaoTienDo.id', (string) $maBaoCao)
+            ->orWhere('BaoCaoTienDo._id', (string) $maBaoCao)
+            ->orWhere('BaoCaoTienDo.MaBaoCao', (string) $maBaoCao)
+            ->first();
 
         if (!$nhom) {
-            // Thử tìm theo mã báo cáo trong collection
+            // Thử tìm theo mã báo cáo trong tất cả nhóm
             $allNhoms = NhomDoAn::all();
             foreach ($allNhoms as $n) {
                 if ($n->findBaoCao($maBaoCao)) {

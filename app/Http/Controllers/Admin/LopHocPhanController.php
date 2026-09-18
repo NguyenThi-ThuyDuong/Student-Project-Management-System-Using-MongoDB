@@ -37,14 +37,17 @@ class LopHocPhanController extends Controller
         }
 
         if ($request->filled('ma_hoc_ky')) {
-            $query->where('MaHocKy', $request->ma_hoc_ky);
+            $val = $request->ma_hoc_ky;
+            $hk = HocKy::where('_id', $val)->orWhere('MaHocKy', $val)->orWhere('MaHK', $val)->first();
+            $matchIds = array_filter([$val, $hk ? (string)$hk->_id : null, $hk ? (string)$hk->MaHocKy : null, $hk ? (string)$hk->MaHK : null]);
+            $query->whereIn('MaHocKy', $matchIds);
         }
 
         if ($request->filled('ma_gv')) {
             $query->where('MaGV', $request->ma_gv);
         }
 
-        $lopHocPhans = $query->orderBy('_id', 'desc')->paginate(10)->withQueryString();
+        $lopHocPhans = $query->orderBy('_id', 'desc')->paginate(5)->withQueryString();
         $monHocs = MonHoc::all();
         $hocKies = HocKy::orderBy('_id', 'desc')->get();
         $giangViens = GiangVien::all();
@@ -83,7 +86,14 @@ class LopHocPhanController extends Controller
             return redirect()->back()->withErrors('Tên lớp học phần này đã tồn tại.')->withInput();
         }
 
+        $maLopHP = $request->input('MaLopHP');
+        if (empty($maLopHP)) {
+            $cleanTen = preg_replace('/[^a-zA-Z0-9]/', '', $request->TenLopHP);
+            $maLopHP = 'LHP_' . strtoupper($cleanTen ?: substr(md5(uniqid(mt_rand(), true)), 0, 8));
+        }
+
         LopHocPhan::create([
+            'MaLopHP' => $maLopHP,
             'TenLopHP' => $request->TenLopHP,
             'MaMon' => $request->MaMon,
             'MaHocKy' => $request->MaHocKy,

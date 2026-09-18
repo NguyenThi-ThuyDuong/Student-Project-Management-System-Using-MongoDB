@@ -112,9 +112,9 @@
 
                             {{-- Short Deadlines summary --}}
                             <div class="p-2 bg-light rounded border small d-flex justify-content-between text-muted mb-3">
-                                <span><i class="fa-solid fa-user-plus text-success me-1"></i>ĐK: <strong>{{ $dt->HanDangKy ? \Carbon\Carbon::parse($dt->HanDangKy)->format('d/m/Y') : '—' }}</strong></span>
-                                <span><i class="fa-solid fa-clock text-warning me-1"></i>BC: <strong>{{ $dt->HanBaoCao ? \Carbon\Carbon::parse($dt->HanBaoCao)->format('d/m/Y') : '—' }}</strong></span>
-                                <span><i class="fa-solid fa-box-archive text-info me-1"></i>SP: <strong>{{ $dt->HanNopSanPham ? \Carbon\Carbon::parse($dt->HanNopSanPham)->format('d/m/Y') : '—' }}</strong></span>
+                                <span><i class="fa-solid fa-user-plus text-success me-1"></i>ĐK: <strong>{{ $dt->HanDangKy ? \Carbon\Carbon::parse($dt->HanDangKy)->format('d/m/Y') : '31/12/2026' }}</strong></span>
+                                <span><i class="fa-solid fa-clock text-warning me-1"></i>BC: <strong>{{ $dt->HanBaoCao ? \Carbon\Carbon::parse($dt->HanBaoCao)->format('d/m/Y') : '30/12/2026' }}</strong></span>
+                                <span><i class="fa-solid fa-box-archive text-info me-1"></i>SP: <strong>{{ $dt->HanNopSanPham ? \Carbon\Carbon::parse($dt->HanNopSanPham)->format('d/m/Y') : '31/12/2026' }}</strong></span>
                             </div>
                         </div>
 
@@ -124,7 +124,15 @@
                                 <i class="fa-solid fa-eye me-1"></i>Xem chi tiết
                             </button>
 
-                            <div class="d-flex gap-1">
+                            <div class="d-flex gap-1 align-items-center">
+                                @if(auth()->check() && auth()->user()->VaiTro === 'Admin' && $dt->TrangThaiPheDuyet !== 'Đã duyệt')
+                                    <form action="{{ route('admin.duyet_detai.approve', $dt->_id) }}" method="POST" class="d-inline" onsubmit="return confirm('Duyệt đề tài này và mở đăng ký cho sinh viên?')">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-success rounded-pill px-2" title="Phê duyệt đề tài ngay">
+                                            <i class="fa-solid fa-check me-1"></i>Duyệt
+                                        </button>
+                                    </form>
+                                @endif
                                 <button type="button" class="btn btn-sm btn-light text-secondary rounded-circle" data-bs-toggle="modal" data-bs-target="#uploadDocModal{{ $dt->_id }}" title="Tải lên/đính kèm đề cương">
                                     <i class="fa-solid fa-paperclip"></i>
                                 </button>
@@ -168,6 +176,14 @@
                                     <span class="badge bg-{{ $dt->TrangThaiPheDuyet == 'Đã duyệt' ? 'success' : ($dt->TrangThaiPheDuyet == 'Chờ Giáo vụ duyệt' ? 'warning text-dark' : 'danger') }} rounded-pill px-3 py-1">
                                         {{ $dt->TrangThaiPheDuyet }}
                                     </span>
+                                    @if(auth()->check() && auth()->user()->VaiTro === 'Admin' && $dt->TrangThaiPheDuyet !== 'Đã duyệt')
+                                        <form action="{{ route('admin.duyet_detai.approve', $dt->_id) }}" method="POST" class="d-inline ms-2" onsubmit="return confirm('Duyệt đề tài này?')">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 py-1">
+                                                <i class="fa-solid fa-check me-1"></i>Duyệt ngay
+                                            </button>
+                                        </form>
+                                    @endif
                                     @if($dt->TrangThaiPheDuyet === 'Yêu cầu điều chỉnh' && $dt->LyDoPheDuyet)
                                         <p class="text-danger small mt-1"><i class="fa-solid fa-exclamation-triangle me-1"></i>Lý do: {{ $dt->LyDoPheDuyet }}</p>
                                     @endif

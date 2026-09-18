@@ -27,13 +27,15 @@ class LoginController extends Controller implements HasMiddleware
     {
         /** @var \App\Models\TaiKhoan $user */
         $user = auth()->user();
-        $role = $user->VaiTro ?? '';
+        if (!$user) return route('login');
 
-        if ($role === 'Admin') return route('admin.dashboard');
-        if ($role === 'Giảng viên') return route('giangvien.dashboard');
-        if ($role === 'Sinh viên') return route('sinhvien.dashboard');
+        $role = mb_strtolower(trim($user->VaiTro ?? ''));
 
-        return route('login');
+        if (in_array($role, ['admin', 'giao_vu', 'giáo vụ'])) return route('admin.dashboard');
+        if (in_array($role, ['giảng viên', 'giang_vien', 'giangvien'])) return route('giangvien.dashboard');
+        if (in_array($role, ['sinh viên', 'sinh_vien', 'sinhvien'])) return route('sinhvien.dashboard');
+
+        return route('admin.dashboard');
     }
 
     public static function middleware(): array
@@ -129,12 +131,12 @@ class LoginController extends Controller implements HasMiddleware
         }
         \App\Models\AuditLog::log('dang_nhap', 'TaiKhoan', $user->_id, ['TenDangNhap' => $user->TenDangNhap]);
 
-        $role = $user->VaiTro ?? '';
-        if ($role === 'Admin') return redirect()->route('admin.dashboard');
-        if ($role === 'Giảng viên') return redirect()->route('giangvien.dashboard');
-        if ($role === 'Sinh viên') return redirect()->route('sinhvien.dashboard');
+        $role = mb_strtolower(trim($user->VaiTro ?? ''));
+        if (in_array($role, ['admin', 'giao_vu', 'giáo vụ'])) return redirect()->route('admin.dashboard');
+        if (in_array($role, ['giảng viên', 'giang_vien', 'giangvien'])) return redirect()->route('giangvien.dashboard');
+        if (in_array($role, ['sinh viên', 'sinh_vien', 'sinhvien'])) return redirect()->route('sinhvien.dashboard');
 
-        return redirect()->route('login');
+        return redirect()->route('admin.dashboard');
     }
 }
 

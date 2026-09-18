@@ -18,7 +18,7 @@
     <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <!-- HUIT Theme -->
-    <link rel="stylesheet" href="{{ asset('css/huit_theme.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/huit_theme.css') }}?v={{ time() }}">
     <style>
         body {
             font-family: 'Be Vietnam Pro', 'Inter', sans-serif !important;

@@ -59,7 +59,7 @@ class DeTaiController extends Controller
             $query->where('TenDeTai', 'like', '%' . trim($request->search) . '%');
         }
 
-        $detais = $query->orderBy('_id', 'desc')->paginate(10)->withQueryString();
+        $detais = $query->orderBy('_id', 'desc')->paginate(5)->withQueryString();
 
         return view('giangvien.detai.index', compact('detais', 'lopHocPhans', 'hockys', 'monhocs'));
     }

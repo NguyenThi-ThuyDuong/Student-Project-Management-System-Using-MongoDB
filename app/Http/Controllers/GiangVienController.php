@@ -32,7 +32,7 @@ class GiangVienController extends Controller
             $query->where('HocVi', $request->HocVi);
         }
 
-        $giangviens = $query->orderBy('_id', 'desc')->paginate(10)->withQueryString();
+        $giangviens = $query->orderBy('_id', 'desc')->paginate(5)->withQueryString();
         return view('admin.giangvien.index', compact('giangviens'));
     }
     public function create() {

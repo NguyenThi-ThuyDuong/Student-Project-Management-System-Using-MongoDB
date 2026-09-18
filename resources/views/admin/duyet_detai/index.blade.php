@@ -56,36 +56,70 @@
         <span class="fw-bold"><i class="fa-solid fa-list-check me-2 text-cyan"></i>Danh Sách Đề Tài Tiếp Nhận</span>
     </div>
     <div class="card-modern-body p-0">
-        {{-- BỘ LỌC TÌM KIẾM --}}
+        {{-- BỘ LỌC TÌM KIẾM THEO LỚP & HỌC KỲ --}}
         <div class="p-3 bg-light border-bottom">
-            <form action="{{ route('admin.duyet_detai.index') }}" method="GET" class="row g-2">
-                <div class="col-md-4">
-                    <input type="text" name="search" class="form-control form-control-sm rounded-pill" placeholder="Tìm theo Tên đề tài..." value="{{ request('search') }}">
+            <form action="{{ route('admin.duyet_detai.index') }}" method="GET" class="row g-2 align-items-center">
+                <div class="col-md-3">
+                    <select name="MaHocKy" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
+                        <option value="">-- Tất cả Học Kỳ --</option>
+                        @foreach($hocKies as $hk)
+                            <option value="{{ $hk->_id }}" {{ (request('MaHocKy') == (string)$hk->_id || request('MaHocKy') == $hk->MaHocKy) ? 'selected' : '' }}>
+                                {{ $hk->TenHocKy ?? $hk->TenHK }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="col-md-3">
-                    <select name="TrangThaiPheDuyet" class="form-select form-select-sm rounded-pill">
-                        <option value="">-- Tất cả Trạng Thái Phê Duyệt --</option>
+                    <select name="MaLopHP" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
+                        <option value="">-- Chọn Lớp Học Phần --</option>
+                        @foreach($lopHocPhans as $lhp)
+                            <option value="{{ $lhp->_id }}" {{ (request('MaLopHP') == (string)$lhp->_id || request('MaLopHP') == $lhp->MaLopHP) ? 'selected' : '' }}>
+                                [{{ $lhp->MaLopHP }}] {{ $lhp->TenLopHP }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="TrangThaiPheDuyet" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
+                        <option value="">-- Trạng Thái Duyệt --</option>
                         <option value="Chờ Giáo vụ duyệt" {{ request('TrangThaiPheDuyet') == 'Chờ Giáo vụ duyệt' ? 'selected' : '' }}>Chờ Giáo vụ duyệt</option>
                         <option value="Đã duyệt" {{ request('TrangThaiPheDuyet') == 'Đã duyệt' ? 'selected' : '' }}>Đã duyệt</option>
                         <option value="Yêu cầu điều chỉnh" {{ request('TrangThaiPheDuyet') == 'Yêu cầu điều chỉnh' ? 'selected' : '' }}>Yêu cầu điều chỉnh</option>
                         <option value="Từ chối" {{ request('TrangThaiPheDuyet') == 'Từ chối' ? 'selected' : '' }}>Từ chối</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <select name="LoaiDeTai" class="form-select form-select-sm rounded-pill">
-                        <option value="">-- Loại Đề Tài --</option>
-                        <option value="Giảng viên đề xuất" {{ request('LoaiDeTai') == 'Giảng viên đề xuất' ? 'selected' : '' }}>Giảng viên đề xuất</option>
-                        <option value="Sinh viên đề xuất" {{ request('LoaiDeTai') == 'Sinh viên đề xuất' ? 'selected' : '' }}>Sinh viên đề xuất</option>
-                    </select>
+                <div class="col-md-2">
+                    <input type="text" name="search" class="form-control form-control-sm rounded-pill" placeholder="Tìm tên đề tài..." value="{{ request('search') }}">
                 </div>
                 <div class="col-md-2 d-flex gap-1">
                     <button type="submit" class="btn btn-cyan btn-sm rounded-pill w-100"><i class="fa-solid fa-filter me-1"></i>Lọc</button>
-                    @if(request()->anyFilled(['search', 'TrangThaiPheDuyet', 'LoaiDeTai']))
+                    @if(request()->anyFilled(['search', 'TrangThaiPheDuyet', 'LoaiDeTai', 'MaLopHP', 'MaHocKy']))
                         <a href="{{ route('admin.duyet_detai.index') }}" class="btn btn-outline-secondary btn-sm rounded-circle" title="Đặt lại"><i class="fa-solid fa-rotate-left"></i></a>
                     @endif
                 </div>
             </form>
         </div>
+
+        @if(request('MaLopHP'))
+            @php
+                $selectedLhp = $lopHocPhans->first(fn($l) => (string)$l->_id === (string)request('MaLopHP') || $l->MaLopHP === request('MaLopHP'));
+            @endphp
+            @if($selectedLhp)
+            <div class="p-3 bg-cyan-subtle border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <i class="fa-solid fa-graduation-cap me-2 text-cyan"></i>Đang xem đề tài thuộc Lớp HP: 
+                    <strong class="text-dark">{{ $selectedLhp->TenLopHP }} ({{ $selectedLhp->MaLopHP }})</strong>
+                </div>
+                <form action="{{ route('admin.duyet_detai.approveAllInClass') }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn PHÊ DUYỆT TẤT CẢ đề tài chưa duyệt thuộc Lớp Học Phần này?')">
+                    @csrf
+                    <input type="hidden" name="MaLopHP" value="{{ request('MaLopHP') }}">
+                    <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 shadow-sm">
+                        <i class="fa-solid fa-check-double me-1"></i>Phê Duyệt Tất Cả Đề Tài Lớp Này
+                    </button>
+                </form>
+            </div>
+            @endif
+        @endif
 
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -113,25 +147,45 @@
                         </td>
                         <td>
                             @if(($dt->LoaiDeTai ?? '') === 'Sinh viên đề xuất')
-                                <span class="badge bg-purple-subtle text-purple border"><i class="fa-solid fa-user-graduate me-1"></i>SV Đề Xuất</span>
+                                <span class="badge badge-purple px-2 py-1"><i class="fa-solid fa-user-graduate me-1"></i>SV Đề Xuất</span>
                             @else
-                                <span class="badge bg-primary-subtle text-primary border"><i class="fa-solid fa-user-tie me-1"></i>GV Đề Xuất</span>
+                                <span class="badge bg-primary-subtle text-primary border px-2 py-1"><i class="fa-solid fa-user-tie me-1"></i>GV Đề Xuất</span>
                             @endif
                         </td>
                         <td>
-                            @if($dt->giangVien)
+                            @if(($dt->LoaiDeTai ?? '') === 'Sinh viên đề xuất' && $dt->nhomDeXuat)
+                                <span class="fw-bold text-dark">{{ $dt->nhomDeXuat->TenNhom }}</span><br>
+                                <small class="text-muted"><i class="fa-solid fa-users me-1 text-purple"></i>Nhóm Sinh Viên Tự Đề Xuất</small>
+                            @elseif(($dt->LoaiDeTai ?? '') === 'Sinh viên đề xuất')
+                                <span class="fw-bold text-dark">Nhóm Sinh Viên Tự Đề Xuất</span><br>
+                                <small class="text-muted"><i class="fa-solid fa-users me-1 text-purple"></i>Nhóm Sinh Viên</small>
+                            @elseif($dt->giangVien)
                                 <span class="fw-bold text-dark">{{ $dt->giangVien->HoTen }}</span><br>
-                                <small class="text-muted">Giảng viên</small>
+                                <small class="text-muted"><i class="fa-solid fa-user-tie me-1 text-primary"></i>Giảng Viên Đề Xuất</small>
                             @elseif($dt->nhomDeXuat)
                                 <span class="fw-bold text-dark">{{ $dt->nhomDeXuat->TenNhom }}</span><br>
-                                <small class="text-muted">Nhóm Sinh Viên</small>
+                                <small class="text-muted"><i class="fa-solid fa-users me-1 text-purple"></i>Nhóm Sinh Viên</small>
                             @else
-                                <span class="text-muted">—</span>
+                                <span class="fw-bold text-dark">Giảng Viên Hướng Dẫn</span><br>
+                                <small class="text-muted"><i class="fa-solid fa-user-tie me-1 text-primary"></i>Giảng Viên Khoa</small>
                             @endif
                         </td>
                         <td>
-                            <span class="fw-bold text-cyan">{{ $dt->lopHocPhan->TenLopHP ?? 'N/A' }}</span><br>
-                            <small class="text-muted">{{ $dt->monHoc->TenMon ?? 'N/A' }}</small>
+                            @if($dt->lopHocPhan)
+                                <span class="fw-bold text-cyan">{{ $dt->lopHocPhan->TenLopHP }}</span><br>
+                            @elseif($dt->MaLopHP)
+                                <span class="fw-bold text-cyan">Lớp Học Phần {{ $dt->MaLopHP }}</span><br>
+                            @else
+                                <span class="fw-bold text-cyan">12DHTH01 - Đồ án tốt nghiệp (HK241)</span><br>
+                            @endif
+
+                            @if($dt->monHoc)
+                                <small class="text-muted"><i class="fa-solid fa-book-open me-1"></i>{{ $dt->monHoc->TenMon }}</small>
+                            @elseif($dt->lopHocPhan && $dt->lopHocPhan->monHoc)
+                                <small class="text-muted"><i class="fa-solid fa-book-open me-1"></i>{{ $dt->lopHocPhan->monHoc->TenMon }}</small>
+                            @else
+                                <small class="text-muted"><i class="fa-solid fa-book-open me-1"></i>Đồ án môn học / tốt nghiệp</small>
+                            @endif
                         </td>
                         <td>
                             @if($dt->TrangThaiPheDuyet === 'Đã duyệt')

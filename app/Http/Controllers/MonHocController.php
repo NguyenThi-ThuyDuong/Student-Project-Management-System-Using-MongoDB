@@ -27,7 +27,7 @@ class MonHocController extends Controller
             $query->where('MaBoMon', $request->MaBoMon);
         }
 
-        $monhocs = $query->orderBy('_id', 'desc')->paginate(10)->withQueryString();
+        $monhocs = $query->orderBy('_id', 'desc')->paginate(5)->withQueryString();
         return view('admin.monhoc.index', compact('monhocs'));
     }
 

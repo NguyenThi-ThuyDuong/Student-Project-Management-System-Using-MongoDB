@@ -14,7 +14,7 @@
     <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <!-- Vietnix Theme -->
-    <link rel="stylesheet" href="{{ asset('css/huit_theme.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/huit_theme.css') }}?v={{ time() }}">
     
     @stack('styles')
 </head>
@@ -85,6 +85,11 @@
             <li class="{{ request()->routeIs('giangvien.chamdiem.*') ? 'active' : '' }}">
                 <a href="{{ route('giangvien.chamdiem.index') }}">
                     <i class="fa-solid fa-gavel"></i> Chấm điểm đồ án
+                </a>
+            </li>
+            <li class="{{ request()->routeIs('giangvien.ketqua.*') || request()->routeIs('admin.ketqua.*') ? 'active' : '' }}">
+                <a href="{{ route('giangvien.ketqua.index') }}">
+                    <i class="fa-solid fa-square-poll-vertical"></i> Quản lý Kết quả đồ án
                 </a>
             </li>
 

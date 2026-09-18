@@ -32,7 +32,7 @@ class LopController extends Controller
             $query->where('MaNganh', $request->MaNganh);
         }
 
-        $lops = $query->orderBy('_id', 'desc')->paginate(10)->withQueryString();
+        $lops = $query->orderBy('_id', 'desc')->paginate(5)->withQueryString();
         return view('admin.lop.index', compact('lops'));
     }
 

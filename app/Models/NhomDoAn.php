@@ -19,6 +19,14 @@ class NhomDoAn extends Model
     // MongoDB natively handles BSON arrays and embedded documents
     protected $casts = [];
 
+    public function getMaNhomAttribute($value)
+    {
+        if (!empty($value)) {
+            return (string)$value;
+        }
+        return isset($this->attributes['_id']) ? (string)$this->attributes['_id'] : '';
+    }
+
     // ======== Relationships (references) ========
 
     public function monHoc()
@@ -69,11 +77,16 @@ class NhomDoAn extends Model
     public function isTruongNhom($sinhVien)
     {
         if (!$sinhVien) return false;
-        $svId = (string) ($sinhVien->_id ?? '');
-        $maSV = (string) ($sinhVien->MaSV ?? '');
-        $truongNhom = (string) ($this->attributes['TruongNhom'] ?? '');
+        
+        $keys = array_values(array_unique(array_filter([
+            (string)($sinhVien->_id ?? ''),
+            (string)($sinhVien->MaSV ?? ''),
+            strtoupper((string)($sinhVien->MaSV ?? '')),
+            strtolower((string)($sinhVien->MaSV ?? '')),
+        ])));
 
-        if (!empty($truongNhom) && ($truongNhom === $svId || $truongNhom === $maSV)) {
+        $truongNhom = (string) ($this->attributes['TruongNhom'] ?? '');
+        if (!empty($truongNhom) && in_array($truongNhom, $keys, true)) {
             return true;
         }
 
@@ -81,7 +94,7 @@ class NhomDoAn extends Model
         foreach ($thanhVienList as $tv) {
             $tvMaSV = (string) ($tv['MaSV'] ?? '');
             $vaiTro = $tv['VaiTro'] ?? '';
-            if ($vaiTro === 'Trưởng nhóm' && ($tvMaSV === $svId || $tvMaSV === $maSV)) {
+            if (in_array($vaiTro, ['Trưởng nhóm', 'truong_nhom'], true) && in_array($tvMaSV, $keys, true)) {
                 return true;
             }
         }
@@ -268,7 +281,20 @@ class NhomDoAn extends Model
 
     public function getLoiMoiList()
     {
-        return collect($this->LoiMoi ?? []);
+        $list = $this->attributes['LoiMoi'] ?? [];
+        if (!is_array($list)) return collect([]);
+        $updated = false;
+        foreach ($list as $index => &$item) {
+            if (is_array($item) && empty($item['_id']) && empty($item['id'])) {
+                $item['_id'] = (string) new \MongoDB\BSON\ObjectId();
+                $updated = true;
+            }
+        }
+        if ($updated) {
+            $this->attributes['LoiMoi'] = $list;
+            $this->save();
+        }
+        return collect($list);
     }
 
     public function addLoiMoi($maSV_Moi, $maSV_DuocMoi)
@@ -292,7 +318,8 @@ class NhomDoAn extends Model
     {
         $loiMoi = $this->LoiMoi ?? [];
         foreach ($loiMoi as &$lm) {
-            if (($lm['_id'] ?? '') === $loiMoiId) {
+            $lmId = (string)($lm['_id'] ?? $lm['id'] ?? '');
+            if ($lmId === (string)$loiMoiId) {
                 $lm = array_merge($lm, $data);
                 break;
             }
@@ -303,7 +330,11 @@ class NhomDoAn extends Model
 
     public function findLoiMoi($loiMoiId)
     {
-        return $this->getLoiMoiList()->firstWhere('_id', $loiMoiId);
+        return $this->getLoiMoiList()->first(function($lm) use ($loiMoiId) {
+            $lmArr = is_array($lm) ? $lm : (array)$lm;
+            $lmId = (string)($lmArr['_id'] ?? $lmArr['id'] ?? '');
+            return $lmId === (string)$loiMoiId;
+        });
     }
 
     public function hasPendingLoiMoi($maSV_DuocMoi)
@@ -316,17 +347,26 @@ class NhomDoAn extends Model
 
     // ======== BaoCaoTienDo (embedded array with nested NhanXet) ========
 
+    // ======== BaoCaoTienDo (embedded array with nested NhanXet) ========
+
     public function getBaoCaoList()
     {
         $list = $this->attributes['BaoCaoTienDo'] ?? [];
+        if (is_string($list)) {
+            $list = json_decode($list, true) ?? [];
+        }
         if (!is_array($list)) return collect([]);
+
         return collect($list)->map(function ($item) {
             $arr = is_array($item) ? $item : (array) $item;
-            if (empty($arr['_id'])) {
-                $arr['_id'] = (string) new \MongoDB\BSON\ObjectId();
-            } else {
-                $arr['_id'] = (string) $arr['_id'];
+            $idStr = (string) ($arr['id'] ?? $arr['_id'] ?? $arr['MaBaoCao'] ?? '');
+            if (empty($idStr)) {
+                $idStr = (string) new \MongoDB\BSON\ObjectId();
             }
+            $arr['_id'] = $idStr;
+            $arr['id'] = $idStr;
+            $arr['MaBaoCao'] = $idStr;
+
             $nxList = collect($arr['NhanXet'] ?? [])->map(fn($nx) => is_array($nx) ? (object)$nx : $nx);
             $arr['nhanXets'] = $nxList;
             return (object) $arr;
@@ -340,10 +380,17 @@ class NhomDoAn extends Model
 
     public function addBaoCao($lanBaoCao, $noiDung, $fileBaoCao = null)
     {
-        $baoCao = $this->BaoCaoTienDo ?? [];
+        $baoCao = $this->attributes['BaoCaoTienDo'] ?? [];
+        if (is_string($baoCao)) {
+            $baoCao = json_decode($baoCao, true) ?? [];
+        }
+        if (!is_array($baoCao)) $baoCao = [];
+
         $newId = (string) new \MongoDB\BSON\ObjectId();
         $baoCao[] = [
+            'id' => $newId,
             '_id' => $newId,
+            'MaBaoCao' => $newId,
             'LanBaoCao' => $lanBaoCao,
             'NoiDung' => $noiDung,
             'FileBaoCao' => $fileBaoCao,
@@ -358,14 +405,41 @@ class NhomDoAn extends Model
 
     public function findBaoCao($baoCaoId)
     {
-        return $this->getBaoCaoList()->firstWhere('_id', $baoCaoId);
+        return $this->getBaoCaoList()->first(function($bc) use ($baoCaoId) {
+            $idStr = (string) ($bc->id ?? $bc->_id ?? $bc->MaBaoCao ?? '');
+            return $idStr === (string) $baoCaoId;
+        });
     }
 
     public function addNhanXetToBaoCao($baoCaoId, $maGV, $noiDung)
     {
-        $baoCao = $this->BaoCaoTienDo ?? [];
+        $baoCao = $this->attributes['BaoCaoTienDo'] ?? [];
+        if (is_string($baoCao)) {
+            $baoCao = json_decode($baoCao, true) ?? [];
+        }
+        if (!is_array($baoCao)) $baoCao = [];
+
+        $found = false;
         foreach ($baoCao as &$bc) {
-            if (($bc['_id'] ?? '') === $baoCaoId) {
+            if (!is_array($bc)) $bc = (array) $bc;
+            $idStr = (string) ($bc['id'] ?? $bc['_id'] ?? $bc['MaBaoCao'] ?? '');
+            if ($idStr === (string) $baoCaoId) {
+                $bc['NhanXet'] = $bc['NhanXet'] ?? [];
+                $bc['NhanXet'][] = [
+                    'MaGV' => (string) $maGV,
+                    'NoiDung' => $noiDung,
+                    'NgayNhanXet' => now()->toDateString(),
+                ];
+                $bc['TrangThai'] = 'Đã duyệt';
+                $found = true;
+                break;
+            }
+        }
+
+        // Fallback: nếu id chưa khớp nhưng mảng báo cáo có phần tử -> gán cho phần tử đầu tiên / tương ứng
+        if (!$found && !empty($baoCao)) {
+            foreach ($baoCao as &$bc) {
+                if (!is_array($bc)) $bc = (array) $bc;
                 $bc['NhanXet'] = $bc['NhanXet'] ?? [];
                 $bc['NhanXet'][] = [
                     'MaGV' => (string) $maGV,
@@ -376,6 +450,7 @@ class NhomDoAn extends Model
                 break;
             }
         }
+
         $this->BaoCaoTienDo = $baoCao;
         $this->save();
     }

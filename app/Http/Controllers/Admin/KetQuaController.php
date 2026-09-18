@@ -16,11 +16,36 @@ class KetQuaController extends Controller
 {
     public function index(Request $request)
     {
+        $user = \Auth::user();
+        $layout = ($user && $user->VaiTro === 'Admin') ? 'layouts.admin' : 'layouts.giangvien';
+
         $query = NhomDoAn::query();
+
+        if ($user && $user->VaiTro !== 'Admin') {
+            $gv = GiangVien::where('MaTK', (string) $user->_id)->orWhere('_id', (string) $user->_id)->first();
+            if ($gv) {
+                $gvIds = array_filter([(string)$user->_id, (string)$gv->_id, (string)$gv->MaGV]);
+                $lhpsOfGv = \App\Models\LopHocPhan::whereIn('MaGV', $gvIds)->get();
+                $lhpKeysOfGv = [];
+                foreach ($lhpsOfGv as $lh) {
+                    $lhpKeysOfGv[] = (string) $lh->_id;
+                    $lhpKeysOfGv[] = (string) $lh->MaLopHP;
+                }
+                $query->where(function($q) use ($gvIds, $lhpKeysOfGv) {
+                    $q->whereIn('HuongDan.MaGV', $gvIds);
+                    if (!empty($lhpKeysOfGv)) {
+                        $q->orWhereIn('MaLopHP', $lhpKeysOfGv);
+                    }
+                });
+            }
+        }
 
         // Lọc 6 Tầng
         if ($request->filled('MaHocKy') || $request->filled('maHK')) {
-            $query->where('MaHocKy', $request->MaHocKy ?? $request->maHK);
+            $val = $request->MaHocKy ?? $request->maHK;
+            $hk = HocKy::where('_id', $val)->orWhere('MaHocKy', $val)->orWhere('MaHK', $val)->first();
+            $matchIds = array_filter([$val, $hk ? (string)$hk->_id : null, $hk ? (string)$hk->MaHocKy : null, $hk ? (string)$hk->MaHK : null]);
+            $query->whereIn('MaHocKy', $matchIds);
         }
 
         if ($request->filled('MaLopHP')) {
@@ -52,7 +77,7 @@ class KetQuaController extends Controller
             });
         }
 
-        $nhoms = $query->orderBy('_id', 'desc')->paginate(12)->withQueryString();
+        $nhoms = $query->orderBy('_id', 'desc')->paginate(5)->withQueryString();
         $danhSach = $nhoms;
 
         foreach ($danhSach as $nhom) {
@@ -121,6 +146,6 @@ class KetQuaController extends Controller
         $failGroups = NhomDoAn::where('ChamDiem.DiemTong', '<', 5.0)->whereNotNull('ChamDiem')->count();
         $ungradedGroups = max(0, $totalGroups - $gradedGroups);
 
-        return view('admin.ketqua.index', compact('danhSach', 'nhoms', 'hocKys', 'monHocs', 'lops', 'lopHocPhans', 'totalGroups', 'gradedGroups', 'passGroups', 'failGroups', 'ungradedGroups'));
+        return view('admin.ketqua.index', compact('layout', 'danhSach', 'nhoms', 'hocKys', 'monHocs', 'lops', 'lopHocPhans', 'totalGroups', 'gradedGroups', 'passGroups', 'failGroups', 'ungradedGroups'));
     }
 }

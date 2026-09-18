@@ -27,7 +27,10 @@ class SanPhamController extends Controller
 
         // 1. Lọc theo Học kỳ
         if ($request->filled('MaHocKy')) {
-            $query->where('MaHocKy', $request->MaHocKy);
+            $val = $request->MaHocKy;
+            $hk = HocKy::where('_id', $val)->orWhere('MaHocKy', $val)->orWhere('MaHK', $val)->first();
+            $matchIds = array_filter([$val, $hk ? (string)$hk->_id : null, $hk ? (string)$hk->MaHocKy : null, $hk ? (string)$hk->MaHK : null]);
+            $query->whereIn('MaHocKy', $matchIds);
         }
 
         // 2. Lọc theo Môn học
@@ -49,7 +52,7 @@ class SanPhamController extends Controller
             });
         }
 
-        $sanphams = $query->orderBy('_id', 'desc')->paginate(15);
+        $sanphams = $query->orderBy('_id', 'desc')->paginate(5)->withQueryString();
 
         // Enrich data cho từng item
         foreach ($sanphams as $nhom) {

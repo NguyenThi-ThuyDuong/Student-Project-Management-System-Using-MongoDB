@@ -873,7 +873,15 @@ class ExcelImportService
             }
 
             try {
+                $maHocKy = !empty($row['MaHocKy']) ? $row['MaHocKy'] : (!empty($row['MaHK']) ? $row['MaHK'] : null);
+                if (empty($maHocKy)) {
+                    $cleanTen = preg_replace('/[^a-zA-Z0-9]/', '', $tenHocKy);
+                    $cleanNam = preg_replace('/[^a-zA-Z0-9]/', '', $namHoc);
+                    $maHocKy = strtoupper($cleanTen . '_' . $cleanNam);
+                }
+
                 HocKy::create([
+                    'MaHocKy' => $maHocKy,
                     'TenHocKy' => $tenHocKy,
                     'NamHoc' => $namHoc,
                     'NgayBatDau' => !empty($row['NgayBatDau']) ? $row['NgayBatDau'] : null,

@@ -19,7 +19,7 @@ class DuyetDeTaiController extends Controller
         if ($user->VaiTro === 'Admin') {
             $dangkys = NhomDoAn::whereNotNull('DangKyDeTai')
                 ->orderBy('_id', 'desc')
-                ->paginate(15);
+                ->paginate(5);
         } else {
             $maTK = (string) $user->_id;
             $gv = GiangVien::where('MaTK', $maTK)->orWhere('_id', $maTK)->first();
@@ -59,7 +59,7 @@ class DuyetDeTaiController extends Controller
             })
             ->whereNotNull('DangKyDeTai')
             ->orderBy('_id', 'desc')
-            ->paginate(15);
+            ->paginate(5);
         }
 
         foreach ($dangkys as $nhom) {

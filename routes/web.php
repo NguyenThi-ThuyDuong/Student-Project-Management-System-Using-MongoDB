@@ -8,11 +8,11 @@ Route::get('/', function () {
     if (Auth::check()) {
         /** @var \App\Models\TaiKhoan $user */
         $user = Auth::user();
-        $role = $user->VaiTro ?? '';
+        $role = mb_strtolower(trim($user->VaiTro ?? ''));
         
-        if ($role === 'Admin') return redirect()->route('admin.dashboard');
-        if ($role === 'Giảng viên') return redirect()->route('giangvien.dashboard');
-        if ($role === 'Sinh viên') return redirect()->route('sinhvien.dashboard');
+        if (in_array($role, ['admin', 'giao_vu', 'giáo vụ'])) return redirect()->route('admin.dashboard');
+        if (in_array($role, ['giảng viên', 'giang_vien', 'giangvien'])) return redirect()->route('giangvien.dashboard');
+        if (in_array($role, ['sinh viên', 'sinh_vien', 'sinhvien'])) return redirect()->route('sinhvien.dashboard');
     }
     return redirect()->route('login');
 });
@@ -127,6 +127,7 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
 
     // Phê Duyệt Đề Tài (Giáo vụ)
     Route::get('duyet-detai', [\App\Http\Controllers\Admin\DuyetDeTaiAdminController::class, 'index'])->name('admin.duyet_detai.index');
+    Route::post('duyet-detai/duyet-tat-ca-lop', [\App\Http\Controllers\Admin\DuyetDeTaiAdminController::class, 'approveAllInClass'])->name('admin.duyet_detai.approveAllInClass');
     Route::post('duyet-detai/{id}/duyet', [\App\Http\Controllers\Admin\DuyetDeTaiAdminController::class, 'approve'])->name('admin.duyet_detai.approve');
     Route::post('duyet-detai/{id}/tu-choi', [\App\Http\Controllers\Admin\DuyetDeTaiAdminController::class, 'reject'])->name('admin.duyet_detai.reject');
     Route::post('duyet-detai/{id}/yeu-cau-dieu-chinh', [\App\Http\Controllers\Admin\DuyetDeTaiAdminController::class, 'requestAdjustment'])->name('admin.duyet_detai.requestAdjustment');
@@ -152,6 +153,7 @@ Route::middleware(['auth', 'role:Admin,Giảng viên'])->prefix('giangvien')->gr
     Route::get('/sanpham', [\App\Http\Controllers\GiangVien\SanPhamController::class, 'index'])->name('giangvien.sanpham.index');
     Route::get('/chamdiem', [\App\Http\Controllers\GiangVien\ChamDiemController::class, 'index'])->name('giangvien.chamdiem.index');
     Route::post('/chamdiem/{maNhom}', [\App\Http\Controllers\GiangVien\ChamDiemController::class, 'store'])->name('giangvien.chamdiem.store');
+    Route::get('/ketqua', [\App\Http\Controllers\Admin\KetQuaController::class, 'index'])->name('giangvien.ketqua.index');
     
     Route::resource('thongbao', \App\Http\Controllers\ThongBaoController::class)->names('giangvien.thongbao')->only(['index', 'store', 'update', 'destroy']);
 });

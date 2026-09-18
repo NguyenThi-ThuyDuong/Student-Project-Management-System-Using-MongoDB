@@ -12,19 +12,22 @@ class ProfileController extends Controller
     public function showProfile()
     {
         $user = Auth::user();
-        $role = strtolower($user->VaiTro ?? '');
+        $roleRaw = $user->VaiTro ?? '';
         $profile = null;
         $maTK = (string) ($user->_id ?? $user->MaTK);
 
         $myLhps = collect();
-        if ($role === 'admin') {
+        if ($roleRaw === 'Admin' || strtolower($roleRaw) === 'admin') {
             $layout = 'layouts.admin';
-        } elseif ($role === 'giangvien') {
+            $role = 'admin';
+        } elseif (in_array($roleRaw, ['Giảng viên', 'GiangVien']) || strtolower($roleRaw) === 'giangvien' || str_contains(mb_strtolower($roleRaw), 'giảng')) {
             $layout = 'layouts.giangvien';
-            $profile = \App\Models\GiangVien::with('boMon')->where('MaTK', $maTK)->first();
+            $role = 'giangvien';
+            $profile = \App\Models\GiangVien::with('boMon')->where('MaTK', $maTK)->orWhere('_id', $maTK)->first();
         } else {
             $layout = 'layouts.sinhvien';
-            $profile = \App\Models\SinhVien::with('lop')->where('MaTK', $maTK)->first();
+            $role = 'sinhvien';
+            $profile = \App\Models\SinhVien::with('lop')->where('MaTK', $maTK)->orWhere('_id', $maTK)->first();
             if ($profile) {
                 $allLhps = \App\Models\LopHocPhan::all();
                 $myLhps = $allLhps->filter(function($lhp) use ($profile) {
@@ -35,15 +38,15 @@ class ProfileController extends Controller
 
         return view('profile.show', compact('layout', 'profile', 'role', 'user', 'myLhps'));
     }
+
     public function showChangePasswordForm()
     {
         $user = Auth::user();
-        $role = strtolower($user->VaiTro ?? '');
+        $roleRaw = $user->VaiTro ?? '';
         
-        // Determine which layout to use based on role
-        if ($role === 'admin') {
+        if ($roleRaw === 'Admin' || strtolower($roleRaw) === 'admin') {
             $layout = 'layouts.admin';
-        } elseif ($role === 'giangvien') {
+        } elseif (in_array($roleRaw, ['Giảng viên', 'GiangVien']) || strtolower($roleRaw) === 'giangvien' || str_contains(mb_strtolower($roleRaw), 'giảng')) {
             $layout = 'layouts.giangvien';
         } else {
             $layout = 'layouts.sinhvien';

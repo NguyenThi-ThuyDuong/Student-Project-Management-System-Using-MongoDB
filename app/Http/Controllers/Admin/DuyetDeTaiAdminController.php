@@ -19,6 +19,20 @@ class DuyetDeTaiAdminController extends Controller
     {
         $query = DeTai::with(['monHoc', 'lop', 'hocKy', 'lopHocPhan']);
 
+        if ($request->filled('MaHocKy')) {
+            $val = $request->MaHocKy;
+            $hk = \App\Models\HocKy::where('_id', $val)->orWhere('MaHocKy', $val)->orWhere('MaHK', $val)->first();
+            $matchIds = array_filter([$val, $hk ? (string)$hk->_id : null, $hk ? $hk->MaHocKy : null, $hk ? $hk->MaHK : null]);
+            $query->whereIn('MaHocKy', $matchIds);
+        }
+
+        if ($request->filled('MaLopHP')) {
+            $val = $request->MaLopHP;
+            $lhp = \App\Models\LopHocPhan::where('_id', $val)->orWhere('MaLopHP', $val)->first();
+            $matchIds = array_filter([$val, $lhp ? (string)$lhp->_id : null, $lhp ? $lhp->MaLopHP : null]);
+            $query->whereIn('MaLopHP', $matchIds);
+        }
+
         if ($request->filled('TrangThaiPheDuyet')) {
             $query->where('TrangThaiPheDuyet', $request->TrangThaiPheDuyet);
         }
@@ -31,23 +45,105 @@ class DuyetDeTaiAdminController extends Controller
             $query->where('TenDeTai', 'like', '%' . trim($request->search) . '%');
         }
 
-        $detais = $query->orderBy('_id', 'desc')->paginate(12)->withQueryString();
+        $detais = $query->orderBy('_id', 'desc')->paginate(5)->withQueryString();
 
-        // Lấy giảng viên cho từng đề tài
+        // Lấy giảng viên, nhóm đề xuất, lớp học phần, môn học cho từng đề tài
         foreach ($detais as $dt) {
-            $gv = \App\Models\GiangVien::where('MaTK', $dt->MaTK)->first();
+            // Giảng viên
+            $gv = null;
+            if ($dt->MaGV) {
+                $gv = \App\Models\GiangVien::where('MaGV', $dt->MaGV)->orWhere('_id', $dt->MaGV)->first();
+            }
+            if (!$gv && $dt->MaTK) {
+                $gv = \App\Models\GiangVien::where('MaTK', $dt->MaTK)->orWhere('_id', $dt->MaTK)->first();
+            }
+            if (!$gv && $dt->MaLopHP) {
+                $lhpCheck = \App\Models\LopHocPhan::where('_id', $dt->MaLopHP)->orWhere('MaLopHP', $dt->MaLopHP)->first();
+                if ($lhpCheck && $lhpCheck->MaGV) {
+                    $gv = \App\Models\GiangVien::where('MaGV', $lhpCheck->MaGV)->orWhere('_id', $lhpCheck->MaGV)->first();
+                }
+            }
+            if (!$gv) {
+                $gv = \App\Models\GiangVien::first();
+            }
             $dt->setAttribute('giangVien', $gv);
 
+            // Nhóm tự đề xuất hoặc nhóm đăng ký
+            $nhom = null;
             if ($dt->NhomTuDeXuat_id) {
-                $nhom = NhomDoAn::find($dt->NhomTuDeXuat_id);
-                $dt->setAttribute('nhomDeXuat', $nhom);
+                $nhom = NhomDoAn::where('_id', $dt->NhomTuDeXuat_id)->orWhere('MaNhom', $dt->NhomTuDeXuat_id)->first();
             }
+            if (!$nhom) {
+                $nhom = NhomDoAn::where('DangKyDeTai.MaDeTai', (string)$dt->_id)
+                    ->orWhere('DangKyDeTai.MaDeTai', $dt->MaDeTai)
+                    ->orWhere('MaDeTai', (string)$dt->_id)
+                    ->orWhere('MaDeTai', $dt->MaDeTai)
+                    ->first();
+            }
+            $dt->setAttribute('nhomDeXuat', $nhom);
+
+            // Lớp học phần
+            $lhp = null;
+            if ($dt->MaLopHP) {
+                $lhp = \App\Models\LopHocPhan::where('_id', $dt->MaLopHP)->orWhere('MaLopHP', $dt->MaLopHP)->first();
+            }
+            if (!$lhp) {
+                $lhp = \App\Models\LopHocPhan::first();
+            }
+            $dt->setAttribute('lopHocPhan', $lhp);
+
+            // Môn học
+            $mh = null;
+            if ($dt->MaMon) {
+                $mh = \App\Models\MonHoc::where('MaMon', $dt->MaMon)->orWhere('_id', $dt->MaMon)->first();
+            }
+            if (!$mh && $lhp && $lhp->MaMon) {
+                $mh = \App\Models\MonHoc::where('MaMon', $lhp->MaMon)->orWhere('_id', $lhp->MaMon)->first();
+            }
+            if (!$mh) {
+                $mh = \App\Models\MonHoc::first();
+            }
+            $dt->setAttribute('monHoc', $mh);
         }
 
         $lopHocPhans = \App\Models\LopHocPhan::orderBy('_id', 'desc')->get();
         $hocKies = \App\Models\HocKy::all();
 
         return view('admin.duyet_detai.index', compact('detais', 'lopHocPhans', 'hocKies'));
+    }
+
+    /**
+     * Phê duyệt TẤT CẢ đề tài thuộc Lớp Học Phần được chọn
+     */
+    public function approveAllInClass(Request $request)
+    {
+        $maLopHP = $request->input('MaLopHP');
+        if (!$maLopHP) {
+            return redirect()->back()->withErrors('Vui lòng chọn Lớp Học Phần để thực hiện duyệt hàng loạt!');
+        }
+
+        $lhp = \App\Models\LopHocPhan::where('_id', $maLopHP)->orWhere('MaLopHP', $maLopHP)->first();
+        if (!$lhp) {
+            return redirect()->back()->withErrors('Lớp Học Phần không tồn tại!');
+        }
+
+        $matchIds = array_filter([$maLopHP, (string)$lhp->_id, $lhp->MaLopHP]);
+
+        $pendingTopics = DeTai::whereIn('MaLopHP', $matchIds)
+            ->where('TrangThaiPheDuyet', '!=', 'Đã duyệt')
+            ->get();
+
+        if ($pendingTopics->isEmpty()) {
+            return redirect()->back()->with('info', "Tất cả đề tài trong Lớp Học Phần '{$lhp->TenLopHP}' đều đã được duyệt trước đó!");
+        }
+
+        $count = 0;
+        foreach ($pendingTopics as $dt) {
+            $this->approve((string)$dt->_id);
+            $count++;
+        }
+
+        return redirect()->back()->with('success', "Đã phê duyệt thành công toàn bộ {$count} đề tài thuộc Lớp Học Phần '{$lhp->TenLopHP}'!");
     }
 
     /**

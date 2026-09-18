@@ -41,13 +41,13 @@
                         <td>{{ $lm->sinhVienMoi->HoTen ?? 'N/A' }}</td>
                         <td class="small text-muted">{{ date('d/m/Y H:i', strtotime($lm->NgayMoi)) }}</td>
                         <td class="text-end px-4">
-                            <form action="{{ route('sinhvien.nhom.xacNhan', $lm->id) }}" method="POST" class="d-inline">
+                            <form action="{{ route('sinhvien.nhom.xacNhan', $lm->id ?? $lm->_id) }}" method="POST" class="d-inline">
                                 @csrf
                                 <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 me-1">
                                     <i class="fa-solid fa-check me-1"></i>Đồng ý
                                 </button>
                             </form>
-                            <form action="{{ route('sinhvien.nhom.tuChoi', $lm->id) }}" method="POST" class="d-inline">
+                            <form action="{{ route('sinhvien.nhom.tuChoi', $lm->id ?? $lm->_id) }}" method="POST" class="d-inline">
                                 @csrf
                                 <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
                                     <i class="fa-solid fa-xmark me-1"></i>Từ chối
@@ -160,10 +160,10 @@
                         <h6 class="fw-bold small text-success mb-2"><i class="fa-solid fa-user-plus me-1"></i>Mời thành viên mới vào nhóm (Cùng Lớp Học Phần)</h6>
                         <form action="{{ route('sinhvien.nhom.moiThanhVien') }}" method="POST" class="row g-2">
                             @csrf
-                            <input type="hidden" name="MaNhom" value="{{ $nhom->MaNhom }}">
+                            <input type="hidden" name="MaNhom" value="{{ $nhom->_id }}">
                             <div class="col position-relative">
-                                <input type="text" id="inputSearchSV_{{ $nhom->MaNhom }}" name="TenDangNhap_Them" class="form-control form-control-sm" placeholder="Nhập MSSV (vd: sv02) hoặc Họ tên..." autocomplete="off" required>
-                                <div id="autocompleteResults_{{ $nhom->MaNhom }}" class="list-group position-absolute w-100 shadow d-none" style="z-index: 1000; max-height: 180px; overflow-y: auto;"></div>
+                                <input type="text" id="inputSearchSV_{{ $nhom->_id }}" name="TenDangNhap_Them" class="form-control form-control-sm" placeholder="Nhập MSSV (vd: sv02) hoặc Họ tên..." autocomplete="off" required>
+                                <div id="autocompleteResults_{{ $nhom->_id }}" class="list-group position-absolute w-100 shadow d-none" style="z-index: 1000; max-height: 180px; overflow-y: auto;"></div>
                             </div>
                             <div class="col-auto">
                                 <button type="submit" class="btn btn-sm btn-success px-3">
@@ -349,8 +349,8 @@ document.addEventListener('DOMContentLoaded', function() {
     @if(isset($nhoms))
     @foreach($nhoms as $n)
     (function() {
-        const input = document.getElementById('inputSearchSV_{{ $n->MaNhom }}');
-        const results = document.getElementById('autocompleteResults_{{ $n->MaNhom }}');
+        const input = document.getElementById('inputSearchSV_{{ $n->_id }}');
+        const results = document.getElementById('autocompleteResults_{{ $n->_id }}');
         if (!input || !results) return;
 
         input.addEventListener('input', function() {
@@ -360,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            fetch(`{{ route('sinhvien.nhom.searchSV') }}?q=${encodeURIComponent(query)}&maNhom={{ $n->MaNhom }}`)
+            fetch(`{{ route('sinhvien.nhom.searchSV') }}?q=${encodeURIComponent(query)}&maNhom={{ $n->_id }}`)
                 .then(res => res.json())
                 .then(data => {
                     results.innerHTML = '';

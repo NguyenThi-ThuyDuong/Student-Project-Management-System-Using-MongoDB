@@ -19,7 +19,10 @@ class TienDoAdminController extends Controller
         $query = NhomDoAn::with(['monHoc', 'hocKy', 'lopHocPhan']);
 
         if ($request->filled('MaHocKy')) {
-            $query->where('MaHocKy', $request->MaHocKy);
+            $val = $request->MaHocKy;
+            $hk = HocKy::where('_id', $val)->orWhere('MaHocKy', $val)->orWhere('MaHK', $val)->first();
+            $matchIds = array_filter([$val, $hk ? (string)$hk->_id : null, $hk ? (string)$hk->MaHocKy : null, $hk ? (string)$hk->MaHK : null]);
+            $query->whereIn('MaHocKy', $matchIds);
         }
 
         if ($request->filled('MaLopHP')) {
@@ -35,7 +38,7 @@ class TienDoAdminController extends Controller
             });
         }
 
-        $nhoms = $query->orderBy('_id', 'desc')->paginate(10)->withQueryString();
+        $nhoms = $query->orderBy('_id', 'desc')->paginate(5)->withQueryString();
 
         // Process 5-tier structure for each group
         foreach ($nhoms as $nhom) {

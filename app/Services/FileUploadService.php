@@ -16,20 +16,25 @@ class FileUploadService
      * @param string $folder Thư mục lưu trên storage (ví dụ: 'baocao', 'sanpham')
      * @return string|null Trả về đường dẫn storage hoặc URL link
      */
-    public function handleUploadOrLink(Request $request, string $fileInputName, string $linkInputName, string $folder = 'uploads'): ?string
+    public function handleUploadOrLink(Request $request, string $fileInputName, ?string $linkInputName = null, string $folder = 'uploads'): ?string
     {
         // 1. Kiểm tra nếu có file đính kèm tải lên
         if ($request->hasFile($fileInputName) && $request->file($fileInputName)->isValid()) {
             $file = $request->file($fileInputName);
             $filename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
-            $path = $file->storeAs("public/{$folder}", $filename);
             
-            // Trả về đường dẫn dạng storage relative url (không bắt đầu bằng slash để tránh 403 double-slash)
-            return ltrim(Storage::url($path), '/');
+            $destinationPath = public_path("uploads/{$folder}");
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0777, true);
+            }
+
+            $file->move($destinationPath, $filename);
+            
+            return "uploads/{$folder}/{$filename}";
         }
 
         // 2. Nếu không có file, lấy link URL nhập từ form
-        if ($request->filled($linkInputName)) {
+        if (!empty($linkInputName) && $request->filled($linkInputName)) {
             return $request->input($linkInputName);
         }
 

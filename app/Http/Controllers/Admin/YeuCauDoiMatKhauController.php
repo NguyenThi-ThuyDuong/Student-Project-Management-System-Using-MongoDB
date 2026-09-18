@@ -12,7 +12,7 @@ class YeuCauDoiMatKhauController extends Controller
 {
     public function index()
     {
-        $yeucaus = YeuCauDoiMatKhau::orderBy('MaYeuCau', 'desc')->paginate(15);
+        $yeucaus = YeuCauDoiMatKhau::orderBy('MaYeuCau', 'desc')->paginate(5);
         return view('admin.yeucau_matkhau.index', compact('yeucaus'));
     }
 

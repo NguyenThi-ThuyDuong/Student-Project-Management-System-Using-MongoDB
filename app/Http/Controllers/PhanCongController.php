@@ -42,7 +42,7 @@ class PhanCongController extends Controller
                 });
             });
         }
-        $phancongs = $queryHc->paginate(10, ['*'], 'page_hc')->withQueryString();
+        $phancongs = $queryHc->paginate(5, ['*'], 'page_hc')->withQueryString();
 
         $queryHp = LopHocPhan::with(['giangVien.boMon', 'monHoc', 'hocKy'])->orderBy('_id', 'desc');
         if ($qHp !== '') {
@@ -54,7 +54,7 @@ class PhanCongController extends Controller
                   });
             });
         }
-        $lophocphans = $queryHp->paginate(10, ['*'], 'page_hp')->withQueryString();
+        $lophocphans = $queryHp->paginate(5, ['*'], 'page_hp')->withQueryString();
 
         $giangviens = GiangVien::with('boMon')->get();
         $lops = Lop::all();
@@ -128,7 +128,8 @@ class PhanCongController extends Controller
         $existing = PhanCongHuongDanLop::where(function($q) use ($lop) {
             $q->where('MaLop', $lop->MaLop)->orWhere('MaLop', $lop->_id);
         })->where(function($q) use ($hk) {
-            $q->where('MaHocKy', $hk->MaHocKy)->orWhere('MaHocKy', $hk->_id);
+            $hkIds = array_filter([(string)$hk->MaHocKy, (string)$hk->MaHK, (string)$hk->_id]);
+            $q->whereIn('MaHocKy', $hkIds);
         })->first();
 
         if ($existing) {
@@ -155,7 +156,7 @@ class PhanCongController extends Controller
             'MaPhanCong' => (int)$maxId + 1,
             'MaGV' => $gv->MaGV,
             'MaLop' => $lop->MaLop,
-            'MaHocKy' => $hk->MaHocKy,
+            'MaHocKy' => $hk->MaHocKy ?: (string)$hk->_id,
             'NgayPhanCong' => date('Y-m-d')
         ]);
 

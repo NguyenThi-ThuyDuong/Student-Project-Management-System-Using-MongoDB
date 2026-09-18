@@ -26,7 +26,7 @@ class NganhController extends Controller
             $query->where('MaBoMon', $request->MaBoMon);
         }
 
-        $nganhs = $query->orderBy('_id', 'desc')->paginate(10)->withQueryString();
+        $nganhs = $query->orderBy('_id', 'desc')->paginate(5)->withQueryString();
         return view('admin.nganh.index', compact('nganhs'));
     }
 

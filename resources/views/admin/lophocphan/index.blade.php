@@ -88,11 +88,14 @@
                 </thead>
                 <tbody>
                     @forelse($lopHocPhans as $item)
-                    @php $siSoHienTai = optional($item->sinhVienLopHocPhans)->count() ?? (is_countable($item->sinhVienLopHocPhans ?? null) ? count($item->sinhVienLopHocPhans) : 0); @endphp
+                    @php 
+                        $lhpId = $item->MaLopHP ?? $item->_id;
+                        $siSoHienTai = optional($item->sinhVienLopHocPhans)->count() ?? (is_countable($item->sinhVienLopHocPhans ?? null) ? count($item->sinhVienLopHocPhans) : 0); 
+                    @endphp
                     <tr>
-                        <td><span class="badge bg-light text-dark fw-bold border">HP#{{ $item->MaLopHP }}</span></td>
+                        <td><span class="badge bg-light text-dark fw-bold border">HP#{{ $lhpId }}</span></td>
                         <td>
-                            <a href="{{ route('admin.lophocphan.show', $item->MaLopHP) }}" class="fw-bold text-decoration-none text-primary">
+                            <a href="{{ route('admin.lophocphan.show', $lhpId) }}" class="fw-bold text-decoration-none text-primary">
                                 {{ $item->TenLopHP }}
                             </a>
                         </td>
@@ -130,13 +133,13 @@
                             @endif
                         </td>
                         <td class="text-center">
-                            <a href="{{ route('admin.lophocphan.show', $item->MaLopHP) }}" class="btn btn-sm btn-light text-info rounded-circle me-1" title="Chi tiết & Danh sách sinh viên">
+                            <a href="{{ route('admin.lophocphan.show', $lhpId) }}" class="btn btn-sm btn-light text-info rounded-circle me-1" title="Chi tiết & Danh sách sinh viên">
                                 <i class="fa-solid fa-users text-primary"></i>
                             </a>
-                            <a href="{{ route('admin.lophocphan.edit', $item->MaLopHP) }}" class="btn btn-sm btn-light text-primary rounded-circle me-1" title="Chỉnh sửa">
+                            <a href="{{ route('admin.lophocphan.edit', $lhpId) }}" class="btn btn-sm btn-light text-primary rounded-circle me-1" title="Chỉnh sửa">
                                 <i class="fa-solid fa-pen"></i>
                             </a>
-                            <form action="{{ route('admin.lophocphan.destroy', $item->MaLopHP) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa Lớp Học Phần này? Dữ liệu danh sách sinh viên thuộc lớp cũng sẽ bị xóa!');">
+                            <form action="{{ route('admin.lophocphan.destroy', $lhpId) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa Lớp Học Phần này? Dữ liệu danh sách sinh viên thuộc lớp cũng sẽ bị xóa!');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-light text-danger rounded-circle" title="Xóa">

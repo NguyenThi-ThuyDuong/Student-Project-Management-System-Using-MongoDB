@@ -27,7 +27,7 @@ class HocKyController extends Controller
             $query->where('NamHoc', $request->NamHoc);
         }
 
-        $hockys = $query->orderBy('_id', 'desc')->paginate(10)->withQueryString();
+        $hockys = $query->orderBy('_id', 'desc')->paginate(5)->withQueryString();
         return view('admin.hocky.index', compact('hockys'));
     }
 
@@ -39,6 +39,7 @@ class HocKyController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'MaHocKy' => 'nullable|string|max:50',
             'TenHocKy' => 'required|string|max:50',
             'NamHoc' => 'required|string|max:20',
             'NgayBatDau' => 'nullable|date',
@@ -49,13 +50,20 @@ class HocKyController extends Controller
             'NgayKetThuc.after_or_equal' => 'Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.'
         ]);
 
-        HocKy::create($request->only(['TenHocKy', 'NamHoc', 'NgayBatDau', 'NgayKetThuc']));
+        $data = $request->only(['MaHocKy', 'TenHocKy', 'NamHoc', 'NgayBatDau', 'NgayKetThuc']);
+        if (empty($data['MaHocKy'])) {
+            $cleanTen = preg_replace('/[^a-zA-Z0-9]/', '', $data['TenHocKy']);
+            $cleanNam = preg_replace('/[^a-zA-Z0-9]/', '', $data['NamHoc']);
+            $data['MaHocKy'] = strtoupper($cleanTen . '_' . $cleanNam);
+        }
+
+        HocKy::create($data);
         return redirect()->route('hocky.index')->with('success', 'Thêm học kỳ thành công!');
     }
 
     private function findHocKy($id)
     {
-        return HocKy::where('_id', $id)->orWhere('MaHocKy', $id)->firstOrFail();
+        return HocKy::where('_id', $id)->orWhere('MaHocKy', $id)->orWhere('MaHK', $id)->firstOrFail();
     }
 
     public function show($id)
@@ -74,6 +82,7 @@ class HocKyController extends Controller
         $hocky = $this->findHocKy($id);
 
         $request->validate([
+            'MaHocKy' => 'nullable|string|max:50',
             'TenHocKy' => 'required|string|max:50',
             'NamHoc' => 'required|string|max:20',
             'NgayBatDau' => 'nullable|date',
@@ -84,7 +93,14 @@ class HocKyController extends Controller
             'NgayKetThuc.after_or_equal' => 'Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.'
         ]);
 
-        $hocky->update($request->only(['TenHocKy', 'NamHoc', 'NgayBatDau', 'NgayKetThuc']));
+        $data = $request->only(['MaHocKy', 'TenHocKy', 'NamHoc', 'NgayBatDau', 'NgayKetThuc']);
+        if (empty($data['MaHocKy'])) {
+            $cleanTen = preg_replace('/[^a-zA-Z0-9]/', '', $data['TenHocKy']);
+            $cleanNam = preg_replace('/[^a-zA-Z0-9]/', '', $data['NamHoc']);
+            $data['MaHocKy'] = strtoupper($cleanTen . '_' . $cleanNam);
+        }
+
+        $hocky->update($data);
         return redirect()->route('hocky.index')->with('success', 'Cập nhật học kỳ thành công!');
     }
 

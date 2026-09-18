@@ -75,16 +75,18 @@ class NhomController extends Controller
 
         $loiMois = collect();
         foreach ($nhomCoLoiMoi as $nhom) {
-            foreach ($nhom->getLoiMoiList() as $lm) {
-                if (in_array((string)($lm['MaSV_DuocMoi'] ?? ''), $svKeys) && ($lm['TrangThai'] ?? '') === 'cho_xac_nhan') {
-                    $svMoi = SinhVien::where('_id', $lm['MaSV_Moi'])->orWhere('MaSV', $lm['MaSV_Moi'])->first();
+            foreach ($nhom->getLoiMoiList() as $lmKey => $lm) {
+                $lmArr = is_array($lm) ? $lm : (array)$lm;
+                if (in_array((string)($lmArr['MaSV_DuocMoi'] ?? ''), $svKeys) && ($lmArr['TrangThai'] ?? '') === 'cho_xac_nhan') {
+                    $svMoi = SinhVien::where('_id', $lmArr['MaSV_Moi'] ?? null)->orWhere('MaSV', $lmArr['MaSV_Moi'] ?? null)->first();
+                    $loiMoiId = (string)($lmArr['_id'] ?? $lmArr['id'] ?? ($nhom->_id . '_' . $lmKey));
                     $loiMois->push((object)[
-                        'id' => $lm['_id'] ?? '',
-                        '_id' => $lm['_id'] ?? '',
+                        'id' => $loiMoiId,
+                        '_id' => $loiMoiId,
                         'nhomDoAn' => $nhom,
                         'sinhVienMoi' => $svMoi,
-                        'TrangThai' => $lm['TrangThai'],
-                        'NgayMoi' => $lm['NgayMoi'] ?? null,
+                        'TrangThai' => $lmArr['TrangThai'] ?? 'cho_xac_nhan',
+                        'NgayMoi' => $lmArr['NgayMoi'] ?? null,
                     ]);
                 }
             }
@@ -222,7 +224,7 @@ class NhomController extends Controller
 
         $svKeys = $this->getStudentKeys($svCurrent);
 
-        $nhom = $maNhom ? NhomDoAn::find($maNhom) : null;
+        $nhom = $maNhom ? (NhomDoAn::where('_id', $maNhom)->orWhere('MaNhom', $maNhom)->first()) : null;
         $maMon = $nhom ? $nhom->MaMon : null;
         $maHocKy = $nhom ? $nhom->MaHocKy : null;
 
@@ -278,7 +280,15 @@ class NhomController extends Controller
         ]);
 
         $user = Auth::user();
-        $sinhVien = SinhVien::where('MaTK', (string) $user->_id)->firstOrFail();
+        $sinhVien = SinhVien::where('MaTK', (string) $user->_id)->first();
+        if (!$sinhVien) {
+            $sinhVien = SinhVien::where('Email', 'like', $user->TenDangNhap . '%')->orWhere('MaSV', $user->TenDangNhap)->first();
+            if ($sinhVien) {
+                $sinhVien->update(['MaTK' => (string) $user->_id]);
+            } else {
+                return redirect()->back()->withErrors('Không tìm thấy hồ sơ Sinh viên tương ứng với tài khoản.');
+            }
+        }
         $svKeys = $this->getStudentKeys($sinhVien);
 
         $nhom = NhomDoAn::where('_id', $request->MaNhom)->orWhere('MaNhom', $request->MaNhom)->firstOrFail();

@@ -41,14 +41,19 @@ class QuenMatKhauController extends Controller
             return redirect()->back()->with('status', 'Bạn đã gửi yêu cầu cấp lại mật khẩu rồi. Vui lòng chờ Admin phê duyệt!');
         }
 
+        // Tích hợp Redis Feature 1 - OTP Store
+        $otpService = new \App\Services\OtpService();
+        $otpCode = $otpService->generateOtp($request->TenDangNhap);
+
         YeuCauDoiMatKhau::create([
             'TenDangNhap' => $request->TenDangNhap,
             'Email' => $request->HoTen, // Lưu Họ tên vào Email/Note
             'Role' => $request->Role,
+            'OTP' => $otpCode,
             'TrangThai' => 'Chờ duyệt',
             'NgayGui' => now()
         ]);
 
-        return redirect()->route('login')->with('success', "Đã gửi yêu cầu cấp lại mật khẩu cho {$request->Role}: {$request->HoTen} ({$request->TenDangNhap}) thành công! Vui lòng chờ Admin phê duyệt (mật khẩu sẽ được reset về 123456).");
+        return redirect()->route('login')->with('success', "Đã tạo mã xác thực Redis OTP: {$otpCode} (Hạn 5 phút, Key: otp:{$request->TenDangNhap}) và gửi yêu cầu cấp lại mật khẩu cho {$request->Role}: {$request->HoTen} thành công! Vui lòng chờ Admin phê duyệt.");
     }
 }

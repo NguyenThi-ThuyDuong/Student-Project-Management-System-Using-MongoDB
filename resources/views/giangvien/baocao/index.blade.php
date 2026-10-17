@@ -153,6 +153,53 @@
                             <p class="mb-0 text-secondary" style="white-space: pre-line;">{{ $noiDungBc }}</p>
                         </div>
 
+                        <!-- Gemini AI Assistant Summary Card -->
+                        @php
+                            $aiSummary = is_array($bc) ? ($bc['AISummary'] ?? null) : ($bc->AISummary ?? null);
+                        @endphp
+                        @if(!empty($aiSummary))
+                            <div class="mb-3 p-3 rounded-3 border shadow-sm" style="background: #f0fdf4; border-color: #bbf7d0 !important;">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <h6 class="fw-bold text-success mb-0">
+                                        <i class="fa-solid fa-wand-magic-sparkles me-2 text-success"></i>Gemini AI Assistant Summary (Tóm Tắt Tự Động)
+                                    </h6>
+                                    <span class="badge bg-success text-white rounded-pill px-3 py-1 small">
+                                        <i class="fa-solid fa-robot me-1"></i>Google Gemini AI
+                                    </span>
+                                </div>
+                                <p class="small text-dark mb-2"><strong>Tóm tắt tổng quan:</strong> {{ is_array($aiSummary) ? ($aiSummary['tom_tat'] ?? '') : ($aiSummary->tom_tat ?? '') }}</p>
+
+                                @php
+                                    $completedList = is_array($aiSummary) ? ($aiSummary['cong_viec_hoan_thanh'] ?? []) : ($aiSummary->cong_viec_hoan_thanh ?? []);
+                                    $issuesList = is_array($aiSummary) ? ($aiSummary['kho_khan'] ?? []) : ($aiSummary->kho_khan ?? []);
+                                    $plansList = is_array($aiSummary) ? ($aiSummary['ke_hoach_tuan_toi'] ?? []) : ($aiSummary->ke_hoach_tuan_toi ?? []);
+                                @endphp
+
+                                @if(!empty($completedList))
+                                    <div class="small mb-1">
+                                        <strong class="text-dark"><i class="fa-solid fa-check me-1 text-success"></i>Công việc hoàn thành:</strong>
+                                        <ul class="mb-1 ps-3 text-dark">
+                                            @foreach((array)$completedList as $cv)
+                                                <li>{{ $cv }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+
+                                @if(!empty($issuesList))
+                                    <div class="small mb-1 text-danger">
+                                        <strong><i class="fa-solid fa-exclamation-circle me-1"></i>Khó khăn ghi nhận:</strong> {{ is_array($issuesList) ? implode(', ', $issuesList) : $issuesList }}
+                                    </div>
+                                @endif
+
+                                @if(!empty($plansList))
+                                    <div class="small text-primary">
+                                        <strong><i class="fa-solid fa-calendar-arrow-down me-1"></i>Kế hoạch tiếp theo:</strong> {{ is_array($plansList) ? implode(', ', $plansList) : $plansList }}
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
                         <!-- Tải file hoặc Github Link -->
                         @if(!empty($fileBc))
                             @php

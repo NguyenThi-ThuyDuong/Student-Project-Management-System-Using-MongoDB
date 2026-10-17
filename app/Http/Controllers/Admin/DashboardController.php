@@ -16,17 +16,53 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $soSinhVien = Cache::remember('dashboard_soSinhVien', 60, function () { return SinhVien::count(); });
-        $soGiangVien = Cache::remember('dashboard_soGiangVien', 60, function () { return GiangVien::count(); });
-        $soDeTai = Cache::remember('dashboard_soDeTai', 60, function () { return DeTai::count(); });
-        $soNhom = Cache::remember('dashboard_soNhom', 60, function () { return NhomDoAn::count(); });
-        $soLopHocPhan = Cache::remember('dashboard_soLopHocPhan', 60, function () { return \App\Models\LopHocPhan::count(); });
-        $soYeuCauMatKhau = Cache::remember('dashboard_soYeuCauMatKhau', 30, function () {
-            return YeuCauDoiMatKhau::where('TrangThai', 'cho_duyet')->count();
+        $dashboardData = Cache::remember('cache:dashboard:admin', 600, function () {
+            $tong_sinh_vien = SinhVien::count();
+            $tong_giang_vien = GiangVien::count();
+            $tong_nhom = NhomDoAn::count();
+            $tong_de_tai = DeTai::count();
+            $de_tai_da_duyet = DeTai::where('TrangThaiPheDuyet', 'Đã duyệt')->orWhere('TrangThai', 'Đã duyệt')->count();
+            $soLopHocPhan = \App\Models\LopHocPhan::count();
+            $soYeuCauMatKhau = YeuCauDoiMatKhau::where('TrangThai', 'cho_duyet')->count();
+
+            // Đếm báo cáo đã nộp & nhóm chậm tiến độ từ MongoDB
+            $bao_cao_da_nop = 0;
+            $nhom_cham_tien_do = 0;
+
+            $allNhoms = NhomDoAn::all();
+            foreach ($allNhoms as $nhom) {
+                $bcList = $nhom->getBaoCaoList();
+                $bcCount = $bcList->count();
+                $bao_cao_da_nop += $bcCount;
+
+                $dk = $nhom->getDangKyDeTai();
+                if ($dk && ($dk['TrangThai'] ?? '') === 'Đã duyệt' && $bcCount === 0) {
+                    $nhom_cham_tien_do++;
+                }
+            }
+
+            return [
+                'tong_sinh_vien' => $tong_sinh_vien,
+                'tong_giang_vien' => $tong_giang_vien,
+                'tong_nhom' => $tong_nhom,
+                'tong_de_tai' => $tong_de_tai,
+                'de_tai_da_duyet' => $de_tai_da_duyet,
+                'bao_cao_da_nop' => $bao_cao_da_nop,
+                'nhom_cham_tien_do' => $nhom_cham_tien_do,
+                'soLopHocPhan' => $soLopHocPhan,
+                'soYeuCauMatKhau' => $soYeuCauMatKhau,
+            ];
         });
 
+        $soSinhVien = $dashboardData['tong_sinh_vien'];
+        $soGiangVien = $dashboardData['tong_giang_vien'];
+        $soDeTai = $dashboardData['tong_de_tai'];
+        $soNhom = $dashboardData['tong_nhom'];
+        $soLopHocPhan = $dashboardData['soLopHocPhan'];
+        $soYeuCauMatKhau = $dashboardData['soYeuCauMatKhau'];
+
         // Thống kê trạng thái nhóm - MongoDB aggregation
-        $trangThaiNhom = Cache::remember('dashboard_trangThaiNhom', 60, function () {
+        $trangThaiNhom = Cache::remember('dashboard_trangThaiNhom', 600, function () {
             $results = NhomDoAn::raw(function ($collection) {
                 return $collection->aggregate([
                     ['$group' => ['_id' => '$TrangThai', 'total' => ['$sum' => 1]]]
@@ -44,7 +80,7 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact(
             'soSinhVien', 'soGiangVien', 'soDeTai', 'soNhom', 'soLopHocPhan', 'soYeuCauMatKhau',
-            'chartLabels', 'chartData'
+            'chartLabels', 'chartData', 'dashboardData'
         ));
     }
 

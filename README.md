@@ -3,13 +3,14 @@
 ![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
 ![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-8.0-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-7.x-DC382D?style=for-the-badge&logo=redis&logoColor=white)
 ![MongoDB Compass](https://img.shields.io/badge/MongoDB%20Compass-GUI-13AA52?style=for-the-badge&logo=mongodb&logoColor=white)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)
-![Gemini AI](https://img.shields.io/badge/AI%20Assist-Gemini%202.5%20Flash-8E44AD?style=for-the-badge&logo=google&logoColor=white)
+![Gemini AI](https://img.shields.io/badge/AI%20Assist-Gemini-8E44AD?style=for-the-badge&logo=google&logoColor=white)
 
 Hệ thống Quản lý Đồ án & Khóa luận Tốt nghiệp trực tuyến dành riêng cho **Sinh viên, Giảng viên và Quản trị viên (Admin)** Trường Đại Học Công Thương TP. Hồ Chí Minh (HUIT). 
 
-Dự án được xây dựng chuẩn kiến trúc CSDL **MongoDB (NoSQL Document Store)**, tối ưu hóa truy vấn tài liệu nhúng (Embedded Documents), tích hợp công cụ **MongoDB Compass** và công cụ đánh giá tiến độ thông minh **AI Assistant (Gemini 2.5 Flash Academic Edition)**.
+Dự án được xây dựng 100% chuẩn kiến trúc CSDL NoSQL kết hợp giữa **MongoDB (Document Database chính)** và **Redis (In-Memory Key-Value Store)**, tối ưu hóa truy vấn tài liệu nhúng (Embedded Documents), tích hợp trang **Admin -> NoSQL Monitoring** và công cụ đánh giá tiến độ thông minh **AI Assistant (Google Gemini)**.
 
 > [!NOTE]
 > **Repository GitHub Chính thức:**  
@@ -18,6 +19,12 @@ Dự án được xây dựng chuẩn kiến trúc CSDL **MongoDB (NoSQL Documen
 ---
 
 ## 🌟 1. Tính Năng Nổi Bật
+
+### ⚡ Tính Năng Redis Key-Value Store (In-Memory)
+- **OTP Quên Mật Khẩu (`otp:{username}`):** Mã OTP ngẫu nhiên 6 chữ số lưu trong Redis với TTL 300s (5 phút), tự hủy sau khi xác thực.
+- **Cache Danh Sách Đề Tài (`cache:de_tai:{lop_hoc_phan_id}`):** Bộ đệm danh sách đề tài với TTL 3600s, tự động xóa cache (Invalidation) khi tạo/chỉnh sửa/xóa đề tài.
+- **Cache Statistics Dashboard (`cache:dashboard:admin`):** Cache số liệu thống kê Dashboard Admin với TTL 600s.
+- **Giám Sát Live NoSQL Monitoring (`/admin/nosql-monitor`):** Giao diện Admin theo dõi kết nối MongoDB & Redis Live Keys kèm TTL và Type thực tế.
 
 ### 👨‍🎓 Đối với Sinh Viên
 - **Quản lý Nhóm Đồ án:** Tạo nhóm, mời thành viên qua MSSV, chấp nhận/từ chối lời mời gia nhập nhóm.

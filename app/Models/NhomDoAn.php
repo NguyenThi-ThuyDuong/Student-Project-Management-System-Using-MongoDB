@@ -378,7 +378,7 @@ class NhomDoAn extends Model
         return $this->getBaoCaoList();
     }
 
-    public function addBaoCao($lanBaoCao, $noiDung, $fileBaoCao = null)
+    public function addBaoCao($lanBaoCao, $noiDung, $fileBaoCao = null, $aiSummary = null)
     {
         $baoCao = $this->attributes['BaoCaoTienDo'] ?? [];
         if (is_string($baoCao)) {
@@ -391,11 +391,13 @@ class NhomDoAn extends Model
             'id' => $newId,
             '_id' => $newId,
             'MaBaoCao' => $newId,
-            'LanBaoCao' => $lanBaoCao,
+            'LanBaoCao' => (int) $lanBaoCao,
+            'GiaiDoan' => (int) $lanBaoCao,
             'NoiDung' => $noiDung,
             'FileBaoCao' => $fileBaoCao,
             'TrangThai' => 'Chờ duyệt',
             'NgayNop' => now()->toDateString(),
+            'AISummary' => $aiSummary,
             'NhanXet' => [],
         ];
         $this->BaoCaoTienDo = $baoCao;

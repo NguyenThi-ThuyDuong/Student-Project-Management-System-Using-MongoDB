@@ -112,6 +112,11 @@
 
             <!-- Hệ Thống & Báo Cáo -->
             <li class="nav-section-label">Hệ Thống &amp; Báo Cáo</li>
+            <li class="{{ request()->routeIs('admin.nosql.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.nosql.index') }}">
+                    <i class="fa-solid fa-database text-warning"></i> NoSQL Monitoring (Demo)
+                </a>
+            </li>
             <li class="{{ request()->routeIs('admin.thongke.*') ? 'active' : '' }}">
                 <a href="{{ route('admin.thongke.baocao') }}">
                     <i class="fa-solid fa-chart-line"></i> Báo Cáo &amp; Thống Kê

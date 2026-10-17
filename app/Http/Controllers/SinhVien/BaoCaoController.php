@@ -142,23 +142,34 @@ class BaoCaoController extends Controller
             return redirect()->back()->withErrors('Nhóm đã đạt giới hạn tối đa 5 lần nộp báo cáo tiến độ!');
         }
 
-        // 4. Kiểm tra trùng lần báo cáo
-        if ($baoCaoList->contains('LanBaoCao', $lanBaoCao)) {
-            return redirect()->back()->withErrors("Báo cáo lần {$lanBaoCao} đã tồn tại trong hệ thống!");
+        // 4. Kiểm tra trùng lần/giai đoạn báo cáo đang chờ duyệt
+        $existingPhase = $baoCaoList->first(function($bc) use ($lanBaoCao) {
+            $bcLan = (int)($bc->LanBaoCao ?? $bc->GiaiDoan ?? 0);
+            return $bcLan === $lanBaoCao;
+        });
+
+        if ($existingPhase) {
+            $st = $existingPhase->TrangThai ?? 'Chờ duyệt';
+            if ($st === 'Chờ duyệt') {
+                return redirect()->back()->withErrors("Báo cáo Giai đoạn {$lanBaoCao} đang chờ Giảng viên duyệt. Bạn không thể nộp trùng giai đoạn khi đang chờ duyệt!");
+            }
         }
 
-        $bcId = $nhom->addBaoCao($lanBaoCao, $request->NoiDung, $fileOrLink);
+        // 5. Tự động sinh AI Summary từ Google Gemini API
+        $geminiService = new \App\Services\GeminiService();
+        $aiSummary = $geminiService->generateReportSummary($request->NoiDung, $lanBaoCao);
+
+        $bcId = $nhom->addBaoCao($lanBaoCao, $request->NoiDung, $fileOrLink, $aiSummary);
 
         // Gửi thông báo cho Giảng viên hướng dẫn
         if ($deTai && $deTai->MaTK) {
             $notiService = new NotificationService();
-            // Create a simple object to pass to notification
             $bcObj = (object) ['LanBaoCao' => $lanBaoCao];
             $notiService->guiBaoCaoMoiChoGV($nhom, $deTai->MaTK, $bcObj);
         }
 
         AuditLog::log('nop_bao_cao', 'BaoCaoTienDo', $bcId, ['MaNhom' => (string) $nhom->_id, 'LanBaoCao' => $lanBaoCao]);
 
-        return redirect()->route('sinhvien.baocao.index', ['maNhom' => (string) $nhom->_id])->with('success', "Nộp báo cáo tiến độ lần {$lanBaoCao} thành công!");
+        return redirect()->route('sinhvien.baocao.index', ['maNhom' => (string) $nhom->_id])->with('success', "Nộp báo cáo tiến độ Giai đoạn {$lanBaoCao} thành công! Gemini AI đã tự động phân tích và tạo bản tóm tắt cho Giảng viên.");
     }
 }

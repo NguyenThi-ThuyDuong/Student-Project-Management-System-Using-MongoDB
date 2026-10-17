@@ -131,6 +131,9 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
     Route::post('duyet-detai/{id}/duyet', [\App\Http\Controllers\Admin\DuyetDeTaiAdminController::class, 'approve'])->name('admin.duyet_detai.approve');
     Route::post('duyet-detai/{id}/tu-choi', [\App\Http\Controllers\Admin\DuyetDeTaiAdminController::class, 'reject'])->name('admin.duyet_detai.reject');
     Route::post('duyet-detai/{id}/yeu-cau-dieu-chinh', [\App\Http\Controllers\Admin\DuyetDeTaiAdminController::class, 'requestAdjustment'])->name('admin.duyet_detai.requestAdjustment');
+
+    // NoSQL Monitoring
+    Route::get('nosql-monitor', [\App\Http\Controllers\Admin\NoSqlMonitorController::class, 'index'])->name('admin.nosql.index');
 });
 
 // Giảng Viên & Admin Routes (Duyệt Đề Tài, Quản Lý Đề Tài, Tiến Độ)

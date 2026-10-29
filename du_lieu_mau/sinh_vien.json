@@ -1,0 +1,112 @@
+[
+  {
+    "_id": {
+      "$oid": "b1000000000000000000012d"
+    },
+    "MaSV": "SV001",
+    "MaTK": "b1000000000000000000006e",
+    "MaLop": "15DHTH01",
+    "MaNganh": "CNTT",
+    "KhoaHoc": "2024-2028",
+    "NgaySinh": "2005-01-01",
+    "HoTen": "Sinh viên minh họa A",
+    "Email": "sv_demo1@example.com",
+    "SoDienThoai": "0910000001",
+    "TenDangNhap": "sv_demo1",
+    "TrangThai": 1,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b1000000000000000000012e"
+    },
+    "MaSV": "SV002",
+    "MaTK": "b1000000000000000000006f",
+    "MaLop": "15DHTH01",
+    "MaNganh": "CNTT",
+    "KhoaHoc": "2024-2028",
+    "NgaySinh": "2005-01-01",
+    "HoTen": "Sinh viên minh họa B",
+    "Email": "sv_demo2@example.com",
+    "SoDienThoai": "0910000002",
+    "TenDangNhap": "sv_demo2",
+    "TrangThai": 1,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b1000000000000000000012f"
+    },
+    "MaSV": "SV003",
+    "MaTK": "b10000000000000000000070",
+    "MaLop": "15DHTH01",
+    "MaNganh": "CNTT",
+    "KhoaHoc": "2024-2028",
+    "NgaySinh": "2005-01-01",
+    "HoTen": "Sinh viên minh họa C",
+    "Email": "sv_demo3@example.com",
+    "SoDienThoai": "0910000003",
+    "TenDangNhap": "sv_demo3",
+    "TrangThai": 1,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b10000000000000000000130"
+    },
+    "MaSV": "SV004",
+    "MaTK": "b10000000000000000000071",
+    "MaLop": "15DHTH01",
+    "MaNganh": "CNTT",
+    "KhoaHoc": "2024-2028",
+    "NgaySinh": "2005-01-01",
+    "HoTen": "Sinh viên minh họa D",
+    "Email": "sv_demo4@example.com",
+    "SoDienThoai": "0910000004",
+    "TenDangNhap": "sv_demo4",
+    "TrangThai": 1,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b10000000000000000000131"
+    },
+    "MaSV": "SV005",
+    "MaTK": "b10000000000000000000072",
+    "MaLop": "15DHTH01",
+    "MaNganh": "CNTT",
+    "KhoaHoc": "2024-2028",
+    "NgaySinh": "2005-01-01",
+    "HoTen": "Sinh viên minh họa E",
+    "Email": "sv_demo5@example.com",
+    "SoDienThoai": "0910000005",
+    "TenDangNhap": "sv_demo5",
+    "TrangThai": 1,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  }
+]

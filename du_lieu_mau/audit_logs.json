@@ -1,0 +1,22 @@
+[
+  {
+    "_id": {
+      "$oid": "b100000000000000000003e9"
+    },
+    "MaTK": "b10000000000000000000065",
+    "HanhDong": "cham_diem",
+    "DoiTuong": "ChamDiem",
+    "DoiTuongId": "b100000000000000000002bd",
+    "DuLieu": {
+      "MaNhom": "b100000000000000000002bd",
+      "DiemTong": 8.5
+    },
+    "IPAddress": "127.0.0.1",
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  }
+]

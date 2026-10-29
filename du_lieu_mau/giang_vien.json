@@ -1,0 +1,42 @@
+[
+  {
+    "_id": {
+      "$oid": "b100000000000000000000c9"
+    },
+    "MaGV": "GV001",
+    "MaTK": "b10000000000000000000065",
+    "MaBoMon": "BM_CNTT",
+    "HoTen": "Giảng viên minh họa A",
+    "Email": "gv_demo1@example.com",
+    "SoDienThoai": "0900000001",
+    "HocVi": "Thạc sĩ",
+    "TenDangNhap": "gv_demo1",
+    "TrangThai": 1,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b100000000000000000000ca"
+    },
+    "MaGV": "GV002",
+    "MaTK": "b10000000000000000000066",
+    "MaBoMon": "BM_CNTT",
+    "HoTen": "Giảng viên minh họa B",
+    "Email": "gv_demo2@example.com",
+    "SoDienThoai": "0900000002",
+    "HocVi": "Thạc sĩ",
+    "TenDangNhap": "gv_demo2",
+    "TrangThai": 1,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  }
+]

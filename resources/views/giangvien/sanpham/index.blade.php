@@ -199,9 +199,9 @@
                                             </td>
                                             <td>
                                                 <div class="d-flex flex-wrap gap-1 align-items-center">
-                                                    {{-- AI Assist Button --}}
-                                                    <button type="button" class="btn btn-sm btn-purple-gradient py-1 px-3 rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modal-ai-{{ $bcId }}">
-                                                        <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Đánh giá (AI Assist)
+                                                    {{-- Nút Xem & Đánh giá --}}
+                                                    <button type="button" class="btn btn-sm btn-outline-primary py-1 px-3 rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modal-danhgia-{{ $bcId }}">
+                                                        <i class="fa-solid fa-clipboard-check me-1"></i>Xem & Đánh giá
                                                     </button>
 
                                                     @if(is_array($decodedBc))
@@ -251,50 +251,29 @@
                                             </td>
                                         </tr>
 
-                                        {{-- MODAL AI ASSISTANT REVIEW --}}
-                                        <div class="modal fade" id="modal-ai-{{ $bcId }}" tabindex="-1" aria-hidden="true">
+                                        {{-- MODAL REVIEW BÁO CÁO TIẾN ĐỘ --}}
+                                        <div class="modal fade" id="modal-danhgia-{{ $bcId }}" tabindex="-1" aria-hidden="true">
                                             <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                                                 <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
                                                     
                                                     {{-- Modal Header Banner --}}
-                                                    <div class="bg-gradient-purple text-white p-4 position-relative">
-                                                        <div class="d-flex justify-content-between align-items-start">
+                                                    <div class="bg-primary text-white p-3 px-4 position-relative">
+                                                        <div class="d-flex justify-content-between align-items-center">
                                                             <div>
-                                                                <div class="text-white-50 small mb-1">
-                                                                    <i class="fa-solid fa-house me-1"></i>Trang chủ &nbsp;/&nbsp; /Lecturer.reports.detail
-                                                                </div>
-                                                                <h4 class="fw-bold mb-1 d-flex align-items-center gap-2">
-                                                                    <span>Đánh Giá Báo Cáo Tiến Độ (Tích hợp Trợ lý AI)</span>
-                                                                </h4>
+                                                                <h5 class="fw-bold mb-1 d-flex align-items-center gap-2">
+                                                                    <i class="fa-solid fa-clipboard-check me-1"></i>
+                                                                    <span>Đánh Giá Báo Cáo Tiến Độ (Đợt Lần {{ $bc->LanBaoCao }})</span>
+                                                                </h5>
                                                                 <div class="small text-white-50">
                                                                     <strong>{{ $nhom->TenNhom }}</strong> &bull; Sinh viên: <strong>{{ $svNamesList }}</strong> &bull; Đề tài: <strong>{{ $tenDeTaiStr }}</strong>
                                                                 </div>
                                                             </div>
-                                                            <div class="d-flex align-items-center gap-3">
-                                                                <div class="ai-badge-pill shadow-sm">
-                                                                    <i class="fa-solid fa-sparkles text-warning me-1"></i>AI Verified Analysis <span class="badge bg-warning text-dark rounded-pill ms-1">Độ tin cậy: 95%</span>
-                                                                </div>
-                                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
+                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                     </div>
 
                                                     {{-- Modal Body --}}
                                                     <div class="modal-body p-4 bg-light">
-                                                        
-                                                        {{-- Warning Notice Box --}}
-                                                        <div class="notice-ai-box p-3 mb-4 d-flex align-items-center justify-content-between shadow-sm">
-                                                            <div class="d-flex align-items-center gap-3">
-                                                                <div class="fs-4 text-purple">
-                                                                    <i class="fa-solid fa-circle-info"></i>
-                                                                </div>
-                                                                <div class="small fw-semibold">
-                                                                    <strong>LƯU Ý:</strong> AI chỉ đóng vai trò hỗ trợ phân tích & tóm tắt báo cáo. Giảng viên hướng dẫn trực tiếp đưa ra đánh giá chính thức và phê duyệt.
-                                                                </div>
-                                                            </div>
-                                                            <span class="badge bg-white text-purple border border-purple-subtle px-3 py-2 rounded-pill small">Mô hình: Gemini 2.5 Flash Academic Edition</span>
-                                                        </div>
-
                                                         <div class="row g-4">
                                                             {{-- Left Column: Real Document Previewer / Submitted Content --}}
                                                             <div class="col-lg-7">
@@ -351,66 +330,61 @@
                                                                 </div>
                                                             </div>
 
-                                                            {{-- Right Column: AI SUMMARY Card --}}
+                                                            {{-- Right Column: Information & Review Card --}}
                                                             <div class="col-lg-5">
                                                                 <div class="card border-0 shadow-sm rounded-3 h-100 overflow-hidden">
-                                                                    <div class="p-3 text-white bg-gradient-purple d-flex justify-content-between align-items-center">
+                                                                    <div class="p-3 text-white bg-dark d-flex justify-content-between align-items-center">
                                                                         <div class="fw-bold d-flex align-items-center gap-2">
-                                                                            <i class="fa-solid fa-robot text-warning"></i>AI SUMMARY
+                                                                            <i class="fa-solid fa-circle-info text-info"></i>THÔNG TIN BÁO CÁO
                                                                         </div>
-                                                                        <div class="d-flex gap-2">
-                                                                            <span class="badge bg-white text-dark rounded-pill small"><i class="fa-solid fa-check text-success me-1"></i>AI Verified</span>
-                                                                            <span class="badge bg-warning text-dark rounded-pill small">Độ tin cậy: 95.2%</span>
-                                                                        </div>
+                                                                        <span class="badge bg-primary text-white rounded-pill px-3 py-1">Đợt Lần {{ $bc->LanBaoCao }}</span>
                                                                     </div>
 
                                                                     <div class="bg-white p-2 border-bottom small text-muted d-flex justify-content-between px-3">
                                                                         <span><i class="fa-regular fa-clock me-1"></i>Ngày nộp: {{ \Carbon\Carbon::parse($bc->NgayNop)->format('d/m/Y') }}</span>
-                                                                        <span><i class="fa-regular fa-file me-1"></i>Đợt báo cáo: Lần {{ $bc->LanBaoCao }}</span>
+                                                                        <span><i class="fa-solid fa-layer-group me-1"></i>Lớp: {{ $nhom->lopHocPhan->TenLopHP ?? '—' }}</span>
                                                                     </div>
 
                                                                     <div class="card-body p-3" style="max-height: 500px; overflow-y: auto;">
                                                                         
-                                                                        {{-- 1. AI Analysis & Tóm tắt Tiến độ --}}
-                                                                        <div class="p-3 mb-3 rounded-3 shadow-xs" style="background-color: #F0FDF4; border: 1px solid #BBF7D0;">
-                                                                            <h6 class="fw-bold text-success mb-2 small d-flex align-items-center justify-content-between">
-                                                                                <span><i class="fa-solid fa-robot me-1"></i> 1. TÓM TẮT TIẾN ĐỘ THỰC HIỆN</span>
-                                                                                <span class="badge bg-success text-white px-2 py-1 rounded-pill small" style="font-size:0.75rem">Đạt tiến độ Lần {{ $bc->LanBaoCao }}</span>
+                                                                        {{-- 1. Nội dung báo cáo nộp --}}
+                                                                        <div class="p-3 mb-3 rounded-3 shadow-xs bg-light border">
+                                                                            <h6 class="fw-bold text-dark mb-2 small d-flex align-items-center justify-content-between">
+                                                                                <span><i class="fa-solid fa-file-lines text-primary me-1"></i> NỘI DUNG TỪ SINH VIÊN</span>
+                                                                                <span class="badge bg-success text-white px-2 py-1 rounded-pill small">Giai đoạn {{ $bc->LanBaoCao }}</span>
                                                                             </h6>
                                                                             <div class="small text-secondary mb-2">
-                                                                                <strong class="text-dark">Nội dung báo cáo nộp từ Sinh viên:</strong>
-                                                                                <div class="p-2 bg-white rounded border border-success-subtle mt-1 text-dark" style="white-space: pre-line;">{{ $bc->NoiDung }}</div>
+                                                                                <div class="p-2 bg-white rounded border mt-1 text-dark" style="white-space: pre-line;">{{ $bc->NoiDung }}</div>
                                                                             </div>
                                                                             <ul class="mb-0 ps-3 small text-secondary">
-                                                                                <li class="mb-1"><strong>Mốc báo cáo:</strong> Đợt Lần {{ $bc->LanBaoCao }} thuộc Lớp HP: {{ $nhom->lopHocPhan->TenLopHP ?? '—' }}.</li>
+                                                                                <li class="mb-1"><strong>Mã nhóm:</strong> {{ $nhom->MaNhom }}.</li>
                                                                                 <li class="mb-1"><strong>Tên đề tài:</strong> {{ $tenDeTaiStr }}.</li>
-                                                                                <li><strong>File đính kèm:</strong> {{ $realFileBc ? basename($realFileBc) : 'Đã nộp trực tuyến / Chưa kèm file' }}.</li>
+                                                                                <li><strong>Tệp đính kèm:</strong> {{ $realFileBc ? basename($realFileBc) : 'Đã nộp trực tuyến / Không kèm tệp' }}.</li>
                                                                             </ul>
                                                                         </div>
 
-                                                                        {{-- 2. Đánh giá tự động từ Trợ lý AI --}}
-                                                                        <div class="p-3 mb-3 rounded-3 shadow-xs" style="background-color: #EFF6FF; border: 1px solid #BFDBFE;">
-                                                                            <h6 class="fw-bold text-primary mb-2 small d-flex align-items-center gap-1">
-                                                                                <i class="fa-solid fa-wand-magic-sparkles"></i> 2. PHÂN TÍCH & ĐÁNH GIÁ TỰ ĐỘNG TỪ AI
+                                                                        {{-- 2. Tình trạng tiến độ --}}
+                                                                        <div class="p-3 mb-3 rounded-3 shadow-xs bg-light border">
+                                                                            <h6 class="fw-bold text-dark mb-2 small d-flex align-items-center gap-1">
+                                                                                <i class="fa-solid fa-list-check text-success me-1"></i> TÌNH TRẠNG TIẾN ĐỘ
                                                                             </h6>
                                                                             <ul class="mb-0 ps-3 small text-secondary">
-                                                                                <li class="mb-1"><span class="text-success fw-bold"><i class="fa-solid fa-check me-1"></i>Đánh giá thời hạn:</span> Nhóm đã hoàn thành nộp báo cáo đúng mốc quy định.</li>
-                                                                                <li class="mb-1"><span class="text-warning fw-bold"><i class="fa-solid fa-lightbulb me-1"></i>Gợi ý cho GVHD:</span> Đã hỗ trợ trích xuất file và nội dung. Giảng viên có thể ghi nhận xét và duyệt mốc báo cáo bên dưới.</li>
-                                                                                <li><span class="text-info fw-bold"><i class="fa-solid fa-circle-info me-1"></i>Khuyến nghị:</span> Xác nhận phê duyệt mốc tiến độ Lần {{ $bc->LanBaoCao }}.</li>
+                                                                                <li class="mb-1"><span class="text-success fw-bold"><i class="fa-solid fa-check me-1"></i>Thời hạn nộp:</span> Nhóm hoàn thành nộp báo cáo đúng hạn quy định.</li>
+                                                                                <li><span class="text-primary fw-bold"><i class="fa-solid fa-info-circle me-1"></i>Ghi chú:</span> Giảng viên xem tệp/nội dung báo cáo và nhập nhận xét, kết quả đánh giá bên dưới.</li>
                                                                             </ul>
                                                                         </div>
 
                                                                         {{-- Form Lecturer Review --}}
                                                                         <div class="border-top pt-3 mt-3">
-                                                                            <label class="form-label fw-bold text-dark small"><i class="fa-solid fa-user-pen me-1 text-primary"></i>ĐÁNH GIÁ CHÍNH THỨC CỦA GIẢNG VIÊN HƯỚNG DẪN</label>
+                                                                            <label class="form-label fw-bold text-dark small"><i class="fa-solid fa-user-pen me-1 text-primary"></i>ĐÁNH GIÁ & NHẬN XÉT CỦA GIẢNG VIÊN HƯỚNG DẪN</label>
                                                                             <form action="{{ route('giangvien.baocao.nhanxet', $bcId) }}" method="POST">
                                                                                 @csrf
                                                                                 <textarea name="NoiDung" class="form-control form-control-sm mb-3" rows="3" placeholder="Nhập đánh giá và hướng dẫn điều chỉnh cho sinh viên..." required>{{ is_object($lastNhanXet) ? ($lastNhanXet->NoiDung ?? '') : ($lastNhanXet['NoiDung'] ?? '') }}</textarea>
                                                                                 <div class="d-flex gap-2">
                                                                                     <button type="submit" class="btn btn-success btn-sm flex-fill rounded-pill fw-semibold">
-                                                                                        <i class="fa-solid fa-circle-check me-1"></i>Đánh Giá & Phê Duyệt
+                                                                                        <i class="fa-solid fa-circle-check me-1"></i>Lưu Nhận Xét & Phê Duyệt
                                                                                     </button>
-                                                                                    <button type="button" class="btn btn-outline-warning btn-sm rounded-pill" data-bs-dismiss="modal">
+                                                                                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" data-bs-dismiss="modal">
                                                                                         <i class="fa-solid fa-xmark me-1"></i>Đóng
                                                                                     </button>
                                                                                 </div>

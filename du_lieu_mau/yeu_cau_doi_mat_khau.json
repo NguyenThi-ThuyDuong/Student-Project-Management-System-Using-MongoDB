@@ -1,0 +1,20 @@
+[
+  {
+    "_id": {
+      "$oid": "b1000000000000000000044d"
+    },
+    "TenDangNhap": "sv_demo5",
+    "Email": "Sinh viên minh họa E",
+    "Role": "Sinh viên",
+    "TrangThai": "Chờ duyệt",
+    "NgayGui": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    },
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  }
+]

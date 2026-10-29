@@ -1,0 +1,17 @@
+[
+  {
+    "_id": {
+      "$oid": "b10000000000000000000002"
+    },
+    "MaNganh": "CNTT",
+    "TenNganh": "Công nghệ thông tin",
+    "MaBoMon": "BM_CNTT",
+    "MoTa": "Ngành minh họa",
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "_id": {
+      "$oid": "b100000000000000000001f5"
+    },
+    "MaPhanCong": 1,
+    "MaGV": "GV001",
+    "MaLop": "15DHTH01",
+    "MaHocKy": "HK1_2026",
+    "NgayPhanCong": "2026-09-01",
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  }
+]

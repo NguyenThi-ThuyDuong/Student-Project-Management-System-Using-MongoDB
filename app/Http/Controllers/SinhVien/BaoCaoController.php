@@ -155,11 +155,8 @@ class BaoCaoController extends Controller
             }
         }
 
-        // 5. Tự động sinh AI Summary từ Google Gemini API
-        $geminiService = new \App\Services\GeminiService();
-        $aiSummary = $geminiService->generateReportSummary($request->NoiDung, $lanBaoCao);
-
-        $bcId = $nhom->addBaoCao($lanBaoCao, $request->NoiDung, $fileOrLink, $aiSummary);
+        // 5. Lưu báo cáo tiến độ vào MongoDB
+        $bcId = $nhom->addBaoCao($lanBaoCao, $request->NoiDung, $fileOrLink);
 
         // Gửi thông báo cho Giảng viên hướng dẫn
         if ($deTai && $deTai->MaTK) {
@@ -170,6 +167,6 @@ class BaoCaoController extends Controller
 
         AuditLog::log('nop_bao_cao', 'BaoCaoTienDo', $bcId, ['MaNhom' => (string) $nhom->_id, 'LanBaoCao' => $lanBaoCao]);
 
-        return redirect()->route('sinhvien.baocao.index', ['maNhom' => (string) $nhom->_id])->with('success', "Nộp báo cáo tiến độ Giai đoạn {$lanBaoCao} thành công! Gemini AI đã tự động phân tích và tạo bản tóm tắt cho Giảng viên.");
+        return redirect()->route('sinhvien.baocao.index', ['maNhom' => (string) $nhom->_id])->with('success', "Nộp báo cáo tiến độ Giai đoạn {$lanBaoCao} thành công! Đã gửi thông báo cho Giảng viên hướng dẫn.");
     }
 }

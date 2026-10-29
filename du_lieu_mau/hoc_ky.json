@@ -1,0 +1,19 @@
+[
+  {
+    "_id": {
+      "$oid": "b10000000000000000000003"
+    },
+    "MaHocKy": "HK1_2026",
+    "TenHocKy": "Học kỳ 1",
+    "NamHoc": "2026-2027",
+    "NgayBatDau": "2026-09-01",
+    "NgayKetThuc": "2027-01-31",
+    "TrangThai": "Đang diễn ra",
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  }
+]

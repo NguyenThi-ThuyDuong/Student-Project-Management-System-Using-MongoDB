@@ -1,0 +1,163 @@
+[
+  {
+    "_id": {
+      "$oid": "b100000000000000000002bd"
+    },
+    "TenNhom": "Nhóm minh họa 01",
+    "MaHocKy": "HK1_2026",
+    "MaMon": "DA_SV",
+    "MaLop": "15DHTH01",
+    "MaLopHP": "b10000000000000000000191",
+    "TruongNhom": "SV001",
+    "TrangThai": "Đã có điểm",
+    "ThanhVien": [
+      {
+        "MaSV": "SV001",
+        "VaiTro": "Trưởng nhóm",
+        "TrangThai": "da_tham_gia",
+        "created_at": "2026-09-05 08:00:00"
+      },
+      {
+        "MaSV": "SV002",
+        "VaiTro": "Thành viên",
+        "TrangThai": "da_tham_gia",
+        "created_at": "2026-09-05 08:00:00"
+      },
+      {
+        "MaSV": "SV003",
+        "VaiTro": "Thành viên",
+        "TrangThai": "da_tham_gia",
+        "created_at": "2026-09-05 08:00:00"
+      }
+    ],
+    "DangKyDeTai": {
+      "MaDeTai": "b10000000000000000000259",
+      "NgayDangKy": "2026-09-06",
+      "TrangThai": "Đã duyệt",
+      "NgayDuyet": "2026-09-07",
+      "LyDoTuChoi": null
+    },
+    "HuongDan": {
+      "MaGV": "b10000000000000000000065",
+      "MaDeTai": "b10000000000000000000259",
+      "NgayPhanCong": "2026-09-07",
+      "TrangThai": "Đang hướng dẫn"
+    },
+    "LoiMoi": [
+      {
+        "_id": "b1000000000000000000032b",
+        "MaSV_Moi": "SV001",
+        "MaSV_DuocMoi": "SV002",
+        "TrangThai": "da_chap_nhan",
+        "NgayMoi": "2026-09-05 08:00:00",
+        "NgayPhanHoi": "2026-09-05 09:00:00"
+      }
+    ],
+    "BaoCaoTienDo": [
+      {
+        "id": "b10000000000000000000321",
+        "_id": "b10000000000000000000321",
+        "MaBaoCao": "b10000000000000000000321",
+        "LanBaoCao": 1,
+        "NoiDung": "Báo cáo tiến độ lần 1: dữ liệu minh họa",
+        "FileBaoCao": null,
+        "TrangThai": "Đã duyệt",
+        "NgayNop": "2026-10-10",
+        "NhanXet": [
+          {
+            "MaGV": "b10000000000000000000065",
+            "NoiDung": "Mô hình dữ liệu phù hợp, cần hoàn thiện truy vấn thống kê.",
+            "NgayNhanXet": "2026-10-11"
+          }
+        ]
+      },
+      {
+        "id": "b10000000000000000000322",
+        "_id": "b10000000000000000000322",
+        "MaBaoCao": "b10000000000000000000322",
+        "LanBaoCao": 2,
+        "NoiDung": "Báo cáo tiến độ lần 2: dữ liệu minh họa",
+        "FileBaoCao": null,
+        "TrangThai": "Đã duyệt",
+        "NgayNop": "2026-10-10",
+        "NhanXet": [
+          {
+            "MaGV": "b10000000000000000000065",
+            "NoiDung": "Mô hình dữ liệu phù hợp, cần hoàn thiện truy vấn thống kê.",
+            "NgayNhanXet": "2026-10-11"
+          }
+        ]
+      }
+    ],
+    "SanPham": [
+      {
+        "_id": "b10000000000000000000335",
+        "TenSanPham": "Ứng dụng quản lý đồ án sinh viên - Bản minh họa",
+        "LinkFile": null,
+        "LinkSourceCode": "https://github.com/NguyenThi-ThuyDuong/Student-Project-Management-System-Using-MongoDB",
+        "NgayNop": "2026-10-12"
+      }
+    ],
+    "ChamDiem": {
+      "MaGV": "b100000000000000000000c9",
+      "LoaiCham": "Cuối kỳ",
+      "DiemBaoCao": 8.0,
+      "DiemBaoVe": 9.0,
+      "DiemTong": 8.5,
+      "NhanXet": "Hoàn thành bài thực hành minh họa",
+      "NgayCham": "2026-10-14",
+      "created_at": "2026-10-14 08:00:00",
+      "updated_at": "2026-10-14 08:00:00"
+    },
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b100000000000000000002be"
+    },
+    "TenNhom": "Nhóm minh họa 02",
+    "MaHocKy": "HK1_2026",
+    "MaMon": "DA_SV",
+    "MaLop": "15DHTH01",
+    "MaLopHP": "b10000000000000000000191",
+    "TruongNhom": "SV004",
+    "TrangThai": "Chờ duyệt đề tài",
+    "ThanhVien": [
+      {
+        "MaSV": "SV004",
+        "VaiTro": "Trưởng nhóm",
+        "TrangThai": "da_tham_gia",
+        "created_at": "2026-09-05 08:00:00"
+      },
+      {
+        "MaSV": "SV005",
+        "VaiTro": "Thành viên",
+        "TrangThai": "da_tham_gia",
+        "created_at": "2026-09-05 08:00:00"
+      }
+    ],
+    "DangKyDeTai": {
+      "MaDeTai": "b1000000000000000000025a",
+      "NgayDangKy": "2026-10-14",
+      "TrangThai": "Chờ duyệt",
+      "NgayDuyet": null,
+      "LyDoTuChoi": null
+    },
+    "HuongDan": null,
+    "LoiMoi": [],
+    "BaoCaoTienDo": [],
+    "SanPham": [],
+    "ChamDiem": null,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  }
+]

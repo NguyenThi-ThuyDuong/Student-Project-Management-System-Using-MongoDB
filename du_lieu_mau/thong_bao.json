@@ -1,0 +1,65 @@
+[
+  {
+    "_id": {
+      "$oid": "b10000000000000000000385"
+    },
+    "MaTK": "b1000000000000000000006e",
+    "MaLop": null,
+    "MaLopHP": "b10000000000000000000191",
+    "TieuDe": "Điểm đồ án đã được cập nhật",
+    "NoiDung": "Nhóm minh họa 01 có điểm tổng kết 8.5.",
+    "FileDinhKem": null,
+    "LoaiThongBao": "Diem",
+    "DuongDan": null,
+    "DaDoc": false,
+    "NgayTao": "2026-10-14",
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b10000000000000000000386"
+    },
+    "MaTK": "b1000000000000000000006f",
+    "MaLop": null,
+    "MaLopHP": "b10000000000000000000191",
+    "TieuDe": "Điểm đồ án đã được cập nhật",
+    "NoiDung": "Nhóm minh họa 01 có điểm tổng kết 8.5.",
+    "FileDinhKem": null,
+    "LoaiThongBao": "Diem",
+    "DuongDan": null,
+    "DaDoc": false,
+    "NgayTao": "2026-10-14",
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b10000000000000000000387"
+    },
+    "MaTK": "b10000000000000000000070",
+    "MaLop": null,
+    "MaLopHP": "b10000000000000000000191",
+    "TieuDe": "Điểm đồ án đã được cập nhật",
+    "NoiDung": "Nhóm minh họa 01 có điểm tổng kết 8.5.",
+    "FileDinhKem": null,
+    "LoaiThongBao": "Diem",
+    "DuongDan": null,
+    "DaDoc": false,
+    "NgayTao": "2026-10-14",
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  }
+]

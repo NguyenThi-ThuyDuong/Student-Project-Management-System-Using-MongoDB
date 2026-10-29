@@ -1,0 +1,46 @@
+[
+  {
+    "_id": {
+      "$oid": "b10000000000000000000191"
+    },
+    "MaLopHP": "LHP_DA_01",
+    "TenLopHP": "Đồ án sinh viên - Nhóm lớp 01",
+    "MaMon": "DA_SV",
+    "MaHocKy": "HK1_2026",
+    "MaGV": "GV001",
+    "SiSoToiDa": 40,
+    "SoThanhVienNhomToiDa": 3,
+    "TrangThai": "Đang mở",
+    "Thu": "Thứ 2",
+    "CaHoc": "1",
+    "PhongHoc": "A101",
+    "DanhSachSinhVien": [
+      {
+        "MaSV": "SV001",
+        "NgayDangKy": "2026-09-02 08:00:00"
+      },
+      {
+        "MaSV": "SV002",
+        "NgayDangKy": "2026-09-02 08:00:00"
+      },
+      {
+        "MaSV": "SV003",
+        "NgayDangKy": "2026-09-02 08:00:00"
+      },
+      {
+        "MaSV": "SV004",
+        "NgayDangKy": "2026-09-02 08:00:00"
+      },
+      {
+        "MaSV": "SV005",
+        "NgayDangKy": "2026-09-02 08:00:00"
+      }
+    ],
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  }
+]

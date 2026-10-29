@@ -1,0 +1,92 @@
+[
+  {
+    "_id": {
+      "$oid": "b10000000000000000000259"
+    },
+    "MaDeTai": "DT001",
+    "MaTK": "b10000000000000000000065",
+    "MaMon": "DA_SV",
+    "MaLop": null,
+    "MaLopHP": "b10000000000000000000191",
+    "MaHocKy": "HK1_2026",
+    "TenDeTai": "Xây dựng ứng dụng quản lý đồ án sinh viên",
+    "MoTa": "Đề tài minh họa phục vụ thực hành cơ sở dữ liệu",
+    "YeuCau": "Quản lý dữ liệu bằng MongoDB; có giao diện và chức năng tìm kiếm.",
+    "FileTaiLieu": null,
+    "TrangThai": "Đã duyệt",
+    "TrangThaiPheDuyet": "Đã duyệt",
+    "LyDoPheDuyet": null,
+    "LoaiDeTai": "Giảng viên đề xuất",
+    "NhomTuDeXuat_id": null,
+    "HanDangKy": "2026-11-30",
+    "HanBaoCao": "2026-12-15",
+    "HanNopSanPham": "2027-01-10",
+    "NgayTao": "2026-09-03",
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b1000000000000000000025a"
+    },
+    "MaDeTai": "DT002",
+    "MaTK": "b10000000000000000000065",
+    "MaMon": "DA_SV",
+    "MaLop": null,
+    "MaLopHP": "b10000000000000000000191",
+    "MaHocKy": "HK1_2026",
+    "TenDeTai": "Xây dựng ứng dụng quản lý thư viện",
+    "MoTa": "Đề tài minh họa phục vụ thực hành cơ sở dữ liệu",
+    "YeuCau": "Quản lý dữ liệu bằng MongoDB; có giao diện và chức năng tìm kiếm.",
+    "FileTaiLieu": null,
+    "TrangThai": "Đang mở đăng ký",
+    "TrangThaiPheDuyet": "Đã duyệt",
+    "LyDoPheDuyet": null,
+    "LoaiDeTai": "Giảng viên đề xuất",
+    "NhomTuDeXuat_id": null,
+    "HanDangKy": "2026-11-30",
+    "HanBaoCao": "2026-12-15",
+    "HanNopSanPham": "2027-01-10",
+    "NgayTao": "2026-09-03",
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b1000000000000000000025b"
+    },
+    "MaDeTai": "DT003",
+    "MaTK": "b10000000000000000000065",
+    "MaMon": "DA_SV",
+    "MaLop": null,
+    "MaLopHP": "b10000000000000000000191",
+    "MaHocKy": "HK1_2026",
+    "TenDeTai": "Xây dựng ứng dụng quản lý câu lạc bộ",
+    "MoTa": "Đề tài minh họa phục vụ thực hành cơ sở dữ liệu",
+    "YeuCau": "Quản lý dữ liệu bằng MongoDB; có giao diện và chức năng tìm kiếm.",
+    "FileTaiLieu": null,
+    "TrangThai": "Đang mở đăng ký",
+    "TrangThaiPheDuyet": "Đã duyệt",
+    "LyDoPheDuyet": null,
+    "LoaiDeTai": "Giảng viên đề xuất",
+    "NhomTuDeXuat_id": null,
+    "HanDangKy": "2026-11-30",
+    "HanBaoCao": "2026-12-15",
+    "HanNopSanPham": "2027-01-10",
+    "NgayTao": "2026-09-03",
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  }
+]

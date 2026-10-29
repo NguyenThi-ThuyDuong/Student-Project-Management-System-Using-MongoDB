@@ -1,0 +1,122 @@
+[
+  {
+    "_id": {
+      "$oid": "b10000000000000000000064"
+    },
+    "TenDangNhap": "admin_demo",
+    "MatKhau": "$2y$10$PXonElZ8DkclttHmLE96vOc13N4jXtZvw4DghqAuQPYvtxvzqjCRu",
+    "VaiTro": "Admin",
+    "TrangThai": true,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b10000000000000000000065"
+    },
+    "TenDangNhap": "gv_demo1",
+    "MatKhau": "$2y$10$PXonElZ8DkclttHmLE96vOc13N4jXtZvw4DghqAuQPYvtxvzqjCRu",
+    "VaiTro": "Giảng viên",
+    "TrangThai": true,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b10000000000000000000066"
+    },
+    "TenDangNhap": "gv_demo2",
+    "MatKhau": "$2y$10$PXonElZ8DkclttHmLE96vOc13N4jXtZvw4DghqAuQPYvtxvzqjCRu",
+    "VaiTro": "Giảng viên",
+    "TrangThai": true,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b1000000000000000000006e"
+    },
+    "TenDangNhap": "sv_demo1",
+    "MatKhau": "$2y$10$PXonElZ8DkclttHmLE96vOc13N4jXtZvw4DghqAuQPYvtxvzqjCRu",
+    "VaiTro": "Sinh viên",
+    "TrangThai": true,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b1000000000000000000006f"
+    },
+    "TenDangNhap": "sv_demo2",
+    "MatKhau": "$2y$10$PXonElZ8DkclttHmLE96vOc13N4jXtZvw4DghqAuQPYvtxvzqjCRu",
+    "VaiTro": "Sinh viên",
+    "TrangThai": true,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b10000000000000000000070"
+    },
+    "TenDangNhap": "sv_demo3",
+    "MatKhau": "$2y$10$PXonElZ8DkclttHmLE96vOc13N4jXtZvw4DghqAuQPYvtxvzqjCRu",
+    "VaiTro": "Sinh viên",
+    "TrangThai": true,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b10000000000000000000071"
+    },
+    "TenDangNhap": "sv_demo4",
+    "MatKhau": "$2y$10$PXonElZ8DkclttHmLE96vOc13N4jXtZvw4DghqAuQPYvtxvzqjCRu",
+    "VaiTro": "Sinh viên",
+    "TrangThai": true,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "b10000000000000000000072"
+    },
+    "TenDangNhap": "sv_demo5",
+    "MatKhau": "$2y$10$PXonElZ8DkclttHmLE96vOc13N4jXtZvw4DghqAuQPYvtxvzqjCRu",
+    "VaiTro": "Sinh viên",
+    "TrangThai": true,
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  }
+]

@@ -1,4 +1,4 @@
-# 🎓 HỆ THỐNG QUẢN LÝ ĐỒ ÁN & KHÓA LUẬN TỐT NGHIỆP (HUIT) - NOSQL MONGODB
+# 🎓 HỆ THỐNG QUẢN LÝ ĐỒ ÁN TỐT NGHIỆP (HUIT) - NOSQL MONGODB & REDIS
 
 ![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
 ![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white)
@@ -6,11 +6,10 @@
 ![Redis](https://img.shields.io/badge/Redis-7.x-DC382D?style=for-the-badge&logo=redis&logoColor=white)
 ![MongoDB Compass](https://img.shields.io/badge/MongoDB%20Compass-GUI-13AA52?style=for-the-badge&logo=mongodb&logoColor=white)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)
-![Gemini AI](https://img.shields.io/badge/AI%20Assist-Gemini-8E44AD?style=for-the-badge&logo=google&logoColor=white)
 
-Hệ thống Quản lý Đồ án & Khóa luận Tốt nghiệp trực tuyến dành riêng cho **Sinh viên, Giảng viên và Quản trị viên (Admin)** Trường Đại Học Công Thương TP. Hồ Chí Minh (HUIT). 
+Hệ thống Quản lý Đồ án Tốt nghiệp trực tuyến dành riêng cho **Sinh viên, Giảng viên và Quản trị viên (Admin)** Trường Đại Học Công Thương TP. Hồ Chí Minh (HUIT). 
 
-Dự án được xây dựng 100% chuẩn kiến trúc CSDL NoSQL kết hợp giữa **MongoDB (Document Database chính)** và **Redis (In-Memory Key-Value Store)**, tối ưu hóa truy vấn tài liệu nhúng (Embedded Documents), tích hợp trang **Admin -> NoSQL Monitoring** và công cụ đánh giá tiến độ thông minh **AI Assistant (Google Gemini)**.
+Dự án được xây dựng 100% chuẩn kiến trúc CSDL NoSQL kết hợp giữa **MongoDB (Document Database chính)** và **Redis (In-Memory Key-Value Store)**, tối ưu hóa truy vấn tài liệu nhúng (Embedded Documents), tích hợp trang **Admin -> NoSQL Monitoring** giám sát kết nối thực tế.
 
 > [!NOTE]
 > **Repository GitHub Chính thức:**  
@@ -35,8 +34,7 @@ Dự án được xây dựng 100% chuẩn kiến trúc CSDL NoSQL kết hợp g
 ### 👨‍🏫 Đối với Giảng Viên
 - **Quản lý & Đề xuất Đề tài:** Tạo đề tài cho Lớp học phần, quản lý hạn đăng ký, hạn nộp báo cáo.
 - **Phê duyệt Đăng ký Đề tài:** Phê duyệt hoặc từ chối đề tài do sinh viên đề xuất.
-- **Đánh Giá Tiến Độ Tích hợp AI (AI Assist):**
-  - **Tóm tắt AI (AI SUMMARY):** Tự động phân tích báo cáo PDF/Word, tổng hợp *Công việc hoàn thành*, *Khó khăn gặp phải* và *Kế hoạch tuần tới*.
+- **Đánh Giá Tiến Độ & Nhận Xét Báo Cáo:**
   - **Xem trước Báo cáo PDF:** Bộ xem tài liệu tương tác hỗ trợ chuyển trang, zoom và hiển thị trực tiếp.
   - **Nhận xét & Duyệt tiến độ:** Nhập phản hồi và phê duyệt từng lần nộp của sinh viên.
 - **Quản lý Sản phẩm & Chấm điểm:** Đánh giá điểm báo cáo, điểm bảo vệ và tổng kết điểm đồ án.

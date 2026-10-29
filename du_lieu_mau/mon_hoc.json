@@ -1,0 +1,18 @@
+[
+  {
+    "_id": {
+      "$oid": "b10000000000000000000005"
+    },
+    "MaMon": "DA_SV",
+    "TenMon": "Đồ án sinh viên",
+    "MaBoMon": "BM_CNTT",
+    "SoTinChi": 3,
+    "MoTa": "Học phần đồ án minh họa",
+    "created_at": {
+      "$date": "2026-09-01T00:00:00.000Z"
+    },
+    "updated_at": {
+      "$date": "2026-10-15T00:00:00.000Z"
+    }
+  }
+]
